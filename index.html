@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090a0d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="STUDY FORGE — 知識を武器に変える学習RPG" />
+  <title>STUDY FORGE — Knowledge Becomes Power</title>
+  <style>
+:root {
+  --bg: #07080a;
+  --bg-2: #0e1014;
+  --panel: rgba(18, 20, 25, 0.92);
+  --panel-2: rgba(25, 27, 33, 0.92);
+  --line: rgba(255,255,255,.10);
+  --line-strong: rgba(255,255,255,.18);
+  --text: #f4f1ea;
+  --muted: #9b9ca2;
+  --ember: #ff8a2a;
+  --ember-2: #ffb14a;
+  --gold: #e7bf67;
+  --danger: #ff5151;
+  --ok: #65d28d;
+  --ice: #7ec8ff;
+  --shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(255,109,31,.14), transparent 32%),
+    radial-gradient(circle at 100% 10%, rgba(255,177,74,.07), transparent 30%),
+    linear-gradient(180deg,#0b0c0f 0%,#060709 100%);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; }
+button:focus-visible { outline: 2px solid var(--ember-2); outline-offset: 3px; }
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .18;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.app-shell { width: min(1180px, 100%); margin: 0 auto; min-height: 100vh; padding-bottom: 96px; }
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: max(14px, env(safe-area-inset-top)) 20px 14px;
+  background: linear-gradient(180deg, rgba(7,8,10,.98), rgba(7,8,10,.84));
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+.brand-wrap { display:flex; align-items:center; gap:12px; }
+.brand-mark {
+  width:42px;height:42px;border:1px solid rgba(255,177,74,.45);display:grid;place-items:center;
+  background:linear-gradient(145deg,#2b2017,#101114 55%); color:var(--ember-2); font-weight:900; letter-spacing:-1px;
+  box-shadow:inset 0 0 20px rgba(255,138,42,.12),0 0 24px rgba(255,138,42,.08);
+  clip-path: polygon(12% 0,88% 0,100% 12%,100% 88%,88% 100%,12% 100%,0 88%,0 12%);
+}
+.brand { font-weight:900; letter-spacing:.12em; font-size:14px; }
+.brand-sub { color:var(--muted); font-size:9px; letter-spacing:.18em; margin-top:3px; }
+.resource-row { display:flex; gap:8px; }
+.resource { display:flex; align-items:center; gap:7px; padding:8px 10px; background:#111318; border:1px solid var(--line); border-radius:10px; font-size:13px; }
+.resource span { color:var(--gold); font-size:10px; font-weight:900; }
+.resource.forge span { color:var(--ember-2); }
+
+main { padding: 20px; }
+.screen { display:none; animation: screenIn .24s ease-out; }
+.screen.active { display:block; }
+@keyframes screenIn { from{opacity:0; transform:translateY(6px)} to{opacity:1;transform:none} }
+
+.metal-panel {
+  position:relative;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.035), transparent 28%),
+    linear-gradient(180deg, var(--panel-2), var(--panel));
+  border:1px solid var(--line);
+  box-shadow:var(--shadow), inset 0 1px rgba(255,255,255,.04);
+  border-radius:18px;
+  overflow:hidden;
+}
+.metal-panel::after { content:""; position:absolute; inset:0; pointer-events:none; border:1px solid rgba(255,255,255,.025); border-radius:18px; transform:scale(.985); }
+.hero-panel { padding:28px; }
+.eyebrow { color:var(--ember-2); font-size:10px; font-weight:900; letter-spacing:.22em; text-transform:uppercase; }
+.hero-top { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-top:8px; }
+.level-line { color:var(--muted); font-size:13px; font-weight:800; letter-spacing:.16em; }
+.level-line strong { color:white; font-size:28px; margin-left:7px; }
+h1,h2,h3,p { margin-top:0; }
+.hero-top h1 { margin:4px 0 7px; font-size:clamp(27px,5vw,48px); letter-spacing:-.04em; }
+.hero-top p { color:var(--muted); margin-bottom:0; }
+.rank-emblem { width:76px; height:76px; display:grid; place-items:center; font:900 30px/1 Georgia,serif; color:var(--gold); border:1px solid rgba(231,191,103,.35); background:radial-gradient(circle,#2d2418,#0e0f12 70%); transform:rotate(45deg); }
+.rank-emblem::first-letter { transform:rotate(-45deg); }
+.exp-block { margin-top:24px; }
+.bar-label,.hp-label { display:flex; justify-content:space-between; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.12em; margin-bottom:7px; }
+.progress { height:10px; border-radius:999px; background:#08090b; border:1px solid rgba(255,255,255,.08); overflow:hidden; }
+.progress i { display:block; height:100%; width:0; background:linear-gradient(90deg,#ff6c24,var(--ember-2)); box-shadow:0 0 16px rgba(255,138,42,.4); transition:width .35s ease; }
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:18px; }
+.stat-card { padding:12px 14px; background:rgba(0,0,0,.22); border:1px solid var(--line); border-radius:12px; }
+.stat-card span { display:block; color:var(--muted); font-size:10px; font-weight:900; letter-spacing:.13em; }
+.stat-card b { display:block; margin-top:5px; font-size:21px; }
+
+.home-grid { display:grid; grid-template-columns:1.15fr .85fr; gap:14px; margin-top:14px; }
+.mode-card { min-height:190px; text-align:left; padding:24px; border:1px solid var(--line); border-radius:18px; background:#15171c; cursor:pointer; transition:.2s ease; box-shadow:var(--shadow); position:relative; overflow:hidden; }
+.mode-card::before { content:""; position:absolute; inset:auto -10% -60% auto; width:240px; height:240px; border-radius:50%; filter:blur(8px); opacity:.22; }
+.mode-card.study-card::before { background:var(--ember); }
+.mode-card.battle-card::before { background:#a62b2b; }
+.mode-card:hover,.mode-card:active { transform:translateY(-2px); border-color:var(--line-strong); }
+.mode-kicker { display:block; font-size:9px; font-weight:900; letter-spacing:.2em; color:var(--muted); }
+.mode-card strong { display:block; margin-top:10px; font-size:clamp(30px,5vw,44px); letter-spacing:-.04em; }
+.mode-card > span:not(.mode-kicker) { display:block; max-width:360px; margin-top:5px; color:#c1c1c3; font-size:13px; }
+.mode-card em { position:absolute; left:24px; bottom:22px; color:var(--ember-2); font-style:normal; font-weight:900; font-size:11px; letter-spacing:.12em; }
+
+.dashboard-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:14px; }
+.compact-panel { padding:18px; }
+.panel-head { display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid var(--line); }
+.panel-head > span { font-size:11px; font-weight:900; letter-spacing:.16em; }
+.panel-head small { color:var(--muted); font-size:8px; letter-spacing:.14em; }
+.metric-list { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px; }
+.metric-list div { padding:10px; background:rgba(0,0,0,.17); border-radius:10px; }
+.metric-list span { display:block; color:var(--muted); font-size:9px; }
+.metric-list b { display:block; margin-top:5px; font-size:18px; }
+.review-summary { display:flex; align-items:center; gap:12px; padding-top:15px; }
+.review-summary > b { font-size:38px; color:var(--ember-2); }
+.review-summary > span { color:var(--muted); font-size:12px; flex:1; }
+.text-button { border:0; background:transparent; color:var(--ember-2); font-size:11px; font-weight:900; cursor:pointer; padding:10px; }
+.phase-strip { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; padding:12px 4px; color:#72747a; font-size:9px; font-weight:900; letter-spacing:.12em; }
+.phase-strip span { border:1px solid var(--line); padding:7px 9px; border-radius:999px; }
+.phase-strip .phase-active { color:var(--ok); border-color:rgba(101,210,141,.25); }
+.phase-strip .phase-locked { margin-left:auto; }
+
+.screen-title-row { display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:center; margin-bottom:14px; }
+.screen-title-row h2 { margin:2px 0 0; font-size:clamp(23px,4vw,34px); }
+.icon-btn { width:46px; height:46px; border-radius:14px; border:1px solid var(--line); background:#14161a; cursor:pointer; font-size:20px; }
+.combo-badge,.battle-streak { text-align:right; }
+.combo-badge span,.battle-streak span { display:block; color:var(--muted); font-size:9px; letter-spacing:.14em; }
+.combo-badge b,.battle-streak b { color:var(--ember-2); font-size:24px; }
+
+.study-layout { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:14px; }
+.question-panel { padding:clamp(20px,4vw,34px); min-height:510px; display:flex; flex-direction:column; }
+.question-meta { display:flex; gap:8px; flex-wrap:wrap; }
+.question-meta span,.battle-question-meta span { padding:6px 8px; border:1px solid var(--line); color:var(--muted); border-radius:8px; font-size:9px; font-weight:800; letter-spacing:.08em; }
+.question-number { margin-top:24px; color:var(--ember-2); font-size:11px; font-weight:900; letter-spacing:.18em; }
+.question-panel h3 { font-size:clamp(20px,3.5vw,30px); line-height:1.55; margin:12px 0 24px; }
+.choice-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+.choice-btn { display:grid; grid-template-columns:34px 1fr; gap:11px; align-items:center; min-height:58px; padding:10px 14px; text-align:left; background:#101216; border:1px solid var(--line); border-radius:12px; cursor:pointer; transition:.15s; }
+.choice-btn:hover { border-color:rgba(255,177,74,.3); background:#15171c; }
+.choice-btn .choice-key { width:30px; height:30px; display:grid; place-items:center; border-radius:8px; background:#1c1f24; color:var(--ember-2); font-weight:900; }
+.choice-btn.correct { border-color:rgba(101,210,141,.5); background:rgba(65,160,98,.12); }
+.choice-btn.correct .choice-key { background:rgba(101,210,141,.18); color:var(--ok); }
+.choice-btn.wrong { border-color:rgba(255,81,81,.5); background:rgba(180,52,52,.12); }
+.choice-btn.wrong .choice-key { background:rgba(255,81,81,.18); color:var(--danger); }
+.choice-btn:disabled { cursor:default; }
+.answer-feedback { min-height:0; margin-top:0; overflow:hidden; transition:.25s; }
+.answer-feedback.show { min-height:96px; margin-top:18px; padding:14px; border-left:3px solid var(--ember-2); background:rgba(0,0,0,.2); color:#d8d5ce; font-size:13px; line-height:1.55; }
+.answer-feedback strong { color:white; display:block; margin-bottom:4px; }
+.primary-btn,.secondary-btn { border-radius:12px; min-height:52px; padding:13px 18px; border:1px solid transparent; font-weight:900; letter-spacing:.08em; cursor:pointer; transition:.16s; }
+.primary-btn { background:linear-gradient(135deg,#d8581d,#ff9134); color:#160b04; box-shadow:0 8px 30px rgba(255,112,34,.18); }
+.primary-btn:hover,.primary-btn:active { filter:brightness(1.07); transform:translateY(-1px); }
+.secondary-btn { background:#17191e; border-color:var(--line); }
+.primary-btn small,.secondary-btn small { display:block; opacity:.72; font-size:9px; letter-spacing:0; margin-top:4px; }
+#nextQuestionBtn { margin-top:18px; align-self:flex-start; }
+.hidden { display:none !important; }
+.study-side { display:flex; flex-direction:column; gap:14px; }
+.reward-panel { padding:18px; }
+.reward-row { display:flex; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--line); font-size:11px; color:var(--muted); }
+.reward-row b { color:white; }
+.multiplier { margin-top:14px; padding:10px; background:rgba(255,138,42,.08); color:var(--ember-2); text-align:center; font-size:10px; font-weight:900; letter-spacing:.12em; border-radius:9px; }
+.segmented { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:14px; }
+.seg { border:1px solid var(--line); border-radius:9px; background:#101216; color:var(--muted); padding:10px 8px; cursor:pointer; font-size:10px; font-weight:900; }
+.seg.active { color:#170b04; background:var(--ember-2); border-color:var(--ember-2); }
+.small-copy { color:var(--muted); font-size:11px; line-height:1.5; margin:12px 0 0; }
+
+.battle-stage { padding:18px; }
+.enemy-zone { position:relative; min-height:330px; padding:8px 4px 0; background:radial-gradient(circle at 50% 65%,rgba(163,47,33,.17),transparent 38%); }
+.enemy-title-row { display:flex; justify-content:space-between; gap:14px; align-items:start; }
+.enemy-title-row span { font-size:9px; color:var(--danger); font-weight:900; letter-spacing:.15em; }
+.enemy-title-row h3 { margin:3px 0 0; font-size:25px; }
+.enemy-title-row > b { color:var(--muted); }
+.enemy-hp i { background:linear-gradient(90deg,#8c2626,#ff5252); box-shadow:0 0 14px rgba(255,82,82,.34); }
+.enemy-avatar { width:190px; height:190px; margin:30px auto 0; position:relative; filter:drop-shadow(0 18px 24px rgba(0,0,0,.45)); }
+.enemy-core { position:absolute; width:120px; height:120px; left:35px; top:45px; background:linear-gradient(145deg,#24252a,#090a0c); border:1px solid rgba(255,255,255,.12); clip-path:polygon(50% 0,83% 16%,100% 48%,86% 86%,50% 100%,14% 86%,0 48%,17% 16%); box-shadow:inset 0 0 30px rgba(255,81,81,.08); }
+.enemy-core::before,.enemy-core::after { content:""; position:absolute; width:48px; height:70px; background:#17181c; top:-28px; }
+.enemy-core::before { left:3px; transform:rotate(-34deg); clip-path:polygon(50% 0,100% 100%,0 85%); }
+.enemy-core::after { right:3px; transform:rotate(34deg); clip-path:polygon(50% 0,100% 85%,0 100%); }
+.enemy-eye { position:absolute; width:10px; height:5px; top:98px; background:#ff483d; box-shadow:0 0 12px #ff483d; z-index:2; }
+.enemy-eye.left { left:75px; transform:rotate(9deg); }
+.enemy-eye.right { right:75px; transform:rotate(-9deg); }
+.floating-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.damage-float { position:absolute; left:50%; top:52%; font-weight:1000; font-size:26px; animation:floatDamage .85s ease-out forwards; text-shadow:0 2px 10px #000; }
+.damage-float.crit { color:var(--gold); font-size:34px; }
+.damage-float.enemy-dmg { color:var(--danger); left:28%; top:80%; }
+@keyframes floatDamage { 0%{opacity:0; transform:translate(-50%,8px) scale(.7)} 20%{opacity:1;transform:translate(-50%,0) scale(1.1)} 100%{opacity:0;transform:translate(-50%,-48px) scale(1)} }
+.versus-line { display:flex; align-items:center; gap:12px; margin:5px 0 14px; }
+.versus-line span { height:1px; background:var(--line); flex:1; }
+.versus-line b { color:#686a70; font-size:10px; letter-spacing:.15em; }
+.player-combat-row { display:grid; grid-template-columns:1fr auto; align-items:end; gap:20px; }
+.player-hp i { background:linear-gradient(90deg,#286e45,var(--ok)); box-shadow:0 0 14px rgba(101,210,141,.25); }
+.combat-stats { display:flex; gap:8px; }
+.combat-stats span { padding:8px 10px; border:1px solid var(--line); border-radius:8px; color:var(--muted); font-size:10px; }
+.combat-stats b { color:white; }
+.battle-log { margin:16px 0; padding:12px 14px; background:#0e1013; border:1px solid var(--line); border-radius:10px; color:#c1c1c5; font-size:12px; min-height:42px; }
+.battle-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.battle-quiz { margin-top:14px; padding:18px; background:rgba(0,0,0,.24); border:1px solid var(--line); border-radius:14px; }
+.battle-question-meta { display:flex; justify-content:space-between; gap:8px; }
+.battle-quiz h3 { margin:14px 0; font-size:18px; line-height:1.45; }
+.battle-result { text-align:center; padding:28px 10px 10px; }
+.battle-result h3 { font-size:36px; letter-spacing:.08em; margin-bottom:8px; color:var(--gold); }
+.battle-result p { color:var(--muted); }
+.battle-result .primary-btn { margin-top:8px; }
+.shake { animation:shake .24s linear; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 50%{transform:translateX(5px)} 75%{transform:translateX(-3px)} }
+
+.bottom-nav { position:fixed; z-index:40; left:50%; bottom:max(10px,env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(560px,calc(100% - 24px)); display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:6px; border:1px solid var(--line-strong); border-radius:17px; background:rgba(14,15,18,.94); backdrop-filter:blur(18px); box-shadow:0 16px 45px rgba(0,0,0,.48); }
+.nav-btn { min-height:56px; border:0; border-radius:12px; background:transparent; color:#777980; cursor:pointer; }
+.nav-btn span { display:block; font-size:18px; line-height:1; }
+.nav-btn b { display:block; margin-top:5px; font-size:9px; letter-spacing:.12em; }
+.nav-btn.active { color:var(--ember-2); background:rgba(255,138,42,.08); }
+
+.toast-stack { position:fixed; z-index:80; right:16px; top:88px; display:flex; flex-direction:column; gap:8px; width:min(340px,calc(100% - 32px)); pointer-events:none; }
+.toast { padding:12px 14px; border:1px solid var(--line); background:#17191d; border-radius:11px; box-shadow:var(--shadow); font-size:12px; animation:toastIn .24s ease-out, toastOut .25s ease-in 2.45s forwards; }
+.toast b { color:var(--ember-2); }
+@keyframes toastIn { from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:none} }
+@keyframes toastOut { to{opacity:0;transform:translateX(10px)} }
+.modal-backdrop { position:fixed; z-index:100; inset:0; display:grid; place-items:center; padding:20px; background:rgba(2,3,4,.82); backdrop-filter:blur(12px); }
+.level-modal { width:min(430px,100%); text-align:center; padding:34px; border:1px solid rgba(255,177,74,.3); border-radius:20px; background:radial-gradient(circle at 50% 0,rgba(255,138,42,.18),transparent 45%),#101216; box-shadow:0 0 80px rgba(255,124,35,.14); }
+.level-modal > span { color:var(--ember-2); font-size:12px; font-weight:900; letter-spacing:.26em; }
+.level-burst { width:110px; height:110px; margin:24px auto; display:grid; place-items:center; border:1px solid rgba(255,177,74,.5); transform:rotate(45deg); background:#1b1611; font-size:48px; font-weight:1000; color:var(--gold); box-shadow:0 0 42px rgba(255,138,42,.18); }
+.level-modal h2 { font-size:28px; margin-bottom:8px; }
+.level-modal p { color:var(--muted); }
+
+@media (max-width: 760px) {
+  main { padding:14px; }
+  .topbar { padding-left:14px; padding-right:14px; }
+  .brand-sub { display:none; }
+  .brand-mark { width:38px;height:38px; }
+  .resource { padding:7px 8px; }
+  .hero-panel { padding:20px; }
+  .rank-emblem { width:56px;height:56px;font-size:23px; }
+  .stat-grid { grid-template-columns:repeat(2,1fr); }
+  .home-grid,.dashboard-grid,.study-layout { grid-template-columns:1fr; }
+  .mode-card { min-height:160px; }
+  .metric-list { grid-template-columns:repeat(2,1fr); }
+  .phase-strip .phase-locked { margin-left:0; }
+  .study-side { display:grid; grid-template-columns:1fr 1fr; }
+  .question-panel { min-height:auto; }
+  .enemy-zone { min-height:300px; }
+}
+@media (max-width: 520px) {
+  .brand { font-size:12px; }
+  .resource span { display:none; }
+  .hero-top { align-items:center; }
+  .hero-top p { font-size:12px; }
+  .screen-title-row { grid-template-columns:auto 1fr auto; }
+  .study-side { grid-template-columns:1fr; }
+  .battle-actions { grid-template-columns:1fr; }
+  .player-combat-row { grid-template-columns:1fr; }
+  .combat-stats { justify-content:flex-end; }
+  .review-summary { flex-wrap:wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
+}
+
+.bank-summary { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:end; padding-top:15px; }
+.bank-summary b { grid-row:1 / 3; font-size:38px; line-height:1; color:var(--ember-2); }
+.bank-summary span { color:var(--muted); font-size:12px; }
+.bank-summary small { color:#6f7178; font-size:9px; letter-spacing:.12em; }
+.filter-label { display:block; margin-top:13px; color:var(--muted); font-size:9px; font-weight:900; letter-spacing:.12em; }
+.filter-select { width:100%; margin-top:6px; min-height:42px; padding:0 11px; color:var(--text); background:#101216; border:1px solid var(--line); border-radius:9px; font:inherit; font-size:12px; }
+.filter-select:focus { outline:1px solid var(--ember-2); }
+.pool-count { margin-top:12px; padding:9px 10px; border:1px solid rgba(255,138,42,.16); background:rgba(255,138,42,.06); border-radius:9px; color:var(--ember-2); font-size:9px; font-weight:900; letter-spacing:.1em; text-align:center; }
+@media (max-width: 980px) { .dashboard-grid { grid-template-columns:1fr 1fr; } .bank-panel { grid-column:1 / -1; } }
+@media (max-width: 760px) { .dashboard-grid { grid-template-columns:1fr; } .bank-panel { grid-column:auto; } }
+
+  </style>
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <header class="topbar">
+      <div class="brand-wrap" aria-label="STUDY FORGE">
+        <div class="brand-mark">SF</div>
+        <div>
+          <div class="brand">STUDY FORGE</div>
+          <div class="brand-sub">KNOWLEDGE BECOMES POWER</div>
+        </div>
+      </div>
+      <div class="resource-row" aria-label="所持資源">
+        <div class="resource"><span>G</span><b id="goldValue">0</b></div>
+        <div class="resource forge"><span>FE</span><b id="forgeEnergyValue">0</b></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="screen active" id="screen-home" data-screen="home">
+        <div class="hero-panel metal-panel">
+          <div class="eyebrow">FORGER PROFILE</div>
+          <div class="hero-top">
+            <div>
+              <div class="level-line">LEVEL <strong id="homeLevel">1</strong></div>
+              <h1 id="playerTitle">Rookie Forger</h1>
+              <p>問題を解き、知識を戦闘力へ変換せよ。</p>
+            </div>
+            <div class="rank-emblem" id="rankEmblem">I</div>
+          </div>
+          <div class="exp-block">
+            <div class="bar-label"><span>EXP</span><span id="expText">0 / 100</span></div>
+            <div class="progress"><i id="expBar"></i></div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-card"><span>HP</span><b id="statHp">100</b></div>
+            <div class="stat-card"><span>ATK</span><b id="statAtk">12</b></div>
+            <div class="stat-card"><span>DEF</span><b id="statDef">5</b></div>
+            <div class="stat-card"><span>CRIT</span><b id="statCrit">8%</b></div>
+          </div>
+        </div>
+
+        <div class="home-grid">
+          <button class="mode-card study-card" data-nav="study">
+            <span class="mode-kicker">STUDY SYSTEM</span>
+            <strong>STUDY</strong>
+            <span>問題演習でEXPと戦闘資源を獲得</span>
+            <em>START TRAINING →</em>
+          </button>
+          <button class="mode-card battle-card" data-nav="battle">
+            <span class="mode-kicker">COMBAT SYSTEM</span>
+            <strong>BATTLE</strong>
+            <span>知識で攻撃し、敵を撃破</span>
+            <em>ENTER BATTLE →</em>
+          </button>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="metal-panel compact-panel">
+            <div class="panel-head"><span>TODAY</span><small>SESSION DATA</small></div>
+            <div class="metric-list">
+              <div><span>Answered</span><b id="todayAnswered">0</b></div>
+              <div><span>Correct</span><b id="todayCorrect">0</b></div>
+              <div><span>Accuracy</span><b id="todayAccuracy">—</b></div>
+              <div><span>Best Combo</span><b id="bestCombo">0</b></div>
+            </div>
+          </div>
+          <div class="metal-panel compact-panel">
+            <div class="panel-head"><span>REVIEW</span><small>WEAK POINTS</small></div>
+            <div class="review-summary">
+              <b id="reviewCount">0</b>
+              <span>復習待ち問題</span>
+              <button class="text-button" id="reviewStartBtn">復習を開始</button>
+            </div>
+          </div>
+          <div class="metal-panel compact-panel bank-panel">
+            <div class="panel-head"><span>QUESTION BANK</span><small>LOCAL DATA</small></div>
+            <div class="bank-summary">
+              <b id="questionBankCount">0</b>
+              <span>収録問題</span>
+              <small id="questionSubjectCount">0 SUBJECTS</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-strip">
+          <span class="phase-active">PHASE 1 ACTIVE</span>
+          <span>HOME</span><span>STUDY</span><span>BATTLE</span><span>EXP</span><span>SAVE</span>
+          <span class="phase-locked">FORGE / WEAPONS / DUNGEON → PHASE 2–3</span>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-study" data-screen="study">
+        <div class="screen-title-row">
+          <button class="icon-btn" data-nav="home" aria-label="ホームへ戻る">←</button>
+          <div><span class="eyebrow">STUDY SYSTEM</span><h2>Knowledge Training</h2></div>
+          <div class="combo-badge"><span>COMBO</span><b id="studyCombo">0</b></div>
+        </div>
+
+        <div class="study-layout">
+          <div class="question-panel metal-panel">
+            <div class="question-meta">
+              <span id="questionSubject">SUBJECT</span>
+              <span id="questionDifficulty">NORMAL</span>
+              <span id="questionYear">—</span>
+            </div>
+            <div class="question-number" id="questionCounter">QUESTION</div>
+            <h3 id="questionText">読み込み中…</h3>
+            <div class="choice-grid" id="choiceGrid"></div>
+            <div class="answer-feedback" id="answerFeedback" aria-live="polite"></div>
+            <button class="primary-btn hidden" id="nextQuestionBtn">NEXT QUESTION</button>
+          </div>
+
+          <aside class="study-side">
+            <div class="metal-panel reward-panel">
+              <div class="panel-head"><span>REWARD PREVIEW</span><small>ON CORRECT</small></div>
+              <div class="reward-row"><span>EXP</span><b id="previewExp">+12</b></div>
+              <div class="reward-row"><span>GOLD</span><b id="previewGold">+8</b></div>
+              <div class="reward-row"><span>FORGE ENERGY</span><b id="previewEnergy">+2</b></div>
+              <div class="multiplier" id="comboMultiplier">COMBO ×1.00</div>
+            </div>
+            <div class="metal-panel compact-panel">
+              <div class="panel-head"><span>MODE</span><small>QUESTION POOL</small></div>
+              <div class="segmented">
+                <button class="seg active" data-study-mode="normal">NORMAL</button>
+                <button class="seg" data-study-mode="review">REVIEW</button>
+              </div>
+              <p class="small-copy" id="studyModeHelp">全問題から出題します。</p>
+            </div>
+            <div class="metal-panel compact-panel">
+              <div class="panel-head"><span>FILTER</span><small>LARGE BANK READY</small></div>
+              <label class="filter-label">SUBJECT
+                <select id="subjectFilter" class="filter-select"><option value="all">ALL SUBJECTS</option></select>
+              </label>
+              <label class="filter-label">DIFFICULTY
+                <select id="difficultyFilter" class="filter-select">
+                  <option value="all">ALL LEVELS</option>
+                  <option value="1">EASY</option>
+                  <option value="2">NORMAL</option>
+                  <option value="3">HARD</option>
+                </select>
+              </label>
+              <div class="pool-count" id="poolCount">POOL 0 / BANK 0</div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-battle" data-screen="battle">
+        <div class="screen-title-row">
+          <button class="icon-btn" data-nav="home" aria-label="ホームへ戻る">←</button>
+          <div><span class="eyebrow">COMBAT SYSTEM</span><h2>Trial Arena</h2></div>
+          <div class="battle-streak"><span>WINS</span><b id="battleWins">0</b></div>
+        </div>
+
+        <div class="battle-stage metal-panel" id="battleStage">
+          <div class="enemy-zone">
+            <div class="enemy-title-row"><div><span id="enemyTier">NORMAL</span><h3 id="enemyName">Ashfang Wolf</h3></div><b id="enemyLevel">Lv.1</b></div>
+            <div class="hp-label"><span>ENEMY HP</span><span id="enemyHpText">80 / 80</span></div>
+            <div class="progress enemy-hp"><i id="enemyHpBar"></i></div>
+            <div class="enemy-avatar" id="enemyAvatar" aria-label="敵シルエット">
+              <div class="enemy-core"></div><div class="enemy-eye left"></div><div class="enemy-eye right"></div>
+            </div>
+            <div class="floating-layer" id="floatingLayer"></div>
+          </div>
+
+          <div class="versus-line"><span></span><b>VS</b><span></span></div>
+
+          <div class="player-combat-row">
+            <div>
+              <div class="hp-label"><span>FORGER HP</span><span id="playerHpText">100 / 100</span></div>
+              <div class="progress player-hp"><i id="playerHpBar"></i></div>
+            </div>
+            <div class="combat-stats"><span>ATK <b id="battleAtk">12</b></span><span>FE <b id="battleEnergy">0</b></span></div>
+          </div>
+
+          <div class="battle-log" id="battleLog">知識を武器に、最初の一撃を放て。</div>
+
+          <div class="battle-actions" id="battleActions">
+            <button class="primary-btn" id="quizStrikeBtn">QUIZ STRIKE <small>問題に正解して攻撃</small></button>
+            <button class="secondary-btn" id="guardBtn">GUARD <small>被ダメージ軽減 + HP小回復</small></button>
+          </div>
+
+          <div class="battle-quiz hidden" id="battleQuiz">
+            <div class="battle-question-meta"><span>QUIZ STRIKE</span><span id="battleQuestionSubject">SUBJECT</span></div>
+            <h3 id="battleQuestionText">Question</h3>
+            <div class="choice-grid battle-choice-grid" id="battleChoiceGrid"></div>
+          </div>
+
+          <div class="battle-result hidden" id="battleResult">
+            <h3 id="battleResultTitle">VICTORY</h3>
+            <p id="battleResultText"></p>
+            <button class="primary-btn" id="nextBattleBtn">NEXT ENEMY</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="メインナビゲーション">
+      <button class="nav-btn active" data-nav="home"><span>⌂</span><b>HOME</b></button>
+      <button class="nav-btn" data-nav="study"><span>✦</span><b>STUDY</b></button>
+      <button class="nav-btn" data-nav="battle"><span>⚔</span><b>BATTLE</b></button>
+    </nav>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+    <div class="modal-backdrop hidden" id="levelUpModal">
+      <div class="level-modal">
+        <span>LEVEL UP</span>
+        <div class="level-burst" id="levelBurst">2</div>
+        <h2>FORGER EVOLVED</h2>
+        <p id="levelUpText">能力値が上昇した。</p>
+        <button class="primary-btn" id="closeLevelModal">CONTINUE</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+window.STUDY_FORGE_QUESTIONS = [{"id":"bio-001","question":"骨格筋の収縮時、カルシウムイオンが結合するタンパク質はどれか。","choices":["トロポニン","ミオシン","チチン","コラーゲン"],"correct":0,"explanation":"筋小胞体から放出されたCa²⁺はトロポニンCに結合し、トロポミオシンの位置を変化させてアクチンとミオシンの相互作用を可能にします。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"bio-002","question":"最大酸素摂取量（VO₂max）が主に示す能力として最も適切なのはどれか。","choices":["瞬発的な最大筋力","有酸素性作業能力","関節可動域","反応時間"],"correct":1,"explanation":"VO₂maxは運動中に取り込み・運搬・利用できる酸素量の上限を表し、有酸素性体力の代表的指標です。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"ana-001","question":"前十字靭帯（ACL）の主な機能として正しいのはどれか。","choices":["脛骨の前方移動を制動する","脛骨の後方移動を制動する","足関節底屈を制動する","膝蓋骨の外側移動だけを制動する"],"correct":0,"explanation":"ACLは大腿骨に対する脛骨の前方移動を主に制動し、回旋安定性にも関与します。","subject":"スポーツ外傷","year":"基礎","difficulty":1},{"id":"ana-002","question":"肩関節外転の初期に強く関与する筋はどれか。","choices":["棘上筋","大胸筋","広背筋","上腕二頭筋長頭"],"correct":0,"explanation":"棘上筋は外転開始時に重要で、その後は三角筋などと協働して上肢を挙上します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"phy-001","question":"力積は何と等しいか。","choices":["運動量の変化量","速度の二乗","仕事率","位置エネルギー"],"correct":0,"explanation":"力積は力×作用時間で表され、物体の運動量の変化量に等しくなります。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"phy-002","question":"同じ力を加える場合、加速度がより大きくなるのはどちらか。","choices":["質量が小さい物体","質量が大きい物体","質量に関係しない","速度だけで決まる"],"correct":0,"explanation":"F=maより、同じ力Fなら質量mが小さいほど加速度aは大きくなります。","subject":"バイオメカニクス","year":"基礎","difficulty":1},{"id":"reh-001","question":"RICE処置のうち、Iが示すものはどれか。","choices":["Ice","Immobilization","Inspection","Intensity"],"correct":0,"explanation":"伝統的なRICEはRest, Ice, Compression, Elevationの頭文字です。現在は組織治癒の考え方から他の枠組みも提唱されています。","subject":"アスリハ","year":"基礎","difficulty":1},{"id":"reh-002","question":"片脚着地で膝が過度に内側へ入る動きに関係しやすい要素はどれか。","choices":["股関節外転・外旋制御の不足","肘関節屈曲不足","手関節背屈不足","頸部回旋制限のみ"],"correct":0,"explanation":"動的膝外反には股関節・骨盤・足部など複数要因が関わりますが、股関節外転・外旋方向の制御不足は重要な評価項目です。","subject":"アスリハ","year":"応用","difficulty":2},{"id":"con-001","question":"ウォームアップの一般的な目的として不適切なのはどれか。","choices":["筋温上昇","神経筋機能の準備","競技動作への準備","意図的に疲労困憊にする"],"correct":3,"explanation":"ウォームアップは身体・神経系を競技に向けて準備するもので、通常は競技前に疲労困憊させることが目的ではありません。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"con-002","question":"SSC（Stretch-Shortening Cycle）の説明として最も適切なのはどれか。","choices":["伸張性収縮の直後に短縮性収縮へ移る一連の動作","等尺性収縮だけを反復する動作","呼吸を止めて筋力を高める方法","有酸素運動だけで起こる現象"],"correct":0,"explanation":"SSCは伸張性局面から短縮性局面へ素早く移行することで、弾性要素や神経機構を活用して力発揮を高める仕組みです。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"med-001","question":"運動中に胸痛、強い呼吸困難、失神前症状が出た場合の対応として最も適切なのはどれか。","choices":["運動を中止し評価・必要時に救急対応する","強度を上げて様子を見る","水だけ飲んで必ず再開する","症状を無視して継続する"],"correct":0,"explanation":"胸痛、強い呼吸困難、失神などは重篤な状態の可能性があるため運動を中止し、安全確保と適切な評価・救急対応を優先します。","subject":"スポーツ医学","year":"基礎","difficulty":1},{"id":"med-002","question":"脱水が進行したときに一般的に起こりやすい変化はどれか。","choices":["循環血漿量の低下","発汗量が必ず無限に増える","体温が必ず低下する","心拍数が必ず低下する"],"correct":0,"explanation":"脱水では循環血漿量が低下しやすく、同じ運動強度でも心拍数上昇や体温調節負担の増加につながります。","subject":"スポーツ医学","year":"基礎","difficulty":2},{"id":"bio-003","question":"速筋線維の特徴として比較的当てはまりやすいのはどれか。","choices":["大きな力を素早く発揮しやすい","疲労しにくさだけに特化する","収縮速度が遅い","解糖系能力が低い"],"correct":0,"explanation":"速筋線維は収縮速度が速く、大きな力・パワーを発揮しやすい一方、タイプによっては疲労しやすい特徴があります。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"ana-003","question":"足関節背屈に主に関与する筋はどれか。","choices":["前脛骨筋","腓腹筋","ヒラメ筋","長腓骨筋"],"correct":0,"explanation":"前脛骨筋は足関節背屈の主要筋で、内反にも作用します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"phy-003","question":"仕事率（Power）を表す基本的な考え方として正しいのはどれか。","choices":["単位時間あたりの仕事","力÷質量","距離÷力","時間×質量"],"correct":0,"explanation":"仕事率は仕事を時間で割った量で、どれだけ速く仕事を行ったかを表します。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"reh-003","question":"リハビリテーションで段階的に負荷を増やす主な理由はどれか。","choices":["組織と機能の適応を促しつつ過負荷を避けるため","常に痛みを最大化するため","毎回完全休養にするため","評価を不要にするため"],"correct":0,"explanation":"負荷は組織の治癒段階と能力に合わせて漸増し、必要な適応を引き出しながら再受傷リスクを抑えることが重要です。","subject":"アスリハ","year":"応用","difficulty":2},{"id":"anat-muscle-001a","question":"上腕二頭筋の主な作用について最も適切なのはどれか。","choices":["足部外反","肘関節伸展","肘関節屈曲と前腕回外","肩関節伸展・内転"],"correct":2,"explanation":"上腕二頭筋は肘関節屈曲と前腕回外に強く働きます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-001b","question":"次のうち、上腕二頭筋の主な作用の特徴として正しいものはどれか。","choices":["肩関節伸展・内転","肩関節外転の開始を補助","母趾屈曲と足関節底屈","肘関節屈曲と前腕回外"],"correct":3,"explanation":"上腕二頭筋は肘関節屈曲と前腕回外に強く働きます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-002a","question":"上腕三頭筋の主な作用について最も適切なのはどれか。","choices":["肩関節水平内転","肘関節屈曲と前腕回外","肘関節伸展","肩関節外転"],"correct":2,"explanation":"上腕三頭筋は肘関節伸展の主働筋です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-002b","question":"次のうち、上腕三頭筋の主な作用の特徴として正しいものはどれか。","choices":["肩関節内旋","足関節背屈と足部内反","肘関節伸展","母趾伸展と足関節背屈"],"correct":2,"explanation":"上腕三頭筋は肘関節伸展の主働筋です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-003a","question":"三角筋中部線維の主な作用について最も適切なのはどれか。","choices":["肩関節外転","肘関節屈曲と前腕回外","肩甲骨下制と上方回旋への関与","足関節底屈と膝屈曲"],"correct":0,"explanation":"三角筋中部線維は肩関節外転に強く働きます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-003b","question":"次のうち、三角筋中部線維の主な作用の特徴として正しいものはどれか。","choices":["肩甲骨下制と上方回旋への関与","肩関節外転","肩関節外転の開始を補助","股関節伸展"],"correct":1,"explanation":"三角筋中部線維は肩関節外転に強く働きます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-004a","question":"大胸筋の代表的な作用について最も適切なのはどれか。","choices":["肩関節水平内転","肩関節伸展・内転","肩関節外転","膝関節伸展"],"correct":0,"explanation":"大胸筋は肩関節水平内転・内転・内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-004b","question":"次のうち、大胸筋の代表的な作用の特徴として正しいものはどれか。","choices":["母趾屈曲と足関節底屈","膝関節屈曲と股関節伸展","肘関節伸展","肩関節水平内転"],"correct":3,"explanation":"大胸筋は肩関節水平内転・内転・内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-005a","question":"広背筋の代表的な作用について最も適切なのはどれか。","choices":["足関節背屈と足部内反","肩関節伸展・内転","足部外反","股関節屈曲"],"correct":1,"explanation":"広背筋は肩関節の伸展・内転・内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-005b","question":"次のうち、広背筋の代表的な作用の特徴として正しいものはどれか。","choices":["肩関節外転","肩関節伸展・内転","肘関節伸展","母趾伸展と足関節背屈"],"correct":1,"explanation":"広背筋は肩関節の伸展・内転・内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-006a","question":"棘上筋の主な役割について最も適切なのはどれか。","choices":["肩関節外転の開始を補助","膝関節伸展","肩甲骨外転と上方回旋","肩関節水平内転"],"correct":0,"explanation":"棘上筋は肩関節外転の初期に働き、腱板として上腕骨頭の安定化にも関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-006b","question":"次のうち、棘上筋の主な役割の特徴として正しいものはどれか。","choices":["肩関節外旋","肩関節外転の開始を補助","肩関節内旋","股関節外転と骨盤安定化"],"correct":1,"explanation":"棘上筋は肩関節外転の初期に働き、腱板として上腕骨頭の安定化にも関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-007a","question":"棘下筋の主な作用について最も適切なのはどれか。","choices":["足部外反","肩関節外転の開始を補助","肩関節外旋","足関節底屈"],"correct":2,"explanation":"棘下筋は肩関節外旋に働く腱板筋です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-007b","question":"次のうち、棘下筋の主な作用の特徴として正しいものはどれか。","choices":["肩関節外旋","足部外反","肩甲骨下制と上方回旋への関与","膝関節伸展"],"correct":0,"explanation":"棘下筋は肩関節外旋に働く腱板筋です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-008a","question":"肩甲下筋の主な作用について最も適切なのはどれか。","choices":["肩甲骨外転と上方回旋","肩関節内旋","肘関節伸展","股関節伸展"],"correct":1,"explanation":"肩甲下筋は肩関節内旋に働く腱板筋です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-008b","question":"次のうち、肩甲下筋の主な作用の特徴として正しいものはどれか。","choices":["母趾伸展と足関節背屈","肩関節外旋","肩関節内旋","足関節底屈と膝屈曲"],"correct":2,"explanation":"肩甲下筋は肩関節内旋に働く腱板筋です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-009a","question":"前鋸筋の主な役割について最も適切なのはどれか。","choices":["足部外反","肩甲骨外転と上方回旋","膝関節屈曲と股関節伸展","膝関節伸展"],"correct":1,"explanation":"前鋸筋は肩甲骨外転・上方回旋に関与し、胸郭上で肩甲骨を安定させます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-009b","question":"次のうち、前鋸筋の主な役割の特徴として正しいものはどれか。","choices":["肩甲骨外転と上方回旋","肩関節内旋","足関節背屈と足部内反","母趾屈曲と足関節底屈"],"correct":0,"explanation":"前鋸筋は肩甲骨外転・上方回旋に関与し、胸郭上で肩甲骨を安定させます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-010a","question":"僧帽筋下部線維の代表的な作用について最も適切なのはどれか。","choices":["膝関節伸展","股関節外転と骨盤安定化","肩甲骨下制と上方回旋への関与","足関節底屈と膝屈曲"],"correct":2,"explanation":"僧帽筋下部線維は肩甲骨下制に加え、上方回旋にも関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-010b","question":"次のうち、僧帽筋下部線維の代表的な作用の特徴として正しいものはどれか。","choices":["肩関節水平内転","肩甲骨下制と上方回旋への関与","肘関節伸展","肩関節外転"],"correct":1,"explanation":"僧帽筋下部線維は肩甲骨下制に加え、上方回旋にも関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-011a","question":"腸腰筋の主な作用について最も適切なのはどれか。","choices":["足関節底屈","股関節と膝関節をまたぐ二関節筋","足部内反と足関節底屈","股関節屈曲"],"correct":3,"explanation":"腸腰筋は強力な股関節屈筋群です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-011b","question":"次のうち、腸腰筋の主な作用の特徴として正しいものはどれか。","choices":["足関節底屈","股関節屈曲","膝屈曲と下腿内旋","膝関節屈曲と股関節伸展"],"correct":1,"explanation":"腸腰筋は強力な股関節屈筋群です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-012a","question":"大殿筋の主な作用について最も適切なのはどれか。","choices":["股関節伸展","足部内反と足関節底屈","肩関節水平内転","母趾屈曲と足関節底屈"],"correct":0,"explanation":"大殿筋は股関節伸展に強く働きます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-012b","question":"次のうち、大殿筋の主な作用の特徴として正しいものはどれか。","choices":["肩甲骨下制と上方回旋への関与","股関節伸展","股関節と膝関節をまたぐ二関節筋","肩関節水平内転"],"correct":1,"explanation":"大殿筋は股関節伸展に強く働きます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-013a","question":"中殿筋の主な役割について最も適切なのはどれか。","choices":["膝屈曲と下腿内旋","股関節外転と骨盤安定化","肩甲骨外転と上方回旋","母趾屈曲と足関節底屈"],"correct":1,"explanation":"中殿筋は股関節外転に働き、片脚支持時の骨盤安定化に重要です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-013b","question":"次のうち、中殿筋の主な役割の特徴として正しいものはどれか。","choices":["肩甲骨下制と上方回旋への関与","膝屈曲と下腿内旋","股関節外転と骨盤安定化","足部外反"],"correct":2,"explanation":"中殿筋は股関節外転に働き、片脚支持時の骨盤安定化に重要です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-014a","question":"大腿四頭筋の主な作用について最も適切なのはどれか。","choices":["膝屈曲と下腿内旋","肩関節外転の開始を補助","足関節背屈と足部内反","膝関節伸展"],"correct":3,"explanation":"大腿四頭筋は膝関節伸展の主働筋群です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-014b","question":"次のうち、大腿四頭筋の主な作用の特徴として正しいものはどれか。","choices":["肩関節水平内転","膝関節伸展","膝屈曲と下腿外旋","肘関節屈曲と前腕回外"],"correct":1,"explanation":"大腿四頭筋は膝関節伸展の主働筋群です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"anat-muscle-015a","question":"大腿直筋の特徴について最も適切なのはどれか。","choices":["肩関節内旋","肘関節伸展","足関節底屈と膝屈曲","股関節と膝関節をまたぐ二関節筋"],"correct":3,"explanation":"大腿直筋は股関節屈曲と膝関節伸展に関与する二関節筋です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-015b","question":"次のうち、大腿直筋の特徴の特徴として正しいものはどれか。","choices":["股関節と膝関節をまたぐ二関節筋","肩関節伸展・内転","足関節背屈と足部内反","肩関節外転"],"correct":0,"explanation":"大腿直筋は股関節屈曲と膝関節伸展に関与する二関節筋です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-016a","question":"ハムストリングスの代表的な作用について最も適切なのはどれか。","choices":["足関節背屈と足部内反","肩関節外転の開始を補助","膝関節屈曲と股関節伸展","肩甲骨外転と上方回旋"],"correct":2,"explanation":"ハムストリングスは主に膝屈曲と股関節伸展に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-016b","question":"次のうち、ハムストリングスの代表的な作用の特徴として正しいものはどれか。","choices":["膝関節屈曲と股関節伸展","股関節外転と骨盤安定化","母趾伸展と足関節背屈","肩甲骨下制と上方回旋への関与"],"correct":0,"explanation":"ハムストリングスは主に膝屈曲と股関節伸展に関与します。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"anat-muscle-017a","question":"大腿二頭筋の代表的な作用について最も適切なのはどれか。","choices":["肩関節水平内転","肩関節外転","膝屈曲と下腿外旋","肩関節内旋"],"correct":2,"explanation":"大腿二頭筋は膝屈曲に加え、膝屈曲位で下腿外旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-017b","question":"次のうち、大腿二頭筋の代表的な作用の特徴として正しいものはどれか。","choices":["足関節底屈と膝屈曲","肘関節屈曲と前腕回外","肩関節内旋","膝屈曲と下腿外旋"],"correct":3,"explanation":"大腿二頭筋は膝屈曲に加え、膝屈曲位で下腿外旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-018a","question":"半腱様筋・半膜様筋の代表的な作用について最も適切なのはどれか。","choices":["肩関節内旋","肘関節伸展","膝屈曲と下腿内旋","肩関節外転"],"correct":2,"explanation":"半腱様筋・半膜様筋は膝屈曲に加え、膝屈曲位で下腿内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-018b","question":"次のうち、半腱様筋・半膜様筋の代表的な作用の特徴として正しいものはどれか。","choices":["膝関節屈曲と股関節伸展","膝屈曲と下腿内旋","足部内反と足関節底屈","肩甲骨外転と上方回旋"],"correct":1,"explanation":"半腱様筋・半膜様筋は膝屈曲に加え、膝屈曲位で下腿内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-019a","question":"前脛骨筋の主な作用について最も適切なのはどれか。","choices":["足関節背屈と足部内反","足関節底屈と膝屈曲","膝関節屈曲と股関節伸展","母趾屈曲と足関節底屈"],"correct":0,"explanation":"前脛骨筋は足関節背屈と足部内反に働きます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-019b","question":"次のうち、前脛骨筋の主な作用の特徴として正しいものはどれか。","choices":["足関節背屈と足部内反","肩関節水平内転","肩関節外旋","足部内反と足関節底屈"],"correct":0,"explanation":"前脛骨筋は足関節背屈と足部内反に働きます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-020a","question":"腓腹筋の主な作用について最も適切なのはどれか。","choices":["膝関節伸展","母趾屈曲と足関節底屈","股関節と膝関節をまたぐ二関節筋","足関節底屈と膝屈曲"],"correct":3,"explanation":"腓腹筋は足関節底屈に加え、膝関節もまたぐため膝屈曲にも関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-020b","question":"次のうち、腓腹筋の主な作用の特徴として正しいものはどれか。","choices":["肘関節伸展","母趾屈曲と足関節底屈","足関節底屈と膝屈曲","股関節外転と骨盤安定化"],"correct":2,"explanation":"腓腹筋は足関節底屈に加え、膝関節もまたぐため膝屈曲にも関与します。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"anat-muscle-021a","question":"ヒラメ筋の主な作用について最も適切なのはどれか。","choices":["膝屈曲と下腿内旋","足関節底屈","股関節と膝関節をまたぐ二関節筋","肩関節外旋"],"correct":1,"explanation":"ヒラメ筋は膝関節をまたがず、主に足関節底屈に働きます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-021b","question":"次のうち、ヒラメ筋の主な作用の特徴として正しいものはどれか。","choices":["股関節と膝関節をまたぐ二関節筋","肩関節内旋","肩甲骨外転と上方回旋","足関節底屈"],"correct":3,"explanation":"ヒラメ筋は膝関節をまたがず、主に足関節底屈に働きます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-022a","question":"長・短腓骨筋の代表的な作用について最も適切なのはどれか。","choices":["肘関節伸展","足関節底屈","膝屈曲と下腿内旋","足部外反"],"correct":3,"explanation":"長腓骨筋・短腓骨筋は足部外反に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-022b","question":"次のうち、長・短腓骨筋の代表的な作用の特徴として正しいものはどれか。","choices":["膝関節伸展","肩関節外転の開始を補助","足部外反","膝関節屈曲と股関節伸展"],"correct":2,"explanation":"長腓骨筋・短腓骨筋は足部外反に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-023a","question":"後脛骨筋の代表的な作用について最も適切なのはどれか。","choices":["股関節外転と骨盤安定化","肩関節外転の開始を補助","肘関節伸展","足部内反と足関節底屈"],"correct":3,"explanation":"後脛骨筋は足部内反と足関節底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-023b","question":"次のうち、後脛骨筋の代表的な作用の特徴として正しいものはどれか。","choices":["股関節と膝関節をまたぐ二関節筋","肩甲骨下制と上方回旋への関与","足部内反と足関節底屈","膝関節伸展"],"correct":2,"explanation":"後脛骨筋は足部内反と足関節底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-024a","question":"長母趾伸筋の主な作用について最も適切なのはどれか。","choices":["肘関節伸展","肩甲骨下制と上方回旋への関与","肩関節外旋","母趾伸展と足関節背屈"],"correct":3,"explanation":"長母趾伸筋は母趾伸展と足関節背屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-024b","question":"次のうち、長母趾伸筋の主な作用の特徴として正しいものはどれか。","choices":["膝関節屈曲と股関節伸展","足関節背屈と足部内反","母趾伸展と足関節背屈","肘関節伸展"],"correct":2,"explanation":"長母趾伸筋は母趾伸展と足関節背屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"anat-muscle-025a","question":"長母趾屈筋の主な作用について最も適切なのはどれか。","choices":["肩関節外転の開始を補助","足関節底屈と膝屈曲","肩関節外転","母趾屈曲と足関節底屈"],"correct":3,"explanation":"長母趾屈筋は母趾屈曲と足関節底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-muscle-025b","question":"次のうち、長母趾屈筋の主な作用の特徴として正しいものはどれか。","choices":["足関節背屈と足部内反","母趾屈曲と足関節底屈","肩関節水平内転","股関節外転と骨盤安定化"],"correct":1,"explanation":"長母趾屈筋は母趾屈曲と足関節底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-001a","question":"腋窩神経が主に支配する筋について最も適切なのはどれか。","choices":["下腿後面筋群","三角筋","僧帽筋と胸鎖乳突筋","肘・手関節の伸展"],"correct":1,"explanation":"腋窩神経は三角筋や小円筋を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-001b","question":"次のうち、腋窩神経が主に支配する筋の特徴として正しいものはどれか。","choices":["手内在筋の多くの支配","三角筋","横隔膜の運動支配","大腿後面から下腿・足部への神経支配"],"correct":1,"explanation":"腋窩神経は三角筋や小円筋を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-002a","question":"筋皮神経が主に支配する代表筋について最も適切なのはどれか。","choices":["横隔膜の運動支配","下腿前面筋群","上腕二頭筋","大腿四頭筋"],"correct":2,"explanation":"筋皮神経は上腕前面の筋群を支配し、上腕二頭筋も含まれます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-002b","question":"次のうち、筋皮神経が主に支配する代表筋の特徴として正しいものはどれか。","choices":["下腿前面筋群","肘・手関節の伸展","僧帽筋と胸鎖乳突筋","上腕二頭筋"],"correct":3,"explanation":"筋皮神経は上腕前面の筋群を支配し、上腕二頭筋も含まれます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-003a","question":"橈骨神経が主に関与する運動について最も適切なのはどれか。","choices":["下腿外側筋群","前腕屈筋群の多くと母指対立","肘・手関節の伸展","大腿四頭筋"],"correct":2,"explanation":"橈骨神経は上腕三頭筋や前腕伸筋群などを支配し、伸展運動に重要です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-003b","question":"次のうち、橈骨神経が主に関与する運動の特徴として正しいものはどれか。","choices":["肘・手関節の伸展","大腿後面から下腿・足部への神経支配","大腿四頭筋","前腕屈筋群の多くと母指対立"],"correct":0,"explanation":"橈骨神経は上腕三頭筋や前腕伸筋群などを支配し、伸展運動に重要です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-004a","question":"正中神経が関与する代表的な機能について最も適切なのはどれか。","choices":["僧帽筋と胸鎖乳突筋","前腕屈筋群の多くと母指対立","三角筋","下腿外側筋群"],"correct":1,"explanation":"正中神経は前腕屈筋群の多くや母指球筋の一部を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-004b","question":"次のうち、正中神経が関与する代表的な機能の特徴として正しいものはどれか。","choices":["肘・手関節の伸展","上腕二頭筋","大腿四頭筋","前腕屈筋群の多くと母指対立"],"correct":3,"explanation":"正中神経は前腕屈筋群の多くや母指球筋の一部を支配します。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"anat-nerve-005a","question":"尺骨神経が特に重要な機能について最も適切なのはどれか。","choices":["前腕屈筋群の多くと母指対立","大腿四頭筋","手内在筋の多くの支配","横隔膜の運動支配"],"correct":2,"explanation":"尺骨神経は骨間筋など多くの手内在筋を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-005b","question":"次のうち、尺骨神経が特に重要な機能の特徴として正しいものはどれか。","choices":["下腿前面筋群","下腿外側筋群","大腿四頭筋","手内在筋の多くの支配"],"correct":3,"explanation":"尺骨神経は骨間筋など多くの手内在筋を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-006a","question":"大腿神経が主に支配する筋群について最も適切なのはどれか。","choices":["僧帽筋と胸鎖乳突筋","手内在筋の多くの支配","大腿四頭筋","三角筋"],"correct":2,"explanation":"大腿神経は大腿四頭筋など大腿前面筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-006b","question":"次のうち、大腿神経が主に支配する筋群の特徴として正しいものはどれか。","choices":["肘・手関節の伸展","大腿四頭筋","下腿前面筋群","下腿外側筋群"],"correct":1,"explanation":"大腿神経は大腿四頭筋など大腿前面筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-007a","question":"坐骨神経が主に関係する部位について最も適切なのはどれか。","choices":["横隔膜の運動支配","肘・手関節の伸展","上腕二頭筋","大腿後面から下腿・足部への神経支配"],"correct":3,"explanation":"坐骨神経は大腿後面を走行し、脛骨神経と総腓骨神経へ分かれます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-007b","question":"次のうち、坐骨神経が主に関係する部位の特徴として正しいものはどれか。","choices":["三角筋","大腿後面から下腿・足部への神経支配","下腿後面筋群","肘・手関節の伸展"],"correct":1,"explanation":"坐骨神経は大腿後面を走行し、脛骨神経と総腓骨神経へ分かれます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-008a","question":"脛骨神経が主に関係する筋群について最も適切なのはどれか。","choices":["僧帽筋と胸鎖乳突筋","前腕屈筋群の多くと母指対立","大腿四頭筋","下腿後面筋群"],"correct":3,"explanation":"脛骨神経は下腿後面の足関節底屈筋群などを支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-008b","question":"次のうち、脛骨神経が主に関係する筋群の特徴として正しいものはどれか。","choices":["肘・手関節の伸展","前腕屈筋群の多くと母指対立","下腿後面筋群","僧帽筋と胸鎖乳突筋"],"correct":2,"explanation":"脛骨神経は下腿後面の足関節底屈筋群などを支配します。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"anat-nerve-009a","question":"深腓骨神経が主に支配する筋群について最も適切なのはどれか。","choices":["三角筋","下腿前面筋群","肘・手関節の伸展","大腿四頭筋"],"correct":1,"explanation":"深腓骨神経は前脛骨筋など下腿前面筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-009b","question":"次のうち、深腓骨神経が主に支配する筋群の特徴として正しいものはどれか。","choices":["肘・手関節の伸展","手内在筋の多くの支配","下腿前面筋群","上腕二頭筋"],"correct":2,"explanation":"深腓骨神経は前脛骨筋など下腿前面筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-010a","question":"浅腓骨神経が主に支配する筋群について最も適切なのはどれか。","choices":["下腿後面筋群","下腿外側筋群","前腕屈筋群の多くと母指対立","横隔膜の運動支配"],"correct":1,"explanation":"浅腓骨神経は長・短腓骨筋など下腿外側筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-010b","question":"次のうち、浅腓骨神経が主に支配する筋群の特徴として正しいものはどれか。","choices":["下腿外側筋群","三角筋","前腕屈筋群の多くと母指対立","横隔膜の運動支配"],"correct":0,"explanation":"浅腓骨神経は長・短腓骨筋など下腿外側筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-011a","question":"副神経が支配する代表筋について最も適切なのはどれか。","choices":["僧帽筋と胸鎖乳突筋","上腕二頭筋","手内在筋の多くの支配","大腿四頭筋"],"correct":0,"explanation":"副神経は僧帽筋と胸鎖乳突筋の運動支配に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-011b","question":"次のうち、副神経が支配する代表筋の特徴として正しいものはどれか。","choices":["僧帽筋と胸鎖乳突筋","手内在筋の多くの支配","上腕二頭筋","三角筋"],"correct":0,"explanation":"副神経は僧帽筋と胸鎖乳突筋の運動支配に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-012a","question":"横隔神経の主な役割について最も適切なのはどれか。","choices":["横隔膜の運動支配","三角筋","大腿後面から下腿・足部への神経支配","上腕二頭筋"],"correct":0,"explanation":"横隔神経はC3〜C5由来で横隔膜の運動支配を担います。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-nerve-012b","question":"次のうち、横隔神経の主な役割の特徴として正しいものはどれか。","choices":["下腿外側筋群","下腿前面筋群","大腿後面から下腿・足部への神経支配","横隔膜の運動支配"],"correct":3,"explanation":"横隔神経はC3〜C5由来で横隔膜の運動支配を担います。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"phys-001","question":"骨格筋収縮でCa²⁺が結合する主なタンパク質はどれか。","choices":["アクチニン","コラーゲン","トロポニンC","エラスチン"],"correct":2,"explanation":"Ca²⁺がトロポニンCへ結合すると、トロポミオシンの位置が変化し架橋形成が可能になります。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-002","question":"筋収縮のクロスブリッジサイクルで直接利用されるエネルギー源はどれか。","choices":["DNA","グリコーゲンのみ","乳酸のみ","ATP"],"correct":3,"explanation":"ミオシン頭部のクロスブリッジサイクルにはATPが直接必要です。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-003","question":"骨格筋内でCa²⁺を主に貯蔵する構造はどれか。","choices":["リソソーム","筋小胞体","核","ゴルジ体"],"correct":1,"explanation":"筋小胞体は筋収縮に必要なCa²⁺を貯蔵・放出します。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-004","question":"タイプI筋線維の特徴として正しいのはどれか。","choices":["酸化能力が高く疲労しにくい","最大短縮速度が最も高い","毛細血管密度が低い","ミトコンドリアが少ない"],"correct":0,"explanation":"タイプI線維は酸化系能力が高く、比較的疲労耐性に優れます。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-005","question":"タイプIIx筋線維の特徴として最も近いのはどれか。","choices":["毛細血管密度が最も高い","最も酸化能力が高い","収縮速度が最も遅い","高出力だが疲労しやすい"],"correct":3,"explanation":"タイプIIx線維は収縮速度と出力が高い一方、疲労しやすい特性があります。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-006","question":"運動単位とは何か。","choices":["1個の運動ニューロンとそれが支配する筋線維群","1本の筋線維と1本の腱","筋束膜と筋内膜の組み合わせ","1個の感覚受容器のみ"],"correct":0,"explanation":"運動単位は1個のα運動ニューロンと、そのニューロンが支配する筋線維群です。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-007","question":"サイズの原理に従う運動単位動員では一般にどの順で動員されるか。","choices":["小さい運動単位から大きい運動単位へ","感覚神経から先に","大きい運動単位から小さい運動単位へ","常に同時"],"correct":0,"explanation":"一般に低閾値の小さい運動単位から高閾値の大きい運動単位へ動員されます。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-008","question":"心拍出量を表す式はどれか。","choices":["一回換気量×体温","酸素摂取量×体脂肪率","心拍数×一回拍出量","血圧×呼吸数"],"correct":2,"explanation":"心拍出量は心拍数（HR）×一回拍出量（SV）で表されます。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-009","question":"Fickの原理で酸素摂取量を表す主要要素はどれか。","choices":["体重×心拍数","心拍出量×動静脈酸素較差","肺活量×血圧","血糖×呼吸数"],"correct":1,"explanation":"Fickの原理ではVO₂＝心拍出量×動静脈酸素較差です。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-010","question":"最大酸素摂取量（VO₂max）が示すものとして最も適切なのはどれか。","choices":["反応時間のみ","有酸素性エネルギー供給能力の代表的指標","最大筋力のみ","関節可動域のみ"],"correct":1,"explanation":"VO₂maxは全身の有酸素性能力を表す代表的な指標です。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-011","question":"ATP-PCr系が特に重要になる運動はどれか。","choices":["長時間の静止","数秒程度の最大努力運動","数時間の低強度運動のみ","睡眠中のみ"],"correct":1,"explanation":"ATP-PCr系は短時間・高強度の運動開始時に大きく貢献します。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-012","question":"解糖系がATPを産生する主な基質はどれか。","choices":["グルコースまたはグリコーゲン","カルシウム","ナトリウム","コラーゲン"],"correct":0,"explanation":"解糖系ではグルコースや筋グリコーゲンが分解されATPが産生されます。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-013","question":"有酸素性ATP産生が主に行われる細胞小器官はどれか。","choices":["ミトコンドリア","中心体","核小体","リボソームのみ"],"correct":0,"explanation":"酸化的リン酸化は主にミトコンドリアで行われます。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-014","question":"乳酸について正しい説明はどれか。","choices":["運動中にも生成され、エネルギー基質として再利用されうる","酸素があると生成されない","常に老廃物で利用されない","筋肉痛の唯一の原因である"],"correct":0,"explanation":"乳酸は運動中にも生成され、他組織や筋で酸化されるなどエネルギー基質として利用されます。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-015","question":"インスリンの代表的な作用はどれか。","choices":["骨格筋収縮を直接停止する","血糖を低下させる方向に働く","赤血球を破壊する","血糖を上昇させる方向だけに働く"],"correct":1,"explanation":"インスリンは細胞へのグルコース取り込みや貯蔵を促し、血糖を低下させる方向に働きます。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-016","question":"グルカゴンの代表的な作用はどれか。","choices":["血糖を上昇させる方向に働く","血糖を必ず低下させる","筋力を直接2倍にする","心拍数をゼロにする"],"correct":0,"explanation":"グルカゴンは肝臓でのグリコーゲン分解などを促し、血糖を上げる方向に働きます。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-017","question":"エリスロポエチン（EPO）を主に分泌する臓器はどれか。","choices":["脾臓のみ","膵臓","胆嚢","腎臓"],"correct":3,"explanation":"EPOは主に腎臓から分泌され、赤血球産生を促進します。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-018","question":"交感神経活動が高まった際に一般にみられる反応はどれか。","choices":["換気停止","瞳孔縮小のみ","心拍数増加","心拍数必ず低下"],"correct":2,"explanation":"交感神経活動の亢進では心拍数増加など、活動に適した反応が起こります。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-019","question":"副交感神経活動が心臓に及ぼす代表的な作用はどれか。","choices":["心拍数最大化","収縮を完全停止","血糖上昇のみ","心拍数低下"],"correct":3,"explanation":"副交感神経、とくに迷走神経活動は安静時の心拍数低下に関与します。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-020","question":"筋紡錘が主に感知するものはどれか。","choices":["血糖値","筋長とその変化","骨密度","皮膚温だけ"],"correct":1,"explanation":"筋紡錘は筋の長さとその変化速度を感知する固有受容器です。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-021","question":"ゴルジ腱器官が主に感知するものはどれか。","choices":["血中酸素飽和度","筋腱に生じる張力","視覚刺激","関節液量のみ"],"correct":1,"explanation":"ゴルジ腱器官は筋腱系に生じる張力を感知します。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-022","question":"伸張反射で中心的に関与する受容器はどれか。","choices":["筋紡錘","網膜","ゴルジ腱器官のみ","味蕾"],"correct":0,"explanation":"急な筋伸張に対する伸張反射には筋紡錘が中心的に関与します。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"phys-023","question":"呼吸における主要な吸気筋はどれか。","choices":["前脛骨筋","上腕三頭筋","横隔膜","大殿筋"],"correct":2,"explanation":"安静吸気では横隔膜が主要な役割を担います。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"phys-024","question":"ヘモグロビンの主な役割はどれか。","choices":["関節液生成","神経伝導速度の決定","ATP直接合成","酸素運搬"],"correct":3,"explanation":"ヘモグロビンは血液中で酸素運搬を担います。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"bio-004","question":"仕事の基本式として正しいものはどれか。","choices":["物体の質量が集中しているとみなせる点","力×力方向の変位","2物体間の力は大きさが等しく向きが反対","1/2 × 質量 × 速度²"],"correct":1,"explanation":"力が物体を移動させたときの仕事は、力と力方向の変位の積で表されます。","subject":"バイオメカニクス","year":"基礎","difficulty":1},{"id":"bio-005","question":"力学的パワーの基本的な定義として正しいものはどれか。","choices":["運動量の変化量","2物体間の力は大きさが等しく向きが反対","単位時間あたりの仕事","接触面で相対運動を妨げる方向"],"correct":2,"explanation":"パワーは仕事を時間で割った量です。","subject":"バイオメカニクス","year":"基礎","difficulty":1},{"id":"bio-006","question":"トルクを決める基本要素として正しいものはどれか。","choices":["位置の時間変化率","Stretch-Shortening Cycle","接触面で相対運動を妨げる方向","力×モーメントアーム"],"correct":3,"explanation":"トルクは力と回転軸から力の作用線までの垂直距離の積で表されます。","subject":"バイオメカニクス","year":"基礎","difficulty":1},{"id":"bio-007","question":"角運動量の基本式として正しいものはどれか。","choices":["速度の時間変化率","慣性モーメント×角速度","1/2 × 質量 × 速度²","物体の質量が集中しているとみなせる点"],"correct":1,"explanation":"剛体の角運動量は慣性モーメントと角速度の積で表されます。","subject":"バイオメカニクス","year":"基礎","difficulty":1},{"id":"bio-008","question":"慣性モーメントが大きくなる条件として正しいものはどれか。","choices":["質量が回転軸から遠く分布する","質量×速度","慣性モーメント×角速度","質量×重力加速度×高さ"],"correct":0,"explanation":"同じ質量でも回転軸から遠くに分布するほど慣性モーメントは大きくなります。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-009","question":"重心について正しい説明として正しいものはどれか。","choices":["運動量の変化量","物体の質量が集中しているとみなせる点","質量×重力加速度×高さ","力×力方向の変位"],"correct":1,"explanation":"重心は重力が作用する代表点として扱うことができます。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-010","question":"作用反作用の法則として正しいものはどれか。","choices":["2物体間の力は大きさが等しく向きが反対","F = ma","1/2 × 質量 × 速度²","支持基底面を広くし重心を低くする"],"correct":0,"explanation":"ニュートンの第3法則では作用と反作用は異なる物体に働きます。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-011","question":"床反力とはとして正しいものはどれか。","choices":["身体が床へ加えた力に対して床から受ける反力","質量が回転軸から遠く分布する","支持基底面を広くし重心を低くする","質量×重力加速度×高さ"],"correct":0,"explanation":"床反力は地面との相互作用で身体が受ける外力です。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-012","question":"速度の定義として正しいものはどれか。","choices":["位置の時間変化率","支持基底面を広くし重心を低くする","慣性モーメント×角速度","F = ma"],"correct":0,"explanation":"速度は位置の時間変化率です。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-013","question":"加速度の定義として正しいものはどれか。","choices":["支持基底面を広くし重心を低くする","速度の時間変化率","接触面で相対運動を妨げる方向","力×モーメントアーム"],"correct":1,"explanation":"加速度は速度の時間変化率です。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-014","question":"運動エネルギーの基本式として正しいものはどれか。","choices":["F = ma","速度の時間変化率","1/2 × 質量 × 速度²","運動量の変化量"],"correct":2,"explanation":"並進運動の運動エネルギーは1/2mv²です。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-015","question":"重力による位置エネルギーの基本式として正しいものはどれか。","choices":["運動量の変化量","質量×重力加速度×高さ","力×モーメントアーム","単位時間あたりの仕事"],"correct":1,"explanation":"基準面に対する重力位置エネルギーはmghです。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-016","question":"摩擦力が一般に作用する方向として正しいものはどれか。","choices":["接触面で相対運動を妨げる方向","身体が床へ加えた力に対して床から受ける反力","質量×重力加速度×高さ","力×モーメントアーム"],"correct":0,"explanation":"摩擦力は接触面での相対運動またはその傾向を妨げる方向に働きます。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-017","question":"安定性を高める一般的な条件として正しいものはどれか。","choices":["物体の質量が集中しているとみなせる点","質量が回転軸から遠く分布する","質量×速度","支持基底面を広くし重心を低くする"],"correct":3,"explanation":"支持基底面を広げ重心を低くすると一般に安定性は高まります。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"bio-018","question":"SSCの略が示すものとして正しいものはどれか。","choices":["位置の時間変化率","身体が床へ加えた力に対して床から受ける反力","質量が回転軸から遠く分布する","Stretch-Shortening Cycle"],"correct":3,"explanation":"SSCは筋腱複合体の伸張局面から短縮局面への連続した動きを指します。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"injury-001","question":"前十字靱帯（ACL）の評価に用いられる代表的テストとして正しいものはどれか。","choices":["Posterior drawer test","McMurray test","踵腓靱帯","Lachman test"],"correct":3,"explanation":"Lachman testはACL前方不安定性の評価に用いられる代表的な徒手検査です。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-002","question":"後十字靱帯（PCL）の評価に用いられる代表的テストとして正しいものはどれか。","choices":["踵腓靱帯","反復負荷と回復の不均衡","Thompson test","Posterior drawer test"],"correct":3,"explanation":"後方引き出しテストはPCLの評価に用いられます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-003","question":"膝内側側副靱帯（MCL）へのストレステストとして正しいものはどれか。","choices":["競技から外し医学的評価につなげる","前方","外反ストレステスト","第5中足骨基部近位部"],"correct":2,"explanation":"MCLは膝への外反ストレスで評価されます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-004","question":"膝外側側副靱帯（LCL）へのストレステストとして正しいものはどれか。","choices":["Posterior drawer test","足部の舟状骨","前距腓靱帯","内反ストレステスト"],"correct":3,"explanation":"LCLは膝への内反ストレスで評価されます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-005","question":"半月板評価で用いられる代表的テストとして正しいものはどれか。","choices":["前距腓靱帯","Posterior drawer test","McMurray test","前方"],"correct":2,"explanation":"McMurray testは半月板損傷評価に用いられる代表的な徒手検査です。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-006","question":"アキレス腱断裂評価で用いられる代表的テストとして正しいものはどれか。","choices":["Thompson test","内反ストレステスト","Posterior drawer test","前距腓靱帯"],"correct":0,"explanation":"Thompson testはアキレス腱断裂の評価に用いられます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-007","question":"足関節外側靱帯損傷で特に損傷しやすい靱帯として正しいものはどれか。","choices":["大腿二頭筋長頭","外反ストレステスト","前距腓靱帯","足部の舟状骨"],"correct":2,"explanation":"一般的な内反捻挫では前距腓靱帯が損傷されやすいです。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-008","question":"足関節前方引き出しテストで主に評価する靱帯として正しいものはどれか。","choices":["前距腓靱帯","反復負荷と回復の不均衡","踵腓靱帯","Posterior drawer test"],"correct":0,"explanation":"足関節前方引き出しテストは主に前距腓靱帯の不安定性を評価します。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-009","question":"Talar tilt testで主に評価される外側靱帯として正しいものはどれか。","choices":["踵腓靱帯","McMurray test","外反ストレステスト","限局性圧痛や荷重困難など"],"correct":0,"explanation":"距骨傾斜テストは踵腓靱帯など外側靱帯の評価に用いられます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-010","question":"Jones骨折が起こる部位として正しいものはどれか。","choices":["増悪する強い疼痛と他動伸張痛","第5中足骨基部近位部","競技から外し医学的評価につなげる","限局性圧痛や荷重困難など"],"correct":1,"explanation":"Jones骨折は第5中足骨基部の近位骨幹端部付近に生じます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-011","question":"舟状骨疲労骨折が起こる骨として正しいものはどれか。","choices":["踵腓靱帯","外反ストレステスト","足部の舟状骨","競技から外し医学的評価につなげる"],"correct":2,"explanation":"舟状骨疲労骨折は足部舟状骨に生じる疲労骨折です。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-012","question":"シンスプリントとして知られることが多い障害として正しいものはどれか。","choices":["足部の舟状骨","Medial Tibial Stress Syndrome","前方","Lachman test"],"correct":1,"explanation":"MTSSは脛骨内側部の運動時痛を特徴とする過使用障害として知られます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-013","question":"大腿後面肉ばなれで頻度が高い筋として正しいものはどれか。","choices":["大腿二頭筋長頭","Thompson test","増悪する強い疼痛と他動伸張痛","前距腓靱帯"],"correct":0,"explanation":"スプリント動作などのハムストリング損傷では大腿二頭筋長頭がよく関与します。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"injury-014","question":"肩関節前方脱臼で最も一般的な脱臼方向として正しいものはどれか。","choices":["反復負荷と回復の不均衡","Lachman test","前方","踵腓靱帯"],"correct":2,"explanation":"肩関節脱臼では前方脱臼が最も一般的です。","subject":"スポーツ外傷","year":"基礎","difficulty":3},{"id":"injury-015","question":"外傷後に骨折を疑う際に重要な確認として正しいものはどれか。","choices":["限局性圧痛や荷重困難など","踵腓靱帯","増悪する強い疼痛と他動伸張痛","前方"],"correct":0,"explanation":"骨折の疑いでは受傷機転、限局性圧痛、変形、荷重可否などを総合的に確認します。","subject":"スポーツ外傷","year":"基礎","difficulty":3},{"id":"injury-016","question":"脳震盪が疑われる選手への基本対応として正しいものはどれか。","choices":["限局性圧痛や荷重困難など","増悪する強い疼痛と他動伸張痛","大腿二頭筋長頭","競技から外し医学的評価につなげる"],"correct":3,"explanation":"脳震盪が疑われる場合はその場で競技から外し、適切な医学的評価につなげることが重要です。","subject":"スポーツ外傷","year":"基礎","difficulty":3},{"id":"injury-017","question":"コンパートメント症候群で注意すべき所見として正しいものはどれか。","choices":["増悪する強い疼痛と他動伸張痛","大腿二頭筋長頭","Medial Tibial Stress Syndrome","前距腓靱帯"],"correct":0,"explanation":"急性コンパートメント症候群では強い疼痛や他動伸張痛などが重要な警告所見です。","subject":"スポーツ外傷","year":"基礎","difficulty":3},{"id":"injury-018","question":"疲労骨折の背景として重要な要素として正しいものはどれか。","choices":["反復負荷と回復の不均衡","前距腓靱帯","競技から外し医学的評価につなげる","Medial Tibial Stress Syndrome"],"correct":0,"explanation":"疲労骨折は反復する骨への負荷が修復能力を上回ることで生じます。","subject":"スポーツ外傷","year":"基礎","difficulty":3},{"id":"cond-001a","question":"トレーニングの過負荷の原則について最も適切なのはどれか。","choices":["負荷・反応・進捗を追跡できる","身体は課された要求に特異的に適応する","適応を起こすため普段より高い刺激を与える","高強度運動から安静状態へ段階的に移行する"],"correct":2,"explanation":"過負荷の原則では、身体に適応を促すため一定以上の刺激が必要です。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"cond-001b","question":"トレーニング理論における「トレーニングの過負荷の原則」の説明として正しいものはどれか。","choices":["継続的な有酸素性刺激と適切な回復","適応に合わせて負荷を段階的に高める","適応を起こすため普段より高い刺激を与える","伸張-短縮サイクル"],"correct":2,"explanation":"過負荷の原則では、身体に適応を促すため一定以上の刺激が必要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-002a","question":"特異性の原則について最も適切なのはどれか。","choices":["継続的な有酸素性刺激と適切な回復","高強度運動から安静状態へ段階的に移行する","得たい適応に近い刺激を行う","1回だけ挙上できる最大負荷"],"correct":2,"explanation":"トレーニング適応は実施した運動様式・強度・速度などに特異的です。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"cond-002b","question":"トレーニング理論における「特異性の原則」の説明として正しいものはどれか。","choices":["本運動への身体的・神経的準備","得たい適応に近い刺激を行う","伸張-短縮サイクル","高強度運動から安静状態へ段階的に移行する"],"correct":1,"explanation":"トレーニング適応は実施した運動様式・強度・速度などに特異的です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-003a","question":"漸進性の原則について最も適切なのはどれか。","choices":["継続的な有酸素性刺激と適切な回復","トレーニングを中断すると適応が失われうる","適応に合わせて負荷を段階的に高める","主観的運動強度"],"correct":2,"explanation":"能力向上に合わせて負荷を漸進的に調整することが重要です。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"cond-003b","question":"トレーニング理論における「漸進性の原則」の説明として正しいものはどれか。","choices":["適応に合わせて負荷を段階的に高める","継続的な有酸素性刺激と適切な回復","高強度運動から安静状態へ段階的に移行する","主観的運動強度"],"correct":0,"explanation":"能力向上に合わせて負荷を漸進的に調整することが重要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-004a","question":"可逆性の原則について最も適切なのはどれか。","choices":["トレーニングを中断すると適応が失われうる","適応を起こすため普段より高い刺激を与える","得たい適応に近い刺激を行う","負荷・反応・進捗を追跡できる"],"correct":0,"explanation":"獲得した体力要素は刺激がなくなると低下することがあります。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"cond-004b","question":"トレーニング理論における「可逆性の原則」の説明として正しいものはどれか。","choices":["適応に合わせて負荷を段階的に高める","伸張-短縮サイクル","1回だけ挙上できる最大負荷","トレーニングを中断すると適応が失われうる"],"correct":3,"explanation":"獲得した体力要素は刺激がなくなると低下することがあります。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-005a","question":"ウォームアップの主目的について最も適切なのはどれか。","choices":["負荷・反応・進捗を追跡できる","本運動への身体的・神経的準備","得たい適応に近い刺激を行う","身体は課された要求に特異的に適応する"],"correct":1,"explanation":"ウォームアップは体温上昇や動作準備などを通して本運動へ備える目的があります。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"cond-005b","question":"トレーニング理論における「ウォームアップの主目的」の説明として正しいものはどれか。","choices":["セット数×反復回数×負荷","運動と回復を交互に繰り返す方法","負荷・反応・進捗を追跡できる","本運動への身体的・神経的準備"],"correct":3,"explanation":"ウォームアップは体温上昇や動作準備などを通して本運動へ備える目的があります。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-006a","question":"クールダウンの一般的な目的について最も適切なのはどれか。","choices":["計画的にトレーニング負荷を一時的に下げる","セット数×反復回数×負荷","本運動への身体的・神経的準備","高強度運動から安静状態へ段階的に移行する"],"correct":3,"explanation":"軽い運動などで運動終了後に身体を徐々に落ち着かせます。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"cond-006b","question":"トレーニング理論における「クールダウンの一般的な目的」の説明として正しいものはどれか。","choices":["高強度運動から安静状態へ段階的に移行する","高い走速度と出力の質を維持する","計画的にトレーニング負荷を一時的に下げる","主観的運動強度"],"correct":0,"explanation":"軽い運動などで運動終了後に身体を徐々に落ち着かせます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-007a","question":"プライオメトリクスで利用される主要メカニズムについて最も適切なのはどれか。","choices":["身体は課された要求に特異的に適応する","伸張-短縮サイクル","1回だけ挙上できる最大負荷","本運動への身体的・神経的準備"],"correct":1,"explanation":"プライオメトリクスではSSCを利用して素早い力発揮を高めます。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"cond-007b","question":"トレーニング理論における「プライオメトリクスで利用される主要メカニズム」の説明として正しいものはどれか。","choices":["得たい適応に近い刺激を行う","伸張-短縮サイクル","継続的な有酸素性刺激と適切な回復","セット数×反復回数×負荷"],"correct":1,"explanation":"プライオメトリクスではSSCを利用して素早い力発揮を高めます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-008a","question":"スプリントトレーニングで完全に近い休息を入れる主な理由について最も適切なのはどれか。","choices":["得たい適応に近い刺激を行う","運動と回復を交互に繰り返す方法","高い走速度と出力の質を維持する","本運動への身体的・神経的準備"],"correct":2,"explanation":"最大速度や加速の質を狙う場合、十分な休息が各反復の質維持に重要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-008b","question":"トレーニング理論における「スプリントトレーニングで完全に近い休息を入れる主な理由」の説明として正しいものはどれか。","choices":["適応に合わせて負荷を段階的に高める","得たい適応に近い刺激を行う","主観的運動強度","高い走速度と出力の質を維持する"],"correct":3,"explanation":"最大速度や加速の質を狙う場合、十分な休息が各反復の質維持に重要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-009a","question":"筋力トレーニングにおける1RMについて最も適切なのはどれか。","choices":["継続的な有酸素性刺激と適切な回復","高い走速度と出力の質を維持する","1回だけ挙上できる最大負荷","セット数×反復回数×負荷"],"correct":2,"explanation":"1RMは適切なフォームで1回挙上できる最大重量を示します。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-009b","question":"トレーニング理論における「筋力トレーニングにおける1RM」の説明として正しいものはどれか。","choices":["本運動への身体的・神経的準備","継続的な有酸素性刺激と適切な回復","1回だけ挙上できる最大負荷","身体は課された要求に特異的に適応する"],"correct":2,"explanation":"1RMは適切なフォームで1回挙上できる最大重量を示します。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-010a","question":"RPEが表すものについて最も適切なのはどれか。","choices":["本運動への身体的・神経的準備","主観的運動強度","計画的にトレーニング負荷を一時的に下げる","身体は課された要求に特異的に適応する"],"correct":1,"explanation":"RPEは本人が感じる運動のきつさを数値化した指標です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-010b","question":"トレーニング理論における「RPEが表すもの」の説明として正しいものはどれか。","choices":["トレーニングを中断すると適応が失われうる","主観的運動強度","運動と回復を交互に繰り返す方法","1回だけ挙上できる最大負荷"],"correct":1,"explanation":"RPEは本人が感じる運動のきつさを数値化した指標です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-011a","question":"ボリュームの一例について最も適切なのはどれか。","choices":["セット数×反復回数×負荷","得たい適応に近い刺激を行う","適応に合わせて負荷を段階的に高める","適応を起こすため普段より高い刺激を与える"],"correct":0,"explanation":"筋力トレーニングの仕事量の一例としてセット×反復×負荷が用いられます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-011b","question":"トレーニング理論における「ボリュームの一例」の説明として正しいものはどれか。","choices":["セット数×反復回数×負荷","高い走速度と出力の質を維持する","身体は課された要求に特異的に適応する","得たい適応に近い刺激を行う"],"correct":0,"explanation":"筋力トレーニングの仕事量の一例としてセット×反復×負荷が用いられます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-012a","question":"インターバルトレーニングについて最も適切なのはどれか。","choices":["1回だけ挙上できる最大負荷","運動と回復を交互に繰り返す方法","本運動への身体的・神経的準備","負荷・反応・進捗を追跡できる"],"correct":1,"explanation":"インターバルトレーニングは運動区間と回復区間を反復します。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-012b","question":"トレーニング理論における「インターバルトレーニング」の説明として正しいものはどれか。","choices":["運動と回復を交互に繰り返す方法","主観的運動強度","伸張-短縮サイクル","適応を起こすため普段より高い刺激を与える"],"correct":0,"explanation":"インターバルトレーニングは運動区間と回復区間を反復します。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-013a","question":"有酸素性持久力向上に必要な基本要素について最も適切なのはどれか。","choices":["トレーニングを中断すると適応が失われうる","適応を起こすため普段より高い刺激を与える","得たい適応に近い刺激を行う","継続的な有酸素性刺激と適切な回復"],"correct":3,"explanation":"持久力向上には有酸素性刺激を継続しつつ回復を確保することが重要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-013b","question":"トレーニング理論における「有酸素性持久力向上に必要な基本要素」の説明として正しいものはどれか。","choices":["継続的な有酸素性刺激と適切な回復","適応を起こすため普段より高い刺激を与える","計画的にトレーニング負荷を一時的に下げる","主観的運動強度"],"correct":0,"explanation":"持久力向上には有酸素性刺激を継続しつつ回復を確保することが重要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-014a","question":"ディロードの考え方について最も適切なのはどれか。","choices":["計画的にトレーニング負荷を一時的に下げる","身体は課された要求に特異的に適応する","本運動への身体的・神経的準備","適応に合わせて負荷を段階的に高める"],"correct":0,"explanation":"疲労管理のため一定期間、量や強度を意図的に下げる方法があります。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-014b","question":"トレーニング理論における「ディロードの考え方」の説明として正しいものはどれか。","choices":["計画的にトレーニング負荷を一時的に下げる","高い走速度と出力の質を維持する","得たい適応に近い刺激を行う","高強度運動から安静状態へ段階的に移行する"],"correct":0,"explanation":"疲労管理のため一定期間、量や強度を意図的に下げる方法があります。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-015a","question":"トレーニング記録の主な利点について最も適切なのはどれか。","choices":["負荷・反応・進捗を追跡できる","適応に合わせて負荷を段階的に高める","セット数×反復回数×負荷","得たい適応に近い刺激を行う"],"correct":0,"explanation":"記録により負荷量や体調、パフォーマンス変化を振り返ることができます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-015b","question":"トレーニング理論における「トレーニング記録の主な利点」の説明として正しいものはどれか。","choices":["セット数×反復回数×負荷","伸張-短縮サイクル","本運動への身体的・神経的準備","負荷・反応・進捗を追跡できる"],"correct":3,"explanation":"記録により負荷量や体調、パフォーマンス変化を振り返ることができます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-016a","question":"SAIDの概念について最も適切なのはどれか。","choices":["本運動への身体的・神経的準備","負荷・反応・進捗を追跡できる","高強度運動から安静状態へ段階的に移行する","身体は課された要求に特異的に適応する"],"correct":3,"explanation":"Specific Adaptation to Imposed Demandsは課された要求への特異的適応を表します。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"cond-016b","question":"トレーニング理論における「SAIDの概念」の説明として正しいものはどれか。","choices":["計画的にトレーニング負荷を一時的に下げる","身体は課された要求に特異的に適応する","セット数×反復回数×負荷","1回だけ挙上できる最大負荷"],"correct":1,"explanation":"Specific Adaptation to Imposed Demandsは課された要求への特異的適応を表します。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"test-001a","question":"信頼性について最も適切なのはどれか。","choices":["同じ条件で測定したとき結果が安定している程度","関節可動域の角度測定","安静状態での心拍数","下肢の跳躍パワー評価"],"correct":0,"explanation":"信頼性は測定の再現性・一貫性に関わる概念です。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-001b","question":"次のうち、信頼性の特徴として正しいものはどれか。","choices":["同じ条件で測定したとき結果が安定している程度","関節可動域の角度測定","等尺性筋力の定量評価","測りたいものを適切に測定できている程度"],"correct":0,"explanation":"信頼性は測定の再現性・一貫性に関わる概念です。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-002a","question":"妥当性について最も適切なのはどれか。","choices":["同じ条件で測定したとき結果が安定している程度","測りたいものを適切に測定できている程度","疾患や状態がある人を陽性と判定できる割合","動的バランスの評価"],"correct":1,"explanation":"妥当性は測定が目的とする構成概念を適切に捉えているかを示します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-002b","question":"次のうち、妥当性の特徴として正しいものはどれか。","choices":["等尺性筋力の定量評価","安静状態での心拍数","測りたいものを適切に測定できている程度","同じ条件で測定したとき結果が安定している程度"],"correct":2,"explanation":"妥当性は測定が目的とする構成概念を適切に捉えているかを示します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-003a","question":"感度について最も適切なのはどれか。","choices":["疾患や状態がある人を陽性と判定できる割合","動的バランスの評価","条件差による測定誤差を減らす","測りたいものを適切に測定できている程度"],"correct":0,"explanation":"感度は真陽性率に相当します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-003b","question":"次のうち、感度の特徴として正しいものはどれか。","choices":["等尺性筋力の定量評価","疾患や状態がある人を陽性と判定できる割合","安静状態での心拍数","加速能力の評価"],"correct":1,"explanation":"感度は真陽性率に相当します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-004a","question":"特異度について最も適切なのはどれか。","choices":["動的バランスの評価","安静状態での心拍数","疾患や状態がない人を陰性と判定できる割合","疾患や状態がある人を陽性と判定できる割合"],"correct":2,"explanation":"特異度は真陰性率に相当します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-004b","question":"次のうち、特異度の特徴として正しいものはどれか。","choices":["疾患や状態がない人を陰性と判定できる割合","測りたいものを適切に測定できている程度","加速能力の評価","等尺性筋力の定量評価"],"correct":0,"explanation":"特異度は真陰性率に相当します。","subject":"検査・測定","year":"基礎","difficulty":3},{"id":"test-005a","question":"ゴニオメーターについて最も適切なのはどれか。","choices":["等尺性筋力の定量評価","同じ条件で測定したとき結果が安定している程度","関節可動域の角度測定","体格差の影響を一部調整する"],"correct":2,"explanation":"ゴニオメーターは関節角度・ROM測定に用いられます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-005b","question":"次のうち、ゴニオメーターの特徴として正しいものはどれか。","choices":["関節可動域の角度測定","安静状態での心拍数","下肢の跳躍パワー評価","動的バランスの評価"],"correct":0,"explanation":"ゴニオメーターは関節角度・ROM測定に用いられます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-006a","question":"ハンドヘルドダイナモメーターについて最も適切なのはどれか。","choices":["等尺性筋力の定量評価","疾患や状態がない人を陰性と判定できる割合","下肢の跳躍パワー評価","動的バランスの評価"],"correct":0,"explanation":"HHDは徒手抵抗下などで筋力を定量化するために用いられます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-006b","question":"次のうち、ハンドヘルドダイナモメーターの特徴として正しいものはどれか。","choices":["等尺性筋力の定量評価","疾患や状態がない人を陰性と判定できる割合","同じ条件で測定したとき結果が安定している程度","加速能力の評価"],"correct":0,"explanation":"HHDは徒手抵抗下などで筋力を定量化するために用いられます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-007a","question":"カウンタームーブメントジャンプについて最も適切なのはどれか。","choices":["加速能力の評価","条件差による測定誤差を減らす","下肢の跳躍パワー評価","疾患や状態がある人を陽性と判定できる割合"],"correct":2,"explanation":"CMJは反動動作を用いる垂直跳びで、跳躍能力や下肢パワー評価に使われます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-007b","question":"次のうち、カウンタームーブメントジャンプの特徴として正しいものはどれか。","choices":["体格差の影響を一部調整する","等尺性筋力の定量評価","安静状態での心拍数","下肢の跳躍パワー評価"],"correct":3,"explanation":"CMJは反動動作を用いる垂直跳びで、跳躍能力や下肢パワー評価に使われます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-008a","question":"10mスプリントについて最も適切なのはどれか。","choices":["動的バランスの評価","加速能力の評価","同じ条件で測定したとき結果が安定している程度","安静状態での心拍数"],"correct":1,"explanation":"短距離の10m走タイムは加速能力の評価に利用されます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-008b","question":"次のうち、10mスプリントの特徴として正しいものはどれか。","choices":["加速能力の評価","測りたいものを適切に測定できている程度","関節可動域の角度測定","動的バランスの評価"],"correct":0,"explanation":"短距離の10m走タイムは加速能力の評価に利用されます。","subject":"検査・測定","year":"基礎","difficulty":3},{"id":"test-009a","question":"Y-Balance Testについて最も適切なのはどれか。","choices":["動的バランスの評価","測りたいものを適切に測定できている程度","条件差による測定誤差を減らす","等尺性筋力の定量評価"],"correct":0,"explanation":"Y-Balance Testは片脚支持で複数方向へリーチし動的バランスを評価します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-009b","question":"次のうち、Y-Balance Testの特徴として正しいものはどれか。","choices":["動的バランスの評価","測りたいものを適切に測定できている程度","同じ条件で測定したとき結果が安定している程度","安静状態での心拍数"],"correct":0,"explanation":"Y-Balance Testは片脚支持で複数方向へリーチし動的バランスを評価します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-010a","question":"安静時心拍数について最も適切なのはどれか。","choices":["疾患や状態がない人を陰性と判定できる割合","下肢の跳躍パワー評価","測りたいものを適切に測定できている程度","安静状態での心拍数"],"correct":3,"explanation":"安静時心拍数は回復や体調モニタリングの一情報として利用されます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-010b","question":"次のうち、安静時心拍数の特徴として正しいものはどれか。","choices":["疾患や状態がある人を陽性と判定できる割合","加速能力の評価","関節可動域の角度測定","安静状態での心拍数"],"correct":3,"explanation":"安静時心拍数は回復や体調モニタリングの一情報として利用されます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-011a","question":"体重あたりの値で比較する目的について最も適切なのはどれか。","choices":["等尺性筋力の定量評価","体格差の影響を一部調整する","同じ条件で測定したとき結果が安定している程度","関節可動域の角度測定"],"correct":1,"explanation":"筋力やパワーを体重で除すことで体格差を考慮した比較ができます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-011b","question":"次のうち、体重あたりの値で比較する目的の特徴として正しいものはどれか。","choices":["下肢の跳躍パワー評価","動的バランスの評価","体格差の影響を一部調整する","疾患や状態がない人を陰性と判定できる割合"],"correct":2,"explanation":"筋力やパワーを体重で除すことで体格差を考慮した比較ができます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-012a","question":"測定前の標準化について最も適切なのはどれか。","choices":["安静状態での心拍数","条件差による測定誤差を減らす","下肢の跳躍パワー評価","測りたいものを適切に測定できている程度"],"correct":1,"explanation":"測定時間、ウォームアップ、機器設定などを揃えると比較しやすくなります。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"test-012b","question":"次のうち、測定前の標準化の特徴として正しいものはどれか。","choices":["加速能力の評価","条件差による測定誤差を減らす","疾患や状態がない人を陰性と判定できる割合","関節可動域の角度測定"],"correct":1,"explanation":"測定時間、ウォームアップ、機器設定などを揃えると比較しやすくなります。","subject":"検査・測定","year":"基礎","difficulty":3},{"id":"rehab-001a","question":"リハビリテーションで負荷を段階的に上げる理由について最も適切なのはどれか。","choices":["必要な関節運動を回復・維持する","競技や日常動作に必要な能力へ段階的に近づける","組織と機能の適応を確認しながら能力を高める","筋が伸張されながら力を発揮する"],"correct":2,"explanation":"負荷は症状や機能反応をみながら段階的に進めることが基本です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-001b","question":"次のうち、リハビリテーションで負荷を段階的に上げる理由の特徴として正しいものはどれか。","choices":["組織と機能の適応を確認しながら能力を高める","筋長変化が小さい状態で張力を発揮する","時間だけでなく症状・機能・競技要求を総合評価する","必要な関節運動を回復・維持する"],"correct":0,"explanation":"負荷は症状や機能反応をみながら段階的に進めることが基本です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-002a","question":"片脚支持で骨盤が反対側へ下がる現象に関連する筋について最も適切なのはどれか。","choices":["必要な関節運動を回復・維持する","支持側の中殿筋","筋が伸張されながら力を発揮する","身体位置や動きに関する固有感覚"],"correct":1,"explanation":"支持側中殿筋は片脚支持中の前額面での骨盤安定化に重要です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-002b","question":"次のうち、片脚支持で骨盤が反対側へ下がる現象に関連する筋の特徴として正しいものはどれか。","choices":["支持側の中殿筋","身体位置や動きに関する固有感覚","筋長変化が小さい状態で張力を発揮する","筋が短縮しながら力を発揮する"],"correct":0,"explanation":"支持側中殿筋は片脚支持中の前額面での骨盤安定化に重要です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-003a","question":"閉鎖性運動連鎖の例について最も適切なのはどれか。","choices":["組織と機能の適応を確認しながら能力を高める","必要な関節運動を回復・維持する","筋が短縮しながら力を発揮する","スクワット"],"correct":3,"explanation":"スクワットは足部が床に固定された代表的な閉鎖性運動連鎖です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-003b","question":"次のうち、閉鎖性運動連鎖の例の特徴として正しいものはどれか。","choices":["スクワット","必要な関節運動を回復・維持する","筋が伸張されながら力を発揮する","時間だけでなく症状・機能・競技要求を総合評価する"],"correct":0,"explanation":"スクワットは足部が床に固定された代表的な閉鎖性運動連鎖です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-004a","question":"開放性運動連鎖の例について最も適切なのはどれか。","choices":["必要な関節運動を回復・維持する","座位での膝伸展","左右差だけでなく絶対的な能力も確認する","身体位置や動きに関する固有感覚"],"correct":1,"explanation":"レッグエクステンションのように遠位端が自由な運動は開放性運動連鎖の例です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-004b","question":"次のうち、開放性運動連鎖の例の特徴として正しいものはどれか。","choices":["組織と機能の適応を確認しながら能力を高める","左右差だけでなく絶対的な能力も確認する","座位での膝伸展","必要な関節運動を回復・維持する"],"correct":2,"explanation":"レッグエクステンションのように遠位端が自由な運動は開放性運動連鎖の例です。","subject":"アスリハ","year":"基礎","difficulty":3},{"id":"rehab-005a","question":"プロプリオセプションについて最も適切なのはどれか。","choices":["身体位置や動きに関する固有感覚","スクワット","必要な関節運動を回復・維持する","支持側の中殿筋"],"correct":0,"explanation":"固有受容感覚は関節・筋などから身体位置や動きの情報を得る感覚です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-005b","question":"次のうち、プロプリオセプションの特徴として正しいものはどれか。","choices":["身体位置や動きに関する固有感覚","スクワット","左右差だけでなく絶対的な能力も確認する","座位での膝伸展"],"correct":0,"explanation":"固有受容感覚は関節・筋などから身体位置や動きの情報を得る感覚です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-006a","question":"可動域訓練の目的について最も適切なのはどれか。","choices":["必要な関節運動を回復・維持する","スクワット","筋が伸張されながら力を発揮する","身体位置や動きに関する固有感覚"],"correct":0,"explanation":"ROMエクササイズは関節運動の維持・改善に利用されます。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-006b","question":"次のうち、可動域訓練の目的の特徴として正しいものはどれか。","choices":["筋が伸張されながら力を発揮する","左右差だけでなく絶対的な能力も確認する","必要な関節運動を回復・維持する","支持側の中殿筋"],"correct":2,"explanation":"ROMエクササイズは関節運動の維持・改善に利用されます。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-007a","question":"等尺性収縮について最も適切なのはどれか。","choices":["必要な関節運動を回復・維持する","競技や日常動作に必要な能力へ段階的に近づける","筋長変化が小さい状態で張力を発揮する","支持側の中殿筋"],"correct":2,"explanation":"等尺性収縮では関節運動をほとんど伴わず筋張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-007b","question":"次のうち、等尺性収縮の特徴として正しいものはどれか。","choices":["筋長変化が小さい状態で張力を発揮する","競技や日常動作に必要な能力へ段階的に近づける","筋が伸張されながら力を発揮する","支持側の中殿筋"],"correct":0,"explanation":"等尺性収縮では関節運動をほとんど伴わず筋張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-008a","question":"求心性収縮について最も適切なのはどれか。","choices":["時間だけでなく症状・機能・競技要求を総合評価する","必要な関節運動を回復・維持する","筋長変化が小さい状態で張力を発揮する","筋が短縮しながら力を発揮する"],"correct":3,"explanation":"求心性収縮では筋が短くなりながら張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-008b","question":"次のうち、求心性収縮の特徴として正しいものはどれか。","choices":["筋が伸張されながら力を発揮する","筋が短縮しながら力を発揮する","競技や日常動作に必要な能力へ段階的に近づける","組織と機能の適応を確認しながら能力を高める"],"correct":1,"explanation":"求心性収縮では筋が短くなりながら張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":3},{"id":"rehab-009a","question":"遠心性収縮について最も適切なのはどれか。","choices":["筋が伸張されながら力を発揮する","左右差だけでなく絶対的な能力も確認する","筋が短縮しながら力を発揮する","支持側の中殿筋"],"correct":0,"explanation":"遠心性収縮では筋が伸ばされながら張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-009b","question":"次のうち、遠心性収縮の特徴として正しいものはどれか。","choices":["組織と機能の適応を確認しながら能力を高める","スクワット","支持側の中殿筋","筋が伸張されながら力を発揮する"],"correct":3,"explanation":"遠心性収縮では筋が伸ばされながら張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-010a","question":"機能的リハビリテーションについて最も適切なのはどれか。","choices":["競技や日常動作に必要な能力へ段階的に近づける","左右差だけでなく絶対的な能力も確認する","座位での膝伸展","支持側の中殿筋"],"correct":0,"explanation":"最終段階では実際の活動要求に近い動作へ段階的に移行します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-010b","question":"次のうち、機能的リハビリテーションの特徴として正しいものはどれか。","choices":["筋が伸張されながら力を発揮する","競技や日常動作に必要な能力へ段階的に近づける","筋長変化が小さい状態で張力を発揮する","必要な関節運動を回復・維持する"],"correct":1,"explanation":"最終段階では実際の活動要求に近い動作へ段階的に移行します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-011a","question":"リターントゥスポーツ判断について最も適切なのはどれか。","choices":["筋長変化が小さい状態で張力を発揮する","筋が短縮しながら力を発揮する","時間だけでなく症状・機能・競技要求を総合評価する","競技や日常動作に必要な能力へ段階的に近づける"],"correct":2,"explanation":"競技復帰は経過時間だけではなく複数の情報を総合して判断します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-011b","question":"次のうち、リターントゥスポーツ判断の特徴として正しいものはどれか。","choices":["筋が短縮しながら力を発揮する","時間だけでなく症状・機能・競技要求を総合評価する","競技や日常動作に必要な能力へ段階的に近づける","座位での膝伸展"],"correct":1,"explanation":"競技復帰は経過時間だけではなく複数の情報を総合して判断します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-012a","question":"左右差を見るときの注意点について最も適切なのはどれか。","choices":["筋が伸張されながら力を発揮する","時間だけでなく症状・機能・競技要求を総合評価する","左右差だけでなく絶対的な能力も確認する","必要な関節運動を回復・維持する"],"correct":2,"explanation":"左右対称でも両側の能力が低い場合があるため、絶対値も重要です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"rehab-012b","question":"次のうち、左右差を見るときの注意点の特徴として正しいものはどれか。","choices":["身体位置や動きに関する固有感覚","座位での膝伸展","左右差だけでなく絶対的な能力も確認する","支持側の中殿筋"],"correct":2,"explanation":"左右対称でも両側の能力が低い場合があるため、絶対値も重要です。","subject":"アスリハ","year":"基礎","difficulty":3},{"id":"anat-joint-001a","question":"肩甲上腕関節の関節分類について最も適切なのはどれか。","choices":["隣接する椎体の間","大腿四頭筋の伸展モーメントアームを高める","球関節","屈曲と伸展"],"correct":2,"explanation":"肩甲上腕関節は多軸性の球関節です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-001b","question":"次のうち、肩甲上腕関節の関節分類の特徴として正しいものはどれか。","choices":["回内と回外","球関節","背屈と底屈","隣接する椎体の間"],"correct":1,"explanation":"肩甲上腕関節は多軸性の球関節です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-002a","question":"肘関節の主な運動について最も適切なのはどれか。","choices":["脛骨の前方移動を制動","球関節","大腿脛骨関節と膝蓋大腿関節","屈曲と伸展"],"correct":3,"explanation":"肘関節は主に屈曲・伸展を行います。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-002b","question":"次のうち、肘関節の主な運動の特徴として正しいものはどれか。","choices":["背屈と底屈","膝内反ストレスへの抵抗","屈曲と伸展","球関節"],"correct":2,"explanation":"肘関節は主に屈曲・伸展を行います。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-003a","question":"橈尺関節の主な運動について最も適切なのはどれか。","choices":["回内と回外","脛骨の前方移動を制動","球関節","球関節"],"correct":0,"explanation":"近位・遠位橈尺関節は前腕の回内・回外に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-003b","question":"次のうち、橈尺関節の主な運動の特徴として正しいものはどれか。","choices":["球関節","球関節","背屈と底屈","回内と回外"],"correct":3,"explanation":"近位・遠位橈尺関節は前腕の回内・回外に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-004a","question":"股関節の関節分類について最も適切なのはどれか。","choices":["球関節","回内と回外","大腿四頭筋の伸展モーメントアームを高める","隣接する椎体の間"],"correct":0,"explanation":"股関節は多軸性の球関節です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-004b","question":"次のうち、股関節の関節分類の特徴として正しいものはどれか。","choices":["膝内反ストレスへの抵抗","球関節","回内と回外","大腿四頭筋の伸展モーメントアームを高める"],"correct":1,"explanation":"股関節は多軸性の球関節です。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"anat-joint-005a","question":"膝関節の主要構成について最も適切なのはどれか。","choices":["隣接する椎体の間","大腿脛骨関節と膝蓋大腿関節","膝内反ストレスへの抵抗","背屈と底屈"],"correct":1,"explanation":"膝は大腿脛骨関節と膝蓋大腿関節から構成されます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-005b","question":"次のうち、膝関節の主要構成の特徴として正しいものはどれか。","choices":["球関節","大腿脛骨関節と膝蓋大腿関節","膝外反ストレスへの抵抗","脛骨の後方移動を制動"],"correct":1,"explanation":"膝は大腿脛骨関節と膝蓋大腿関節から構成されます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-006a","question":"距腿関節の主な運動について最も適切なのはどれか。","choices":["隣接する椎体の間","屈曲と伸展","膝外反ストレスへの抵抗","背屈と底屈"],"correct":3,"explanation":"距腿関節は主に足関節の背屈・底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-006b","question":"次のうち、距腿関節の主な運動の特徴として正しいものはどれか。","choices":["背屈と底屈","大腿脛骨関節と膝蓋大腿関節","屈曲と伸展","回内と回外"],"correct":0,"explanation":"距腿関節は主に足関節の背屈・底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-007a","question":"前十字靱帯の主な制動機能について最も適切なのはどれか。","choices":["膝外反ストレスへの抵抗","脛骨の後方移動を制動","膝内反ストレスへの抵抗","脛骨の前方移動を制動"],"correct":3,"explanation":"ACLは大腿骨に対する脛骨前方移動を主に制動します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-007b","question":"次のうち、前十字靱帯の主な制動機能の特徴として正しいものはどれか。","choices":["膝内反ストレスへの抵抗","脛骨の前方移動を制動","隣接する椎体の間","球関節"],"correct":1,"explanation":"ACLは大腿骨に対する脛骨前方移動を主に制動します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-008a","question":"後十字靱帯の主な制動機能について最も適切なのはどれか。","choices":["背屈と底屈","脛骨の後方移動を制動","脛骨の前方移動を制動","膝外反ストレスへの抵抗"],"correct":1,"explanation":"PCLは大腿骨に対する脛骨後方移動を主に制動します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-008b","question":"次のうち、後十字靱帯の主な制動機能の特徴として正しいものはどれか。","choices":["隣接する椎体の間","脛骨の後方移動を制動","背屈と底屈","脛骨の前方移動を制動"],"correct":1,"explanation":"PCLは大腿骨に対する脛骨後方移動を主に制動します。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"anat-joint-009a","question":"内側側副靱帯の主な機能について最も適切なのはどれか。","choices":["隣接する椎体の間","脛骨の後方移動を制動","屈曲と伸展","膝外反ストレスへの抵抗"],"correct":3,"explanation":"MCLは膝外反ストレスに対する主要な静的制動組織です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-009b","question":"次のうち、内側側副靱帯の主な機能の特徴として正しいものはどれか。","choices":["背屈と底屈","膝外反ストレスへの抵抗","屈曲と伸展","脛骨の前方移動を制動"],"correct":1,"explanation":"MCLは膝外反ストレスに対する主要な静的制動組織です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-010a","question":"外側側副靱帯の主な機能について最も適切なのはどれか。","choices":["大腿四頭筋の伸展モーメントアームを高める","膝内反ストレスへの抵抗","隣接する椎体の間","膝外反ストレスへの抵抗"],"correct":1,"explanation":"LCLは膝内反ストレスに抵抗します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-010b","question":"次のうち、外側側副靱帯の主な機能の特徴として正しいものはどれか。","choices":["隣接する椎体の間","背屈と底屈","脛骨の前方移動を制動","膝内反ストレスへの抵抗"],"correct":3,"explanation":"LCLは膝内反ストレスに抵抗します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-011a","question":"膝蓋骨の役割について最も適切なのはどれか。","choices":["屈曲と伸展","膝外反ストレスへの抵抗","大腿四頭筋の伸展モーメントアームを高める","背屈と底屈"],"correct":2,"explanation":"膝蓋骨は大腿四頭筋腱の作用線を前方へ保ち、膝伸展効率に寄与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-011b","question":"次のうち、膝蓋骨の役割の特徴として正しいものはどれか。","choices":["背屈と底屈","球関節","大腿四頭筋の伸展モーメントアームを高める","屈曲と伸展"],"correct":2,"explanation":"膝蓋骨は大腿四頭筋腱の作用線を前方へ保ち、膝伸展効率に寄与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-012a","question":"椎間板の位置について最も適切なのはどれか。","choices":["脛骨の前方移動を制動","膝内反ストレスへの抵抗","球関節","隣接する椎体の間"],"correct":3,"explanation":"椎間板は多くの脊椎レベルで隣接椎体間にあります。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"anat-joint-012b","question":"次のうち、椎間板の位置の特徴として正しいものはどれか。","choices":["隣接する椎体の間","大腿脛骨関節と膝蓋大腿関節","球関節","回内と回外"],"correct":0,"explanation":"椎間板は多くの脊椎レベルで隣接椎体間にあります。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"variant-001","question":"確認問題：片脚着地で膝が過度に内側へ入る動きに関係しやすい要素はどれか。","choices":["肘関節屈曲不足","手関節背屈不足","頸部回旋制限のみ","股関節外転・外旋制御の不足"],"correct":3,"explanation":"動的膝外反には股関節・骨盤・足部など複数要因が関わりますが、股関節外転・外旋方向の制御不足は重要な評価項目です。","subject":"アスリハ","year":"応用","difficulty":2},{"id":"variant-002","question":"確認問題：仕事率（Power）を表す基本的な考え方として正しいのはどれか。","choices":["力÷質量","距離÷力","単位時間あたりの仕事","時間×質量"],"correct":2,"explanation":"仕事率は仕事を時間で割った量で、どれだけ速く仕事を行ったかを表します。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"variant-003","question":"確認問題：次のうち、三角筋中部線維の主な作用の特徴として正しいものはどれか。","choices":["肩関節外転","肩関節外転の開始を補助","股関節伸展","肩甲骨下制と上方回旋への関与"],"correct":0,"explanation":"三角筋中部線維は肩関節外転に強く働きます。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-004","question":"確認問題：棘下筋の主な作用について最も適切なのはどれか。","choices":["足部外反","肩関節外旋","肩関節外転の開始を補助","足関節底屈"],"correct":1,"explanation":"棘下筋は肩関節外旋に働く腱板筋です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-005","question":"確認問題：次のうち、僧帽筋下部線維の代表的な作用の特徴として正しいものはどれか。","choices":["肩関節外転","肩甲骨下制と上方回旋への関与","肩関節水平内転","肘関節伸展"],"correct":1,"explanation":"僧帽筋下部線維は肩甲骨下制に加え、上方回旋にも関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-006","question":"確認問題：大腿四頭筋の主な作用について最も適切なのはどれか。","choices":["膝屈曲と下腿内旋","肩関節外転の開始を補助","膝関節伸展","足関節背屈と足部内反"],"correct":2,"explanation":"大腿四頭筋は膝関節伸展の主働筋群です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-007","question":"確認問題：次のうち、大腿二頭筋の代表的な作用の特徴として正しいものはどれか。","choices":["肘関節屈曲と前腕回外","肩関節内旋","膝屈曲と下腿外旋","足関節底屈と膝屈曲"],"correct":2,"explanation":"大腿二頭筋は膝屈曲に加え、膝屈曲位で下腿外旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-008","question":"確認問題：ヒラメ筋の主な作用について最も適切なのはどれか。","choices":["肩関節外旋","膝屈曲と下腿内旋","股関節と膝関節をまたぐ二関節筋","足関節底屈"],"correct":3,"explanation":"ヒラメ筋は膝関節をまたがず、主に足関節底屈に働きます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-009","question":"確認問題：次のうち、長母趾伸筋の主な作用の特徴として正しいものはどれか。","choices":["肘関節伸展","母趾伸展と足関節背屈","足関節背屈と足部内反","膝関節屈曲と股関節伸展"],"correct":1,"explanation":"長母趾伸筋は母趾伸展と足関節背屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":3},{"id":"variant-010","question":"確認問題：橈骨神経が主に関与する運動について最も適切なのはどれか。","choices":["下腿外側筋群","肘・手関節の伸展","前腕屈筋群の多くと母指対立","大腿四頭筋"],"correct":1,"explanation":"橈骨神経は上腕三頭筋や前腕伸筋群などを支配し、伸展運動に重要です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-011","question":"確認問題：次のうち、大腿神経が主に支配する筋群の特徴として正しいものはどれか。","choices":["下腿前面筋群","肘・手関節の伸展","大腿四頭筋","下腿外側筋群"],"correct":2,"explanation":"大腿神経は大腿四頭筋など大腿前面筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-012","question":"確認問題：浅腓骨神経が主に支配する筋群について最も適切なのはどれか。","choices":["横隔膜の運動支配","前腕屈筋群の多くと母指対立","下腿外側筋群","下腿後面筋群"],"correct":2,"explanation":"浅腓骨神経は長・短腓骨筋など下腿外側筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-013","question":"確認問題：筋収縮のクロスブリッジサイクルで直接利用されるエネルギー源はどれか。","choices":["ATP","乳酸のみ","グリコーゲンのみ","DNA"],"correct":0,"explanation":"ミオシン頭部のクロスブリッジサイクルにはATPが直接必要です。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"variant-014","question":"確認問題：Fickの原理で酸素摂取量を表す主要要素はどれか。","choices":["心拍出量×動静脈酸素較差","血糖×呼吸数","体重×心拍数","肺活量×血圧"],"correct":0,"explanation":"Fickの原理ではVO₂＝心拍出量×動静脈酸素較差です。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"variant-015","question":"確認問題：グルカゴンの代表的な作用はどれか。","choices":["血糖を必ず低下させる","血糖を上昇させる方向に働く","筋力を直接2倍にする","心拍数をゼロにする"],"correct":1,"explanation":"グルカゴンは肝臓でのグリコーゲン分解などを促し、血糖を上げる方向に働きます。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"variant-016","question":"確認問題：呼吸における主要な吸気筋はどれか。","choices":["横隔膜","上腕三頭筋","大殿筋","前脛骨筋"],"correct":0,"explanation":"安静吸気では横隔膜が主要な役割を担います。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"variant-017","question":"確認問題：重心について正しい説明として正しいものはどれか。","choices":["質量×重力加速度×高さ","力×力方向の変位","運動量の変化量","物体の質量が集中しているとみなせる点"],"correct":3,"explanation":"重心は重力が作用する代表点として扱うことができます。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"variant-018","question":"確認問題：摩擦力が一般に作用する方向として正しいものはどれか。","choices":["力×モーメントアーム","接触面で相対運動を妨げる方向","身体が床へ加えた力に対して床から受ける反力","質量×重力加速度×高さ"],"correct":1,"explanation":"摩擦力は接触面での相対運動またはその傾向を妨げる方向に働きます。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"variant-019","question":"確認問題：半月板評価で用いられる代表的テストとして正しいものはどれか。","choices":["前方","McMurray test","Posterior drawer test","前距腓靱帯"],"correct":1,"explanation":"McMurray testは半月板損傷評価に用いられる代表的な徒手検査です。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"variant-020","question":"確認問題：シンスプリントとして知られることが多い障害として正しいものはどれか。","choices":["前方","Lachman test","足部の舟状骨","Medial Tibial Stress Syndrome"],"correct":3,"explanation":"MTSSは脛骨内側部の運動時痛を特徴とする過使用障害として知られます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"variant-021","question":"確認問題：トレーニングの過負荷の原則について最も適切なのはどれか。","choices":["負荷・反応・進捗を追跡できる","高強度運動から安静状態へ段階的に移行する","適応を起こすため普段より高い刺激を与える","身体は課された要求に特異的に適応する"],"correct":2,"explanation":"過負荷の原則では、身体に適応を促すため一定以上の刺激が必要です。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"variant-022","question":"確認問題：トレーニング理論における「可逆性の原則」の説明として正しいものはどれか。","choices":["1回だけ挙上できる最大負荷","トレーニングを中断すると適応が失われうる","伸張-短縮サイクル","適応に合わせて負荷を段階的に高める"],"correct":1,"explanation":"獲得した体力要素は刺激がなくなると低下することがあります。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-023","question":"確認問題：スプリントトレーニングで完全に近い休息を入れる主な理由について最も適切なのはどれか。","choices":["高い走速度と出力の質を維持する","運動と回復を交互に繰り返す方法","得たい適応に近い刺激を行う","本運動への身体的・神経的準備"],"correct":0,"explanation":"最大速度や加速の質を狙う場合、十分な休息が各反復の質維持に重要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-024","question":"確認問題：トレーニング理論における「ボリュームの一例」の説明として正しいものはどれか。","choices":["得たい適応に近い刺激を行う","身体は課された要求に特異的に適応する","高い走速度と出力の質を維持する","セット数×反復回数×負荷"],"correct":3,"explanation":"筋力トレーニングの仕事量の一例としてセット×反復×負荷が用いられます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-025","question":"確認問題：トレーニング記録の主な利点について最も適切なのはどれか。","choices":["負荷・反応・進捗を追跡できる","適応に合わせて負荷を段階的に高める","セット数×反復回数×負荷","得たい適応に近い刺激を行う"],"correct":0,"explanation":"記録により負荷量や体調、パフォーマンス変化を振り返ることができます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-026","question":"確認問題：次のうち、妥当性の特徴として正しいものはどれか。","choices":["同じ条件で測定したとき結果が安定している程度","安静状態での心拍数","等尺性筋力の定量評価","測りたいものを適切に測定できている程度"],"correct":3,"explanation":"妥当性は測定が目的とする構成概念を適切に捉えているかを示します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"variant-027","question":"確認問題：ハンドヘルドダイナモメーターについて最も適切なのはどれか。","choices":["下肢の跳躍パワー評価","動的バランスの評価","疾患や状態がない人を陰性と判定できる割合","等尺性筋力の定量評価"],"correct":3,"explanation":"HHDは徒手抵抗下などで筋力を定量化するために用いられます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"variant-028","question":"確認問題：次のうち、Y-Balance Testの特徴として正しいものはどれか。","choices":["動的バランスの評価","測りたいものを適切に測定できている程度","同じ条件で測定したとき結果が安定している程度","安静状態での心拍数"],"correct":0,"explanation":"Y-Balance Testは片脚支持で複数方向へリーチし動的バランスを評価します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"variant-029","question":"確認問題：リハビリテーションで負荷を段階的に上げる理由について最も適切なのはどれか。","choices":["組織と機能の適応を確認しながら能力を高める","筋が伸張されながら力を発揮する","競技や日常動作に必要な能力へ段階的に近づける","必要な関節運動を回復・維持する"],"correct":0,"explanation":"負荷は症状や機能反応をみながら段階的に進めることが基本です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"variant-030","question":"確認問題：次のうち、開放性運動連鎖の例の特徴として正しいものはどれか。","choices":["組織と機能の適応を確認しながら能力を高める","座位での膝伸展","必要な関節運動を回復・維持する","左右差だけでなく絶対的な能力も確認する"],"correct":1,"explanation":"レッグエクステンションのように遠位端が自由な運動は開放性運動連鎖の例です。","subject":"アスリハ","year":"基礎","difficulty":3},{"id":"variant-031","question":"確認問題：求心性収縮について最も適切なのはどれか。","choices":["筋が短縮しながら力を発揮する","筋長変化が小さい状態で張力を発揮する","必要な関節運動を回復・維持する","時間だけでなく症状・機能・競技要求を総合評価する"],"correct":0,"explanation":"求心性収縮では筋が短くなりながら張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"variant-032","question":"確認問題：次のうち、リターントゥスポーツ判断の特徴として正しいものはどれか。","choices":["座位での膝伸展","時間だけでなく症状・機能・競技要求を総合評価する","筋が短縮しながら力を発揮する","競技や日常動作に必要な能力へ段階的に近づける"],"correct":1,"explanation":"競技復帰は経過時間だけではなく複数の情報を総合して判断します。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"variant-033","question":"確認問題：橈尺関節の主な運動について最も適切なのはどれか。","choices":["球関節","球関節","回内と回外","脛骨の前方移動を制動"],"correct":2,"explanation":"近位・遠位橈尺関節は前腕の回内・回外に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-034","question":"確認問題：次のうち、距腿関節の主な運動の特徴として正しいものはどれか。","choices":["背屈と底屈","屈曲と伸展","回内と回外","大腿脛骨関節と膝蓋大腿関節"],"correct":0,"explanation":"距腿関節は主に足関節の背屈・底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-035","question":"確認問題：外側側副靱帯の主な機能について最も適切なのはどれか。","choices":["膝外反ストレスへの抵抗","隣接する椎体の間","大腿四頭筋の伸展モーメントアームを高める","膝内反ストレスへの抵抗"],"correct":3,"explanation":"LCLは膝内反ストレスに抵抗します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-036","question":"確認問題：最大酸素摂取量（VO₂max）が主に示す能力として最も適切なのはどれか。","choices":["関節可動域","瞬発的な最大筋力","反応時間","有酸素性作業能力"],"correct":3,"explanation":"VO₂maxは運動中に取り込み・運搬・利用できる酸素量の上限を表し、有酸素性体力の代表的指標です。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"variant-037","question":"確認問題：ウォームアップの一般的な目的として不適切なのはどれか。","choices":["意図的に疲労困憊にする","筋温上昇","競技動作への準備","神経筋機能の準備"],"correct":0,"explanation":"ウォームアップは身体・神経系を競技に向けて準備するもので、通常は競技前に疲労困憊させることが目的ではありません。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"variant-038","question":"確認問題：リハビリテーションで段階的に負荷を増やす主な理由はどれか。","choices":["毎回完全休養にするため","常に痛みを最大化するため","評価を不要にするため","組織と機能の適応を促しつつ過負荷を避けるため"],"correct":3,"explanation":"負荷は組織の治癒段階と能力に合わせて漸増し、必要な適応を引き出しながら再受傷リスクを抑えることが重要です。","subject":"アスリハ","year":"応用","difficulty":2},{"id":"variant-039","question":"確認問題：大胸筋の代表的な作用について最も適切なのはどれか。","choices":["肩関節水平内転","肩関節伸展・内転","肩関節外転","膝関節伸展"],"correct":0,"explanation":"大胸筋は肩関節水平内転・内転・内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-040","question":"確認問題：次のうち、棘下筋の主な作用の特徴として正しいものはどれか。","choices":["肩関節外旋","足部外反","膝関節伸展","肩甲骨下制と上方回旋への関与"],"correct":0,"explanation":"棘下筋は肩関節外旋に働く腱板筋です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-041","question":"確認問題：腸腰筋の主な作用について最も適切なのはどれか。","choices":["足部内反と足関節底屈","足関節底屈","股関節屈曲","股関節と膝関節をまたぐ二関節筋"],"correct":2,"explanation":"腸腰筋は強力な股関節屈筋群です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-042","question":"確認問題：次のうち、大腿四頭筋の主な作用の特徴として正しいものはどれか。","choices":["肩関節水平内転","膝屈曲と下腿外旋","膝関節伸展","肘関節屈曲と前腕回外"],"correct":2,"explanation":"大腿四頭筋は膝関節伸展の主働筋群です。","subject":"機能解剖","year":"基礎","difficulty":1},{"id":"variant-043","question":"確認問題：半腱様筋・半膜様筋の代表的な作用について最も適切なのはどれか。","choices":["肘関節伸展","肩関節内旋","肩関節外転","膝屈曲と下腿内旋"],"correct":3,"explanation":"半腱様筋・半膜様筋は膝屈曲に加え、膝屈曲位で下腿内旋に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-044","question":"確認問題：次のうち、ヒラメ筋の主な作用の特徴として正しいものはどれか。","choices":["肩関節内旋","股関節と膝関節をまたぐ二関節筋","足関節底屈","肩甲骨外転と上方回旋"],"correct":2,"explanation":"ヒラメ筋は膝関節をまたがず、主に足関節底屈に働きます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-045","question":"確認問題：長母趾屈筋の主な作用について最も適切なのはどれか。","choices":["肩関節外転の開始を補助","母趾屈曲と足関節底屈","足関節底屈と膝屈曲","肩関節外転"],"correct":1,"explanation":"長母趾屈筋は母趾屈曲と足関節底屈に関与します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-046","question":"確認問題：次のうち、橈骨神経が主に関与する運動の特徴として正しいものはどれか。","choices":["大腿四頭筋","大腿後面から下腿・足部への神経支配","前腕屈筋群の多くと母指対立","肘・手関節の伸展"],"correct":3,"explanation":"橈骨神経は上腕三頭筋や前腕伸筋群などを支配し、伸展運動に重要です。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-047","question":"確認問題：坐骨神経が主に関係する部位について最も適切なのはどれか。","choices":["肘・手関節の伸展","大腿後面から下腿・足部への神経支配","横隔膜の運動支配","上腕二頭筋"],"correct":1,"explanation":"坐骨神経は大腿後面を走行し、脛骨神経と総腓骨神経へ分かれます。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-048","question":"確認問題：次のうち、浅腓骨神経が主に支配する筋群の特徴として正しいものはどれか。","choices":["前腕屈筋群の多くと母指対立","下腿外側筋群","三角筋","横隔膜の運動支配"],"correct":1,"explanation":"浅腓骨神経は長・短腓骨筋など下腿外側筋群を支配します。","subject":"機能解剖","year":"基礎","difficulty":2},{"id":"variant-049","question":"確認問題：骨格筋内でCa²⁺を主に貯蔵する構造はどれか。","choices":["筋小胞体","リソソーム","核","ゴルジ体"],"correct":0,"explanation":"筋小胞体は筋収縮に必要なCa²⁺を貯蔵・放出します。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"variant-050","question":"確認問題：最大酸素摂取量（VO₂max）が示すものとして最も適切なのはどれか。","choices":["反応時間のみ","有酸素性エネルギー供給能力の代表的指標","関節可動域のみ","最大筋力のみ"],"correct":1,"explanation":"VO₂maxは全身の有酸素性能力を表す代表的な指標です。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"variant-051","question":"確認問題：エリスロポエチン（EPO）を主に分泌する臓器はどれか。","choices":["胆嚢","腎臓","脾臓のみ","膵臓"],"correct":1,"explanation":"EPOは主に腎臓から分泌され、赤血球産生を促進します。","subject":"運動生理","year":"基礎","difficulty":2},{"id":"variant-052","question":"確認問題：ヘモグロビンの主な役割はどれか。","choices":["ATP直接合成","酸素運搬","神経伝導速度の決定","関節液生成"],"correct":1,"explanation":"ヘモグロビンは血液中で酸素運搬を担います。","subject":"運動生理","year":"基礎","difficulty":1},{"id":"variant-053","question":"確認問題：作用反作用の法則として正しいものはどれか。","choices":["支持基底面を広くし重心を低くする","1/2 × 質量 × 速度²","2物体間の力は大きさが等しく向きが反対","F = ma"],"correct":2,"explanation":"ニュートンの第3法則では作用と反作用は異なる物体に働きます。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"variant-054","question":"確認問題：安定性を高める一般的な条件として正しいものはどれか。","choices":["質量×速度","物体の質量が集中しているとみなせる点","質量が回転軸から遠く分布する","支持基底面を広くし重心を低くする"],"correct":3,"explanation":"支持基底面を広げ重心を低くすると一般に安定性は高まります。","subject":"バイオメカニクス","year":"基礎","difficulty":2},{"id":"variant-055","question":"確認問題：アキレス腱断裂評価で用いられる代表的テストとして正しいものはどれか。","choices":["Thompson test","前距腓靱帯","内反ストレステスト","Posterior drawer test"],"correct":0,"explanation":"Thompson testはアキレス腱断裂の評価に用いられます。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"variant-056","question":"確認問題：大腿後面肉ばなれで頻度が高い筋として正しいものはどれか。","choices":["大腿二頭筋長頭","増悪する強い疼痛と他動伸張痛","Thompson test","前距腓靱帯"],"correct":0,"explanation":"スプリント動作などのハムストリング損傷では大腿二頭筋長頭がよく関与します。","subject":"スポーツ外傷","year":"基礎","difficulty":2},{"id":"variant-057","question":"確認問題：トレーニング理論における「トレーニングの過負荷の原則」の説明として正しいものはどれか。","choices":["伸張-短縮サイクル","適応に合わせて負荷を段階的に高める","適応を起こすため普段より高い刺激を与える","継続的な有酸素性刺激と適切な回復"],"correct":2,"explanation":"過負荷の原則では、身体に適応を促すため一定以上の刺激が必要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-058","question":"確認問題：ウォームアップの主目的について最も適切なのはどれか。","choices":["得たい適応に近い刺激を行う","身体は課された要求に特異的に適応する","本運動への身体的・神経的準備","負荷・反応・進捗を追跡できる"],"correct":2,"explanation":"ウォームアップは体温上昇や動作準備などを通して本運動へ備える目的があります。","subject":"コンディショニング","year":"基礎","difficulty":1},{"id":"variant-059","question":"確認問題：トレーニング理論における「スプリントトレーニングで完全に近い休息を入れる主な理由」の説明として正しいものはどれか。","choices":["適応に合わせて負荷を段階的に高める","主観的運動強度","得たい適応に近い刺激を行う","高い走速度と出力の質を維持する"],"correct":3,"explanation":"最大速度や加速の質を狙う場合、十分な休息が各反復の質維持に重要です。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-060","question":"確認問題：インターバルトレーニングについて最も適切なのはどれか。","choices":["本運動への身体的・神経的準備","1回だけ挙上できる最大負荷","負荷・反応・進捗を追跡できる","運動と回復を交互に繰り返す方法"],"correct":3,"explanation":"インターバルトレーニングは運動区間と回復区間を反復します。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-061","question":"確認問題：トレーニング理論における「トレーニング記録の主な利点」の説明として正しいものはどれか。","choices":["セット数×反復回数×負荷","本運動への身体的・神経的準備","負荷・反応・進捗を追跡できる","伸張-短縮サイクル"],"correct":2,"explanation":"記録により負荷量や体調、パフォーマンス変化を振り返ることができます。","subject":"コンディショニング","year":"基礎","difficulty":2},{"id":"variant-062","question":"確認問題：感度について最も適切なのはどれか。","choices":["動的バランスの評価","条件差による測定誤差を減らす","疾患や状態がある人を陽性と判定できる割合","測りたいものを適切に測定できている程度"],"correct":2,"explanation":"感度は真陽性率に相当します。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"variant-063","question":"確認問題：次のうち、ハンドヘルドダイナモメーターの特徴として正しいものはどれか。","choices":["等尺性筋力の定量評価","疾患や状態がない人を陰性と判定できる割合","加速能力の評価","同じ条件で測定したとき結果が安定している程度"],"correct":0,"explanation":"HHDは徒手抵抗下などで筋力を定量化するために用いられます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"variant-064","question":"確認問題：安静時心拍数について最も適切なのはどれか。","choices":["下肢の跳躍パワー評価","安静状態での心拍数","疾患や状態がない人を陰性と判定できる割合","測りたいものを適切に測定できている程度"],"correct":1,"explanation":"安静時心拍数は回復や体調モニタリングの一情報として利用されます。","subject":"検査・測定","year":"基礎","difficulty":2},{"id":"variant-065","question":"確認問題：次のうち、リハビリテーションで負荷を段階的に上げる理由の特徴として正しいものはどれか。","choices":["組織と機能の適応を確認しながら能力を高める","筋長変化が小さい状態で張力を発揮する","時間だけでなく症状・機能・競技要求を総合評価する","必要な関節運動を回復・維持する"],"correct":0,"explanation":"負荷は症状や機能反応をみながら段階的に進めることが基本です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"variant-066","question":"確認問題：プロプリオセプションについて最も適切なのはどれか。","choices":["支持側の中殿筋","必要な関節運動を回復・維持する","スクワット","身体位置や動きに関する固有感覚"],"correct":3,"explanation":"固有受容感覚は関節・筋などから身体位置や動きの情報を得る感覚です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"variant-067","question":"確認問題：次のうち、求心性収縮の特徴として正しいものはどれか。","choices":["競技や日常動作に必要な能力へ段階的に近づける","組織と機能の適応を確認しながら能力を高める","筋が伸張されながら力を発揮する","筋が短縮しながら力を発揮する"],"correct":3,"explanation":"求心性収縮では筋が短くなりながら張力を発揮します。","subject":"アスリハ","year":"基礎","difficulty":3},{"id":"variant-068","question":"確認問題：左右差を見るときの注意点について最も適切なのはどれか。","choices":["時間だけでなく症状・機能・競技要求を総合評価する","左右差だけでなく絶対的な能力も確認する","筋が伸張されながら力を発揮する","必要な関節運動を回復・維持する"],"correct":1,"explanation":"左右対称でも両側の能力が低い場合があるため、絶対値も重要です。","subject":"アスリハ","year":"基礎","difficulty":2},{"id":"variant-069","question":"確認問題：次のうち、橈尺関節の主な運動の特徴として正しいものはどれか。","choices":["回内と回外","背屈と底屈","球関節","球関節"],"correct":0,"explanation":"近位・遠位橈尺関節は前腕の回内・回外に関与します。","subject":"機能解剖","year":"基礎","difficulty":2}];
+
+  </script>
+  <script>
+(() => {
+  'use strict';
+
+  const SAVE_KEY = 'studyForge.phase1.v1';
+  const TODAY_KEY = () => new Date().toISOString().slice(0, 10);
+
+  const FALLBACK_QUESTIONS = [
+    {id:'fallback-1',question:'筋収縮に必要なカルシウムイオンは主にどこから放出されるか。',choices:['筋小胞体','核','ゴルジ装置','細胞外のみ'],correct:0,explanation:'骨格筋では活動電位により筋小胞体からCa²⁺が放出され、収縮が始まります。',subject:'運動生理',year:'基礎',difficulty:1},
+    {id:'fallback-2',question:'膝関節伸展の主働筋群はどれか。',choices:['大腿四頭筋','ハムストリングス','下腿三頭筋','腸腰筋'],correct:0,explanation:'大腿四頭筋は膝伸展の主働筋群です。',subject:'機能解剖',year:'基礎',difficulty:1},
+    {id:'fallback-3',question:'力積と等しいものはどれか。',choices:['運動量の変化量','加速度の二乗','位置エネルギー','密度'],correct:0,explanation:'力積は力×時間で、運動量の変化量に等しいです。',subject:'バイオメカニクス',year:'基礎',difficulty:2}
+  ];
+
+  const defaultState = () => ({
+    version: 1,
+    player: {
+      level: 1, exp: 0, hp: 100, maxHp: 100, atk: 12, def: 5,
+      critical: 0.08, speed: 10, forgePower: 1
+    },
+    currency: { gold: 0, forgeEnergy: 0 },
+    study: {
+      combo: 0, bestCombo: 0, totalAnswered: 0, totalCorrect: 0,
+      reviewIds: [], history: {}, mode: 'normal', lastQuestionId: null,
+      filters: { subject: 'all', difficulty: 'all' }
+    },
+    battle: { wins: 0, enemyIndex: 0, playerHp: 100 },
+    today: { date: TODAY_KEY(), answered: 0, correct: 0 },
+    settings: { sound: false }
+  });
+
+  let state = loadState();
+  let questions = [...FALLBACK_QUESTIONS];
+  let currentQuestion = null;
+  let currentBattleQuestion = null;
+  let studyAnswered = false;
+  let battleAnswered = false;
+  let currentEnemy = null;
+  let guardActive = false;
+
+  const $ = (id) => document.getElementById(id);
+  const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+  const ENEMIES = [
+    {name:'Ashfang Wolf', tier:'NORMAL', hp:76, atk:10, exp:24, gold:16},
+    {name:'Ironhide Boar', tier:'NORMAL', hp:95, atk:12, exp:28, gold:19},
+    {name:'Ember Wraith', tier:'ELITE', hp:122, atk:15, exp:36, gold:25},
+    {name:'Forge Sentinel', tier:'MINI BOSS', hp:165, atk:18, exp:52, gold:38}
+  ];
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      const base = defaultState();
+      const merged = {
+        ...base, ...parsed,
+        player: {...base.player, ...(parsed.player || {})},
+        currency: {...base.currency, ...(parsed.currency || {})},
+        study: {...base.study, ...(parsed.study || {})},
+        battle: {...base.battle, ...(parsed.battle || {})},
+        today: {...base.today, ...(parsed.today || {})},
+        settings: {...base.settings, ...(parsed.settings || {})}
+      };
+      if (merged.today.date !== TODAY_KEY()) merged.today = {date:TODAY_KEY(), answered:0, correct:0};
+      merged.battle.playerHp = Math.min(merged.battle.playerHp || merged.player.maxHp, merged.player.maxHp);
+      return merged;
+    } catch (err) {
+      console.warn('Save load failed:', err);
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+    catch (err) { console.warn('Save failed:', err); }
+  }
+
+  function validQuestion(q) {
+    return q && typeof q.id === 'string' && typeof q.question === 'string' &&
+      Array.isArray(q.choices) && q.choices.length >= 2 && Number.isInteger(q.correct) &&
+      q.correct >= 0 && q.correct < q.choices.length;
+  }
+
+  async function loadQuestions() {
+    try {
+      if (Array.isArray(window.STUDY_FORGE_QUESTIONS) && window.STUDY_FORGE_QUESTIONS.length >= 3) {
+        questions = window.STUDY_FORGE_QUESTIONS.filter(validQuestion);
+        return;
+      }
+      const response = await fetch('data/questions.json', {cache:'no-store'});
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (Array.isArray(data) && data.length >= 3) questions = data.filter(validQuestion);
+    } catch (err) {
+      console.info('Using built-in fallback question set.', err);
+    }
+  }
+
+  function normalizeFilters() {
+    if (!state.study.filters || typeof state.study.filters !== 'object') {
+      state.study.filters = {subject:'all', difficulty:'all'};
+    }
+    state.study.filters.subject ||= 'all';
+    state.study.filters.difficulty ||= 'all';
+  }
+
+  function buildQuestionFilters() {
+    normalizeFilters();
+    const subjects = [...new Set(questions.map(q => q.subject || 'GENERAL'))].sort((a,b) => a.localeCompare(b,'ja'));
+    const select = $('subjectFilter');
+    select.innerHTML = '<option value="all">ALL SUBJECTS</option>' +
+      subjects.map(subject => `<option value="${escapeHtml(subject)}">${escapeHtml(subject)}</option>`).join('');
+    if (subjects.includes(state.study.filters.subject)) select.value = state.study.filters.subject;
+    else { state.study.filters.subject = 'all'; select.value = 'all'; }
+    $('difficultyFilter').value = ['1','2','3'].includes(String(state.study.filters.difficulty)) ? String(state.study.filters.difficulty) : 'all';
+  }
+
+  function expToNext(level = state.player.level) {
+    return Math.round(100 * Math.pow(1.18, level - 1));
+  }
+
+  function comboMultiplier() {
+    const combo = state.study.combo;
+    if (combo >= 20) return 1.65;
+    if (combo >= 10) return 1.4;
+    if (combo >= 5) return 1.22;
+    if (combo >= 3) return 1.1;
+    return 1;
+  }
+
+  function titleForLevel(level) {
+    if (level >= 20) return 'Master Forger';
+    if (level >= 12) return 'Arcane Forger';
+    if (level >= 7) return 'Steel Forger';
+    if (level >= 3) return 'Apprentice Forger';
+    return 'Rookie Forger';
+  }
+
+  function rankForLevel(level) {
+    if (level >= 20) return 'V';
+    if (level >= 12) return 'IV';
+    if (level >= 7) return 'III';
+    if (level >= 3) return 'II';
+    return 'I';
+  }
+
+  function addRewards({exp=0,gold=0,energy=0}, showToast = true) {
+    state.player.exp += exp;
+    state.currency.gold += gold;
+    state.currency.forgeEnergy += energy;
+    let levelsGained = 0;
+    while (state.player.exp >= expToNext()) {
+      state.player.exp -= expToNext();
+      state.player.level += 1;
+      state.player.maxHp += 12;
+      state.player.hp = state.player.maxHp;
+      state.battle.playerHp = state.player.maxHp;
+      state.player.atk += 3;
+      state.player.def += 2;
+      state.player.critical = Math.min(.25, state.player.critical + .005);
+      state.player.speed += 1;
+      levelsGained++;
+    }
+    if (showToast && (exp || gold || energy)) toast(`<b>REWARD</b> +${exp} EXP / +${gold} G / +${energy} FE`);
+    if (levelsGained) showLevelUp(levelsGained);
+    saveState();
+    renderAll();
+  }
+
+  function showLevelUp(levelsGained) {
+    $('levelBurst').textContent = state.player.level;
+    $('levelUpText').textContent = `LEVEL ${state.player.level} — HP +${12*levelsGained} / ATK +${3*levelsGained} / DEF +${2*levelsGained}`;
+    $('levelUpModal').classList.remove('hidden');
+  }
+
+  function toast(html) {
+    const item = document.createElement('div');
+    item.className = 'toast';
+    item.innerHTML = html;
+    $('toastStack').appendChild(item);
+    setTimeout(() => item.remove(), 2800);
+  }
+
+  function navigate(screen) {
+    $$('.screen').forEach(el => el.classList.toggle('active', el.dataset.screen === screen));
+    $$('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.nav === screen));
+    if (screen === 'study' && !currentQuestion) nextStudyQuestion();
+    if (screen === 'battle') ensureEnemy();
+    window.scrollTo({top:0, behavior:'smooth'});
+    renderAll();
+  }
+
+  function renderAll() {
+    $('goldValue').textContent = state.currency.gold.toLocaleString();
+    $('forgeEnergyValue').textContent = state.currency.forgeEnergy.toLocaleString();
+    $('homeLevel').textContent = state.player.level;
+    $('playerTitle').textContent = titleForLevel(state.player.level);
+    $('rankEmblem').textContent = rankForLevel(state.player.level);
+    const need = expToNext();
+    $('expText').textContent = `${state.player.exp} / ${need}`;
+    $('expBar').style.width = `${Math.min(100, state.player.exp / need * 100)}%`;
+    $('statHp').textContent = state.player.maxHp;
+    $('statAtk').textContent = state.player.atk;
+    $('statDef').textContent = state.player.def;
+    $('statCrit').textContent = `${Math.round(state.player.critical * 100)}%`;
+    $('todayAnswered').textContent = state.today.answered;
+    $('todayCorrect').textContent = state.today.correct;
+    $('todayAccuracy').textContent = state.today.answered ? `${Math.round(state.today.correct / state.today.answered * 100)}%` : '—';
+    $('bestCombo').textContent = state.study.bestCombo;
+    $('reviewCount').textContent = state.study.reviewIds.length;
+    $('questionBankCount').textContent = questions.length.toLocaleString();
+    $('questionSubjectCount').textContent = `${new Set(questions.map(q => q.subject || 'GENERAL')).size} SUBJECTS`;
+    $('studyCombo').textContent = state.study.combo;
+    updatePoolCount();
+    $('battleWins').textContent = state.battle.wins;
+    $('battleAtk').textContent = state.player.atk;
+    $('battleEnergy').textContent = state.currency.forgeEnergy;
+
+    if (currentQuestion && !studyAnswered) renderRewardPreview(currentQuestion);
+    renderBattleBars();
+  }
+
+  function renderRewardPreview(question) {
+    const mult = comboMultiplier();
+    const baseExp = 10 + (question.difficulty || 1) * 3;
+    const baseGold = 6 + (question.difficulty || 1) * 2;
+    const baseEnergy = 1 + Math.ceil((question.difficulty || 1) / 2);
+    $('previewExp').textContent = `+${Math.round(baseExp * mult)}`;
+    $('previewGold').textContent = `+${Math.round(baseGold * mult)}`;
+    $('previewEnergy').textContent = `+${baseEnergy}`;
+    $('comboMultiplier').textContent = `COMBO ×${mult.toFixed(2)}`;
+  }
+
+  function questionPool(mode = state.study.mode) {
+    normalizeFilters();
+    let pool = questions;
+    if (mode === 'review') {
+      const set = new Set(state.study.reviewIds);
+      const reviewPool = questions.filter(q => set.has(q.id));
+      pool = reviewPool.length ? reviewPool : questions;
+    }
+    const subject = state.study.filters.subject;
+    const difficulty = state.study.filters.difficulty;
+    const filtered = pool.filter(q =>
+      (subject === 'all' || (q.subject || 'GENERAL') === subject) &&
+      (difficulty === 'all' || String(q.difficulty || 1) === String(difficulty))
+    );
+    return filtered.length ? filtered : pool;
+  }
+
+  function updatePoolCount() {
+    if (!$('poolCount')) return;
+    const pool = questionPool(state.study.mode);
+    $('poolCount').textContent = `POOL ${pool.length.toLocaleString()} / BANK ${questions.length.toLocaleString()}`;
+  }
+
+  function setQuestionFilter(kind, value) {
+    normalizeFilters();
+    state.study.filters[kind] = value;
+    saveState();
+    updatePoolCount();
+    nextStudyQuestion();
+  }
+
+  function pickQuestion(mode = state.study.mode, excludeId = null) {
+    const pool = questionPool(mode);
+    const candidates = pool.length > 1 ? pool.filter(q => q.id !== excludeId) : pool;
+    return candidates[Math.floor(Math.random() * candidates.length)] || FALLBACK_QUESTIONS[0];
+  }
+
+  function nextStudyQuestion() {
+    studyAnswered = false;
+    currentQuestion = pickQuestion(state.study.mode, state.study.lastQuestionId);
+    state.study.lastQuestionId = currentQuestion.id;
+    $('questionSubject').textContent = currentQuestion.subject || 'GENERAL';
+    $('questionDifficulty').textContent = ['EASY','NORMAL','HARD'][Math.max(0, Math.min(2, (currentQuestion.difficulty || 1)-1))];
+    $('questionYear').textContent = currentQuestion.year || '—';
+    $('questionCounter').textContent = state.study.mode === 'review' ? 'REVIEW QUESTION' : 'TRAINING QUESTION';
+    $('questionText').textContent = currentQuestion.question;
+    $('answerFeedback').className = 'answer-feedback';
+    $('answerFeedback').innerHTML = '';
+    $('nextQuestionBtn').classList.add('hidden');
+    renderChoices($('choiceGrid'), currentQuestion, (index, btns) => answerStudy(index, btns));
+    renderRewardPreview(currentQuestion);
+  }
+
+  function renderChoices(container, question, onPick) {
+    container.innerHTML = '';
+    question.choices.forEach((choice, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="choice-key">${String.fromCharCode(65+index)}</span><span>${escapeHtml(choice)}</span>`;
+      btn.addEventListener('click', () => onPick(index, Array.from(container.querySelectorAll('.choice-btn'))));
+      container.appendChild(btn);
+    });
+  }
+
+  function answerStudy(index, buttons) {
+    if (studyAnswered) return;
+    studyAnswered = true;
+    const q = currentQuestion;
+    const correct = index === q.correct;
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === q.correct) btn.classList.add('correct');
+      if (i === index && !correct) btn.classList.add('wrong');
+    });
+
+    state.study.totalAnswered++;
+    state.today.answered++;
+    state.study.history[q.id] = {answered:(state.study.history[q.id]?.answered || 0)+1, correct:(state.study.history[q.id]?.correct || 0)+(correct?1:0), lastCorrect:correct};
+
+    if (correct) {
+      state.study.totalCorrect++;
+      state.today.correct++;
+      state.study.combo++;
+      state.study.bestCombo = Math.max(state.study.bestCombo, state.study.combo);
+      state.study.reviewIds = state.study.reviewIds.filter(id => id !== q.id);
+      const mult = comboMultiplier();
+      const exp = Math.round((10 + (q.difficulty||1)*3) * mult);
+      const gold = Math.round((6 + (q.difficulty||1)*2) * mult);
+      const energy = 1 + Math.ceil((q.difficulty||1)/2);
+      $('answerFeedback').innerHTML = `<strong>✓ CORRECT — COMBO ${state.study.combo}</strong>${escapeHtml(q.explanation)}`;
+      addRewards({exp,gold,energy});
+    } else {
+      state.study.combo = 0;
+      if (!state.study.reviewIds.includes(q.id)) state.study.reviewIds.push(q.id);
+      $('answerFeedback').innerHTML = `<strong>✕ WRONG — 復習問題に追加</strong>${escapeHtml(q.explanation)}`;
+      toast('<b>REVIEW ADDED</b> 間違えた問題を復習リストへ登録');
+      saveState();
+      renderAll();
+    }
+    $('answerFeedback').classList.add('show');
+    $('nextQuestionBtn').classList.remove('hidden');
+  }
+
+  function setStudyMode(mode) {
+    state.study.mode = mode;
+    $$('.seg').forEach(btn => btn.classList.toggle('active', btn.dataset.studyMode === mode));
+    $('studyModeHelp').textContent = mode === 'review'
+      ? (state.study.reviewIds.length ? `復習待ち ${state.study.reviewIds.length}問から出題します。` : '復習待ちがないため通常問題から出題します。')
+      : '全問題から出題します。';
+    saveState();
+    nextStudyQuestion();
+  }
+
+  function enemyForIndex(index) {
+    const base = ENEMIES[index % ENEMIES.length];
+    const cycle = Math.floor(index / ENEMIES.length);
+    const scale = 1 + cycle * .22;
+    return {
+      ...base,
+      level: 1 + index,
+      maxHp: Math.round(base.hp * scale),
+      hp: Math.round(base.hp * scale),
+      atkScaled: Math.round(base.atk * (1 + cycle*.16)),
+      expScaled: Math.round(base.exp * (1 + cycle*.18)),
+      goldScaled: Math.round(base.gold * (1 + cycle*.18))
+    };
+  }
+
+  function ensureEnemy(forceNew = false) {
+    if (!currentEnemy || forceNew) currentEnemy = enemyForIndex(state.battle.enemyIndex);
+    state.battle.playerHp = Math.max(1, Math.min(state.battle.playerHp || state.player.maxHp, state.player.maxHp));
+    guardActive = false;
+    $('battleActions').classList.remove('hidden');
+    $('battleQuiz').classList.add('hidden');
+    $('battleResult').classList.add('hidden');
+    $('enemyName').textContent = currentEnemy.name;
+    $('enemyTier').textContent = currentEnemy.tier;
+    $('enemyLevel').textContent = `Lv.${currentEnemy.level}`;
+    $('battleLog').textContent = `${currentEnemy.name} が出現。QUIZ STRIKEで知識を攻撃力へ変換せよ。`;
+    renderBattleBars();
+  }
+
+  function renderBattleBars() {
+    if (!currentEnemy) return;
+    $('enemyHpText').textContent = `${Math.max(0,currentEnemy.hp)} / ${currentEnemy.maxHp}`;
+    $('enemyHpBar').style.width = `${Math.max(0, currentEnemy.hp / currentEnemy.maxHp * 100)}%`;
+    $('playerHpText').textContent = `${Math.max(0,state.battle.playerHp)} / ${state.player.maxHp}`;
+    $('playerHpBar').style.width = `${Math.max(0, state.battle.playerHp / state.player.maxHp * 100)}%`;
+  }
+
+  function startQuizStrike() {
+    if (!currentEnemy || currentEnemy.hp <= 0 || state.battle.playerHp <= 0) return;
+    battleAnswered = false;
+    currentBattleQuestion = pickQuestion('normal', currentBattleQuestion?.id);
+    $('battleActions').classList.add('hidden');
+    $('battleQuiz').classList.remove('hidden');
+    $('battleQuestionSubject').textContent = currentBattleQuestion.subject || 'GENERAL';
+    $('battleQuestionText').textContent = currentBattleQuestion.question;
+    renderChoices($('battleChoiceGrid'), currentBattleQuestion, (index, btns) => answerBattle(index, btns));
+  }
+
+  function answerBattle(index, buttons) {
+    if (battleAnswered) return;
+    battleAnswered = true;
+    const q = currentBattleQuestion;
+    const correct = index === q.correct;
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === q.correct) btn.classList.add('correct');
+      if (i === index && !correct) btn.classList.add('wrong');
+    });
+    state.study.totalAnswered++;
+    state.today.answered++;
+    state.study.history[q.id] = {answered:(state.study.history[q.id]?.answered || 0)+1, correct:(state.study.history[q.id]?.correct || 0)+(correct?1:0), lastCorrect:correct};
+
+    setTimeout(() => {
+      $('battleQuiz').classList.add('hidden');
+      if (correct) {
+        state.study.totalCorrect++;
+        state.today.correct++;
+        state.study.combo++;
+        state.study.bestCombo = Math.max(state.study.bestCombo, state.study.combo);
+        state.study.reviewIds = state.study.reviewIds.filter(id => id !== q.id);
+        let damage = Math.round(state.player.atk * (1 + state.study.combo * .018) + (q.difficulty||1)*2);
+        const crit = Math.random() < state.player.critical;
+        if (crit) damage = Math.round(damage * 1.7);
+        currentEnemy.hp -= damage;
+        floatDamage(damage, crit);
+        $('battleLog').textContent = crit ? `CRITICAL! 正解の知識が ${damage} ダメージを与えた。` : `正解！ ${damage} ダメージ。COMBO ${state.study.combo}`;
+        addRewards({exp:4+(q.difficulty||1)*2,gold:2,energy:1}, false);
+        if (currentEnemy.hp <= 0) return winBattle();
+      } else {
+        state.study.combo = 0;
+        if (!state.study.reviewIds.includes(q.id)) state.study.reviewIds.push(q.id);
+        $('battleLog').textContent = `不正解。${currentEnemy.name} の反撃！`;
+        enemyAttack();
+        if (state.battle.playerHp <= 0) return loseBattle();
+      }
+      saveState();
+      renderAll();
+      setTimeout(() => $('battleActions').classList.remove('hidden'), 220);
+    }, 520);
+  }
+
+  function enemyAttack() {
+    const raw = Math.max(1, currentEnemy.atkScaled - Math.round(state.player.def * .45));
+    const damage = guardActive ? Math.max(1, Math.round(raw * .38)) : raw;
+    state.battle.playerHp -= damage;
+    guardActive = false;
+    $('battleStage').classList.remove('shake');
+    void $('battleStage').offsetWidth;
+    $('battleStage').classList.add('shake');
+    floatDamage(damage, false, true);
+    renderBattleBars();
+  }
+
+  function guard() {
+    if (!currentEnemy || currentEnemy.hp <= 0 || state.battle.playerHp <= 0) return;
+    guardActive = true;
+    const heal = Math.max(3, Math.round(state.player.maxHp * .06));
+    state.battle.playerHp = Math.min(state.player.maxHp, state.battle.playerHp + heal);
+    $('battleLog').textContent = `GUARD：HPを ${heal} 回復。次の攻撃ダメージを大幅軽減。`;
+    renderBattleBars();
+    setTimeout(() => {
+      enemyAttack();
+      if (state.battle.playerHp <= 0) loseBattle();
+      else $('battleLog').textContent += ` ${currentEnemy.name} の攻撃を受け流した。`;
+      saveState();
+      renderAll();
+    }, 280);
+  }
+
+  function floatDamage(value, crit = false, enemyDmg = false) {
+    const el = document.createElement('div');
+    el.className = `damage-float${crit?' crit':''}${enemyDmg?' enemy-dmg':''}`;
+    el.textContent = enemyDmg ? `-${value}` : `${crit?'CRIT ':''}-${value}`;
+    $('floatingLayer').appendChild(el);
+    setTimeout(() => el.remove(), 900);
+  }
+
+  function winBattle() {
+    currentEnemy.hp = 0;
+    const exp = currentEnemy.expScaled;
+    const gold = currentEnemy.goldScaled;
+    const energy = currentEnemy.tier.includes('BOSS') ? 5 : currentEnemy.tier === 'ELITE' ? 3 : 2;
+    state.battle.wins++;
+    state.battle.enemyIndex++;
+    state.battle.playerHp = Math.min(state.player.maxHp, state.battle.playerHp + Math.round(state.player.maxHp*.18));
+    $('battleActions').classList.add('hidden');
+    $('battleQuiz').classList.add('hidden');
+    $('battleResult').classList.remove('hidden');
+    $('battleResultTitle').textContent = 'VICTORY';
+    $('battleResultText').textContent = `${currentEnemy.name} 撃破 — +${exp} EXP / +${gold} G / +${energy} FE`;
+    addRewards({exp,gold,energy}, false);
+    toast(`<b>VICTORY</b> ${currentEnemy.name} を撃破`);
+    renderBattleBars();
+  }
+
+  function loseBattle() {
+    state.battle.playerHp = 0;
+    $('battleActions').classList.add('hidden');
+    $('battleQuiz').classList.add('hidden');
+    $('battleResult').classList.remove('hidden');
+    $('battleResultTitle').textContent = 'DEFEAT';
+    $('battleResultText').textContent = '敗北。ペナルティはありません。HPを全回復して同じ敵へ再挑戦できます。';
+    $('nextBattleBtn').textContent = 'RETRY';
+    saveState();
+    renderAll();
+  }
+
+  function nextBattle() {
+    const defeated = currentEnemy && currentEnemy.hp <= 0;
+    if (defeated) {
+      currentEnemy = null;
+      $('nextBattleBtn').textContent = 'NEXT ENEMY';
+      ensureEnemy(true);
+    } else {
+      state.battle.playerHp = state.player.maxHp;
+      $('nextBattleBtn').textContent = 'NEXT ENEMY';
+      ensureEnemy(false);
+    }
+    saveState();
+    renderAll();
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+  }
+
+  function bindEvents() {
+    $$('[data-nav]').forEach(btn => btn.addEventListener('click', () => navigate(btn.dataset.nav)));
+    $('nextQuestionBtn').addEventListener('click', nextStudyQuestion);
+    $$('.seg').forEach(btn => btn.addEventListener('click', () => setStudyMode(btn.dataset.studyMode)));
+    $('subjectFilter').addEventListener('change', e => setQuestionFilter('subject', e.target.value));
+    $('difficultyFilter').addEventListener('change', e => setQuestionFilter('difficulty', e.target.value));
+    $('reviewStartBtn').addEventListener('click', () => { setStudyMode('review'); navigate('study'); });
+    $('quizStrikeBtn').addEventListener('click', startQuizStrike);
+    $('guardBtn').addEventListener('click', guard);
+    $('nextBattleBtn').addEventListener('click', nextBattle);
+    $('closeLevelModal').addEventListener('click', () => $('levelUpModal').classList.add('hidden'));
+  }
+
+  async function init() {
+    bindEvents();
+    await loadQuestions();
+    normalizeFilters();
+    buildQuestionFilters();
+    $$('.seg').forEach(btn => btn.classList.toggle('active', btn.dataset.studyMode === state.study.mode));
+    $('studyModeHelp').textContent = state.study.mode === 'review'
+      ? (state.study.reviewIds.length ? `復習待ち ${state.study.reviewIds.length}問から出題します。` : '復習待ちがないため通常問題から出題します。')
+      : '全問題から出題します。';
+    nextStudyQuestion();
+    renderAll();
+    saveState();
+  }
+
+  init();
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.info('Service worker registration skipped:', err));
+  }
+})();
+
+  </script>
+</body>
+</html>
