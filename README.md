@@ -1,44 +1,32 @@
-# STUDY FORGE: INFINITE ABYSS — RPG1 Pixel Edition
+# STUDY FORGE — MONSTER TACTICS
 
-勉強 × 収集 × ハクスラ × ダンジョン探索のブラウザRPGです。外部ライブラリや外部画像URLなしで動作します。
+ドラクエジョーカー系の「魔物をスカウト→育成→配合→より強い魔物を仲間に」という遊びの面白さを学習問題と組み合わせた、独自キャラクター・独自名称のブラウザRPGです。
 
 ## 遊び方
 
-- STUDY：問題を解いてEXP・Gold・Forge Energyを獲得。5問正解ごとに宝箱を入手。間違えた問題は復習に登録。
-- BATTLE：問題正解で攻撃、防御で被ダメージを軽減、3FEでバーストを使用。強攻撃は敵の予告表示で確認。討伐後にモンスター捕獲も可能。
-- FORGE：武器・防具・秘宝・英雄を作成・召喚。装備中の武器は最大+10まで強化。
-- COLLECTION：武器・防具・モンスター・英雄・秘宝の五大図鑑。所持アイテムを選んで装備・編成。
-- HOME：クエスト進行、宝箱、EXP、現在の冒険状況。
+1. STUDYで問題を解くとEXP/G/知識エネルギーを獲得（不正解は復習問題に入る）。
+2. 冒険の各島で野生の魔物と遭遇。3体パーティから1体を選び、攻撃/属性とくぎ/防御/スカウトを選択。**問題に正解すると行動成功**。不正解で敵反撃。
+3. 敵のHPを減らすとスカウト成功率が上昇。スカウト成功時に魔物が牧場に追加される。2%で色違い。
+4. 同種・異種の配合で新種を作る。両親を消費、強化ステータス/SPを一部継承。合成結果は事前プレビュー可能。
+5. LVアップごとに得たSPを能力に割り振り、武器/防具/秘宝を装備。5戦目ごとにボス、撃破で次の島を解放。
+6. 大図鑑は魔物30・武器8・防具7・秘宝7・人物6の計58項目。
 
-## 問題追加
+## ファイル構造
+- index.html
+- style.css
+- script.js
+- data/questions.json
 
-STUDYタブの「ファイルを読み込む」からCSVまたはJSONを追加可能。問題はブラウザのlocalStorageに保存されます。CSVヘッダーは以下です：
+外部ライブラリ、画像URL不要。モンスターはCanvasで描画する72×72の細密ピクセル絵を拡大表示（image-rendering: pixelated）。
 
-```csv
-id,question,choices,correct,explanation,subject,year,difficulty
-ex001,筋収縮のATPは？,"[""ATP"",""DNA"",""ADP"",""RNA""]",0,ATPを利用します,運動生理,2025,1
-```
-
-- `choices` はJSON形式の配列文字列、または `選択肢A|選択肢B|選択肢C` で記述可能。
-- `correct` は **0始まりの選択肢位置**（0、1、2、3…）または英字（A、B、C、D…）を使用。
-- `difficulty` は1〜3。
-- `data/questions.json` を編集して固定問題を増やすことも可能。
-
-## 構成
-
-```
-index.html
-style.css
-script.js
-data/questions.json
-```
-
-## 保存・デプロイ
-
-GitHub Pagesで公開可能。セーブキーは`studyForge.infiniteAbyss.v1`。旧版の保存データは読み込みません。HOME末尾の「セーブ初期化」から新バージョンのデータだけ消去できます。別端末への引継ぎやクラウドセーブは未実装です。
+## 保存とCSV/JSON問題の追加
+- `localStorage` のキー: `studyForge.monsterTactics.v2`。前バージョンの進行データは読み込まず新しいゲームとして開始。
+- CSVは `id,question,choice1,choice2,choice3,choice4,correct,explanation,subject,year,difficulty` 形式を推奨。`choices` にJSON配列や `|` 区切り文字列も可。`correct` は0始まり整数またはA～H（複数選択は未対応）。1始まり列は0が存在しなければ自動補正を試みる。
+- JSONは上記の属性を持つ配列、または `{ "questions": [...] }`。
+- インポートは保存されるが、追加問題を大量に入れる場合は端末のlocalStorage制約に注意。
 
 ## ゲームバランス
+第1版の初期値。HP、スカウト率、レアアイテム確率、配合レシピは調整予定。製作20回ごとにS以上保証。ボスはスカウト不可。色違いの配合での継承は確率に依存。
 
-鍛造の基本抽選確率は Common 48%、Uncommon 30%、Rare 15%、Epic 5%、Legendary 1.7%、Mythic 0.3%。40回でLegendary以上、200回でMythicを保証するカウンターを共有。所持している英雄・モンスターを重複入手した時は魂の欠片へ変換。将来アップデートで追加クラフト用途を予定。
-
-ゲームとしての初期版です。500種図鑑やマルチプレイ、技の多様化などは今後の追加対象です。
+## 公開
+GitHub Pagesでルート `/index.html` を公開。
