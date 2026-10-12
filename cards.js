@@ -38,5 +38,10 @@ const flavor={rush:'速攻：召喚したターンから攻撃可能',blocker:'�
 const out=[];for(const [civ,arr] of Object.entries(roster)){
  arr.forEach((row,i)=>{const [name,cost,power,rarity,type,ability,trigger]=row;out.push({id:`${civ}-${String(i+1).padStart(2,'0')}`,name,civ,cost,power,rarity,type,ability,trigger,description:(type==='evolution'?'進化：同じ文明のクリーチャー1体の上に置く。 ':'')+(flavor[ability]||'効果なし')+(trigger?' / シールドバースト':'')});});
 }
-return {CIVS,CARDS:out,byId:Object.fromEntries(out.map(c=>[c.id,c])),rarities:['N','U','R','SR','LG'],flavor};
+for(const legendary of out.filter(c=>c.rarity==='LG')){
+ const alt={...legendary,id:legendary.id+'-secret',name:legendary.name+'・煌装',rarity:'SEC',secret:true,
+ description:legendary.description+' / SECRETホログラム仕様'};
+ out.push(alt);
+}
+return {CIVS,CARDS:out,byId:Object.fromEntries(out.map(c=>[c.id,c])),rarities:['N','U','R','SR','LG','SEC'],flavor};
 })();
