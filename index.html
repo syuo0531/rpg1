@@ -1,61 +1,29 @@
 <!doctype html>
-<html lang="ja"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0b1222">
-<meta name="description" content="STUDY FORGE MONSTER TACTICS — 勉強でモンスターをスカウト・配合するピクセルRPG">
-<title>STUDY FORGE — MONSTER TACTICS</title>
-<link rel="stylesheet" href="./style.css?v=20261010-joker2">
-</head><body>
-<div id="app">
-<header class="top"><div class="brand"><div class="brand-icon">✣</div><div><b>STUDY FORGE</b><span>MONSTER TACTICS <i>PIXEL EDITION</i></span></div></div><div class="top-values"><span class="currency">✦ <b id="topEnergy">0</b></span><span class="currency coin">● <b id="topGold">0</b><small>G</small></span></div></header>
-<main>
-<section class="screen active" data-screen="home" id="screen-home">
- <div class="overline">CHAPTER 01 · MONSTER TAMER</div>
- <div class="hero-panel pixel-frame"><div class="hero-mist"></div><div class="hero-content"><div class="hero-title"><span class="tag">冒険の書</span><h1>知識で、<br><em>魔物を仲間に。</em></h1><p>答えを力に変え、未知の島を冒険しよう。</p><div class="hero-actions"><button class="btn gold" data-go="adventure">▶ 冒険に出る</button><button class="btn outline" data-go="study">✦ 問題を解く</button></div></div><div class="hero-creatures" id="heroCreatures"></div></div></div>
- <div class="player-card pixel-frame"><div class="player-head"><div class="trainer-portrait">⚔</div><div class="trainer-meta"><small>MONSTER TAMER</small><strong>FORGER <span id="playerLv">Lv. 1</span></strong><div class="progress"><i id="playerExpBar"></i></div><small id="playerExpLabel">0 / 60 EXP</small></div><div class="rank-emblem">F</div></div><div class="four-stats"><div><span>仲間</span><b id="homeMonsterCount">3</b></div><div><span>図鑑</span><b id="homeDex">0/0</b></div><div><span>正解数</span><b id="homeCorrect">0</b></div><div><span>最大COMBO</span><b id="homeCombo">0</b></div></div></div>
- <div class="section-title"><div><span class="eyebrow">YOUR PARTY</span><h2>冒険のなかま</h2></div><button class="text-btn" data-go="team">編成する →</button></div><div class="party-strip" id="homeParty"></div>
- <div class="section-title"><div><span class="eyebrow">JOURNEY</span><h2>今日の冒険</h2></div></div><div class="feature-grid"><button class="feature feature-forest pixel-frame" data-go="adventure"><span class="feature-icon">◈</span><b>フィールド探索</b><small>エリアを開拓して新種を発見</small><span class="feature-arrow">↗</span></button><button class="feature feature-study pixel-frame" data-go="study"><span class="feature-icon">✧</span><b>知識の修練</b><small>問題を解いて冒険を有利に</small><span class="feature-arrow">↗</span></button><button class="feature feature-fusion pixel-frame" data-go="fusion"><span class="feature-icon">⚗</span><b>モンスター配合</b><small>2体の力を合わせ新種を誕生</small><span class="feature-arrow">↗</span></button><button class="feature feature-forge pixel-frame" data-go="forge"><span class="feature-icon">⚒</span><b>装備工房</b><small>武器・防具・秘宝を獲得</small><span class="feature-arrow">↗</span></button></div>
- <div class="ticker pixel-frame"><span>✦ 冒険ヒント</span><p id="dailyHint">まずは草原で魔物をスカウトしよう。HPを減らすほど仲間にしやすくなるぞ。</p></div>
-</section>
-<section class="screen" data-screen="study" id="screen-study">
- <div class="screen-heading"><span class="eyebrow">KNOWLEDGE TRAINING</span><h1>知識の修練 <span class="heading-icon">✧</span></h1><p>正解するとEXP・G・知識エネルギーを獲得。戦闘で正解すると作戦が発動する。</p></div>
- <div class="stat-ribbon"><div><small>COMBO</small><b id="studyCombo">0</b></div><div><small>総正解</small><b id="studyCorrect">0</b></div><div><small>復習待ち</small><b id="studyReview">0</b></div></div>
- <div class="study-filters"><label>学習モード<select id="studyMode"><option value="normal">通常学習</option><option value="review">間違えた問題を復習</option></select></label><label>科目<select id="studySubject"><option value="all">すべての科目</option></select></label></div>
- <div class="question-panel pixel-frame"><div class="question-top"><span id="studyMeta">基礎 / EASY</span><span class="reward-chip">正解で宝物素材獲得</span></div><div class="question-index" id="studyIndex">QUESTION 01</div><h2 id="studyQuestion">問題を読み込み中…</h2><div class="choices" id="studyChoices"></div><div class="feedback hidden" id="studyFeedback" aria-live="polite"></div><button class="btn gold wide hidden" id="nextQuestion">次の問題 →</button></div>
- <div class="import-panel pixel-frame"><div><b>自分の問題を追加</b><small>CSV / JSON を端末から読み込み。インポートした問題も保存します。</small></div><label class="btn outline upload">＋ 問題ファイルを選ぶ<input id="questionFile" type="file" accept=".csv,.json,application/json,text/csv"></label><button class="text-btn" id="resetImported">追加した問題を削除</button><small id="bankCount">問題数を確認中…</small></div>
-</section>
-<section class="screen" data-screen="adventure" id="screen-adventure">
- <div class="screen-heading"><span class="eyebrow">EXPLORE THE ISLANDS</span><h1>フィールド探索 <span class="heading-icon">⌖</span></h1><p>エリアを選んで探索し、魔物を弱らせてスカウトしよう。</p></div>
- <div class="map-panel pixel-frame"><div class="map-stars"></div><div class="map-label">WORLD MAP <span id="areaProgress">1 / 6 OPEN</span></div><div class="areas" id="areaList"></div></div>
- <div class="battle-panel pixel-frame" id="battlePanel"><div class="battle-top"><div><small id="battleArea">STARTING MEADOW</small><h2 id="enemyName">魔物を探そう</h2></div><span class="enemy-rank" id="enemyRank">RANK F</span></div>
-  <div class="arena" id="arena"><div class="arena-pixels"></div><div class="enemy-sprite-wrap"><div id="enemySprite"></div><div class="enemy-shadow"></div></div><div class="party-sprites" id="battlePartySprites"></div><div class="arena-message" id="arenaMessage">冒険するエリアを選ぼう</div></div>
-  <div class="battle-health"><div class="bar-label"><span>ENEMY HP <span id="enemyHpLabel">—</span></span><span id="enemyPhase">NORMAL</span></div><div class="progress enemy-progress"><i id="enemyHpBar"></i></div><div id="battlePartyStatus" class="party-status"></div></div>
-  <div class="battle-toolbar"><div class="select-monster"><span>行動する魔物</span><div id="activeChoices"></div></div><div class="scout-rate">SCOUT <b id="scoutRate">—</b></div></div>
-  <div class="combat-actions" id="combatActions"><button class="btn attack" data-act="attack">⚔ こうげき<small>正解でダメージ</small></button><button class="btn ability" data-act="skill">✦ とくぎ<small>属性攻撃 / 回復</small></button><button class="btn scout" data-act="scout">◎ スカウト<small>仲間に勧誘</small></button><button class="btn guard" data-act="guard">▣ ぼうぎょ<small>HP回復・軽減</small></button></div>
-  <div class="battle-quiz hidden" id="battleQuiz"><div class="battle-quiz-title"><span>KNOWLEDGE COMMAND</span><button class="text-btn" id="cancelBattleQuiz">戻る</button></div><h3 id="battleQuestion"></h3><div class="choices" id="battleChoices"></div></div>
-  <div class="battle-result hidden" id="battleResult"><h2 id="battleResultTitle">VICTORY</h2><p id="battleResultDescription"></p><button class="btn gold wide" id="nextEncounter">次の魔物を探す →</button></div>
-  <p class="battle-log" id="battleLog" aria-live="polite">探索して最初のモンスターを見つけよう。</p>
- </div>
-</section>
-<section class="screen" data-screen="team" id="screen-team">
- <div class="screen-heading"><span class="eyebrow">MONSTER BOX</span><h1>なかま・育成 <span class="heading-icon">♧</span></h1><p>3体までパーティを編成。スキルを育て、装備を持たせて戦おう。</p></div>
- <div class="section-title"><h2>現在のパーティ <small id="teamSize"></small></h2><button class="text-btn" data-go="fusion">配合所 →</button></div><div class="party-strip expanded" id="teamParty"></div>
- <div class="section-title"><h2>モンスター牧場 <small id="rosterCount"></small></h2></div><div class="monster-grid" id="monsterRoster"></div>
- <div class="detail-panel pixel-frame hidden" id="monsterDetail"><div class="section-title"><h2 id="detailTitle">モンスター詳細</h2><button class="text-btn" id="closeDetail">閉じる ✕</button></div><div id="detailBody"></div></div>
-</section>
-<section class="screen" data-screen="fusion" id="screen-fusion">
- <div class="screen-heading"><span class="eyebrow">MONSTER SYNTHESIS</span><h1>配合のほこら <span class="heading-icon">⚗</span></h1><p>2体を配合すると両親はいなくなる代わりに、新しい魔物が生まれる。能力とスキルの一部を継承。</p></div>
- <div class="fusion-layout pixel-frame"><div class="parents"><label>親モンスター A<select id="fusionA"></select></label><div class="fusion-plus">＋</div><label>親モンスター B<select id="fusionB"></select></label></div><div class="fusion-portal">⚗<span>SYNTHE​SIS</span></div><div class="fusion-preview" id="fusionPreview"></div><button class="btn gold wide" id="doFusion">配合する（100G）</button></div><p class="note">ヒント：同じ系統や特定の組み合わせで、図鑑にない特別な魔物が誕生する。</p>
-</section>
-<section class="screen" data-screen="forge" id="screen-forge">
- <div class="screen-heading"><span class="eyebrow">EQUIPMENT & RELICS</span><h1>装備工房 <span class="heading-icon">⚒</span></h1><p>知識エネルギーとGを使い、武器・防具・秘宝を発見しよう。獲得装備は魔物に持たせられる。</p></div>
- <div class="forge-banner pixel-frame"><div class="forge-fire">⚒</div><div><small>THE ANCIENT FORGE</small><h2>運命の鍛造</h2><p>レアな装備ほど特別な能力が付く。</p></div></div><div class="forge-actions"><button class="btn gold" id="forgeWeapon">⚔ 武器製作 <small>80G / ✦8</small></button><button class="btn outline" id="forgeArmor">▣ 防具製作 <small>70G / ✦7</small></button><button class="btn outline" id="forgeRelic">◇ 秘宝探索 <small>100G / ✦10</small></button></div>
- <div class="section-title"><h2>獲得した装備</h2><span id="itemCount">0点</span></div><div class="items-grid" id="itemInventory"></div>
-</section>
-<section class="screen" data-screen="dex" id="screen-dex">
- <div class="screen-heading"><span class="eyebrow">GRAND COLLECTION</span><h1>大図鑑 <span class="heading-icon">❖</span></h1><p>未発見の魔物はシルエットに。配合や探索で新しいページを埋めよう。</p></div>
- <div class="dex-summary pixel-frame"><small>COLLECTION PROGRESS</small><div><strong id="dexTotal">0 / 0</strong><span id="dexPercent">0%</span></div><div class="progress"><i id="dexBar"></i></div></div><div class="tabs" id="dexTabs"><button class="tab active" data-dex="monsters">魔物</button><button class="tab" data-dex="weapons">武器</button><button class="tab" data-dex="armors">防具</button><button class="tab" data-dex="relics">秘宝</button><button class="tab" data-dex="heroes">人物</button></div><div class="dex-grid" id="dexGrid"></div>
-</section>
-</main>
-<nav class="bottom-nav"><button class="nav active" data-go="home"><span>⌂</span><b>ホーム</b></button><button class="nav" data-go="study"><span>✧</span><b>勉強</b></button><button class="nav" data-go="adventure"><span>⚔</span><b>冒険</b></button><button class="nav" data-go="team"><span>♧</span><b>なかま</b></button><button class="nav" data-go="dex"><span>▦</span><b>図鑑</b></button></nav>
-<div class="toast-holder" id="toasts"></div><div class="modal hidden" id="modal"><div class="modal-box pixel-frame"><div class="modal-icon" id="modalIcon">✦</div><span id="modalOverline">NEW DISCOVERY</span><h2 id="modalTitle"></h2><p id="modalText"></p><button class="btn gold wide" id="modalClose">続ける</button></div></div>
-</div><script src="./script.js?v=20261010-joker2" defer></script></body></html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090e20">
+<meta name="description" content="STUDY BURST TCG — 勉強でパックを開ける本格カードバトル">
+<title>STUDY BURST TCG — 知識をカードに変えろ</title>
+<link rel="stylesheet" href="./style.css">
+<script src="./cards.js" defer></script><script src="./script.js" defer></script>
+</head>
+<body>
+<div class="ambient ambient-1"></div><div class="ambient ambient-2"></div>
+<div class="app" id="app">
+<header class="masthead">
+  <button class="brand" data-go="home" aria-label="ホーム"><span class="brand-emblem">✦</span><span class="brand-text"><strong>STUDY<span>BURST</span></strong><small>TRADING CARD GAME</small></span></button>
+  <div class="top-resources"><div class="resource"><span>PACK</span><b id="topPacks">0</b></div><div class="resource"><span>SHARDS</span><b id="topShards">0</b></div><div class="avatar">S</div></div>
+</header>
+<main id="screen" tabindex="-1"></main>
+<nav class="dock" aria-label="メニュー">
+  <button data-go="home" class="active"><span>⌂</span><small>HOME</small></button>
+  <button data-go="study"><span>✎</span><small>STUDY</small></button>
+  <button data-go="packs"><span>✦</span><small>PACK</small></button>
+  <button data-go="deck"><span>▱</span><small>DECK</small></button>
+  <button data-go="duel"><span>⚔</span><small>DUEL</small></button>
+  <button data-go="codex"><span>▦</span><small>CARDS</small></button>
+</nav>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="overlay" class="overlay hidden" role="dialog" aria-modal="true"></div>
+</div>
+</body></html>
