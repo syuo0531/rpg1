@@ -1,38 +1,15 @@
-# STUDY SURVIVOR — RPG1 / v1 (2026-10-13)
+# STUDY SURVIVOR — Handheld Pixel Visual Update v2
 
-見下ろし型のサバイバルアクション × 勉強 × モンスター収集のブラウザゲーム。
+This version replaces the previous abstract/generic monster art with classic Pokémon game sprite loading and a portable-monster-RPG-inspired route/battle HUD. It keeps the existing playable survival/learning systems.
 
-## 現在遊べる機能
-- 初代151匹の名前・タイプ・進化元・ランク・戦闘能力・個別の収集状況
-- オリジナルのプロシージャルな仮ピクセルスプライト（公式画像・外部URL不使用）
-- 御三家スターター選択、所持モンスターで3匹チーム編成、恒久育成
-- スマホのタッチドラッグ／PCのWASD・方向キー移動、仲間全員の自動攻撃
-- 敵群れ・経験値の結晶・レベルアップ3択・戦闘中の進化・ボス戦・3ステージ
-- AT学習用問題、CSV / JSON読み込み、正誤履歴・復習優先
-- 5問正解ごとにパック券。5枚独立抽選のカントーパック（レア保証なし、累積救済）
-- 図鑑・収集進捗・localStorage自動保存
+## Feature set
+- 151 Kanto species, team of three, three stages, real-time auto-technique battle, type-colored techniques, XP, upgrades, evolution, bosses.
+- 5 correct quiz answers earn a five-monster pack. CSV and JSON question import, review history, collection/deck, localStorage save.
+- Portable RPG-like route tiles, flowered grass, pathways, trees, rocks, custom battle effects, retro menu/panel design.
+- Battle sprites and Pokédex artwork are loaded as 80px classical pixel sprite PNGs via the PokeAPI sprites community archive at `https://github.com/PokeAPI/sprites` (GitHub raw content). If external URLs fail, procedural in-game placeholders appear, so battles remain playable. Sprite assets aren't bundled with this archive. Replace with licensed/local art under a custom source adapter as needed.
 
-## 操作
-1. 最初のポケモンを選択（御三家から選択）
-2. 「バトル」→「出撃する」でサバイバル開始
-3. PC：矢印キーまたはWASD、スマホ：キャンバス上をタッチしてスライド
-4. 技は自動発動。敵を倒して経験値の結晶を集め、技の強化を選択
-5. ボス討伐で次ステージ解放＋パック券
-6. 「勉強」で5問正解するとパック券1枚、「パック」で新モンスターを収集
-7. 「編成」で所持した3匹を選び、育成素材でレベルアップ
+## Attribution and rights
+Fan-made educational prototype, unaffiliated with The Pokémon Company, Nintendo, Creatures, or Game Freak. Pokémon species, sprite images, and names are owned by their respective rights holders. Do not assume these assets are available for commercial use. Terrain/UI/effect code is original and not copied from specific game tiles. This project does not package or redistribute the external sprites.
 
-## GitHub Pages
-ルートに `index.html`, `style.css`, `script.js`、 `data/kanto.json`, `data/questions.json` を置いて公開。
-サーバー不要、外部ライブラリ不要。起動はHTTP(S)経由。
-
-## 質問データ
-JSONは `question`, `choices`, `correct` (0-based), `explanation`, `subject`, `year`, `difficulty` に対応。
-CSVの `choices` は JSON配列または `選択肢A|選択肢B|...`、`correct` は0始まりの番号または選択肢の文字列。
-
-## データと権利
-**非公式の個人向けファンプロトタイプです。** Pokémon および各モンスターの名称は権利者に帰属します。公式スプライト・ゲーム音楽は使用していません。現在のキャラクター画像はタイプに応じたオリジナルの汎用ピクセル仮画像です。既存の TCG のセーブデータは別キーに保持し、上書きしません。
-
-## 段階的実装の制限
-- オンライン協力／マルチプレイなし
-- オリジナル外見を使った151匹すべての個別専用スプライトは未制作（仮描画）
-- 初版のマップは3つ。音楽・音声演出と多様な固有技は今後追加
+## Deployment
+Host directory under GitHub Pages (root), or run a local HTTP server (`python -m http.server 8000`). Opening the index directly via file protocol will block fetching the JSON data. Existing save key `studySurvivor.v1` is unchanged.
