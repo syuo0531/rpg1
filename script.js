@@ -3,55 +3,80 @@ const $=id=>document.getElementById(id), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)
 const KEY='studySurvivor.v1', TYPES={grass:['翠','#73d99c','#2f805e','❧'],fire:['炎','#ff9b61','#ac3d41','♨'],water:['水','#7ac8ff','#3265a5','≋'],lightning:['雷','#f9dc78','#ac802b','ϟ'],psychic:['念','#ccabff','#7553b5','✧'],fighting:['闘','#edbe85','#986345','✦'],dark:['毒','#bc87d8','#6a497e','☾'],dragon:['竜','#ffab8a','#8e4665','♜'],normal:['無','#d3d9b6','#637b70','◇']};
 const STAGES=[{name:'若葉の草原',tag:'GREENHAVEN',type:'grass',level:1,desc:'小さなモンスターが群れをなす、最初のフィールド。'},{name:'灼熱の渓谷',tag:'EMBER RIDGE',type:'fire',level:2,desc:'炎の弾幕と高速モンスターが待ち受ける。'},{name:'星明かりの遺跡',tag:'STARFALL RUINS',type:'psychic',level:3,desc:'強敵と巨大ボスがひしめく最終エリア。'}];
 const CAPTURE_BALLS={
- poke:{name:'モンスターボール',rate:.18,mark:'●',desc:'基本の捕獲ボール'},
- great:{name:'スーパーボール',rate:.34,mark:'◆',desc:'捕獲率アップ'},
- ultra:{name:'ハイパーボール',rate:.54,mark:'✦',desc:'さらに捕獲率アップ'},
- master:{name:'マスターボール',rate:1,mark:'★',desc:'野生ポケモンを確定捕獲'}
+ poke:{name:'モンスターボール',rate:.18,styleKey:'poke',desc:'基本の捕獲ボール'},
+ great:{name:'スーパーボール',rate:.34,styleKey:'great',desc:'捕獲率アップ'},
+ ultra:{name:'ハイパーボール',rate:.54,styleKey:'ultra',desc:'さらに捕獲率アップ'},
+ master:{name:'マスターボール',rate:1,styleKey:'master',desc:'野生ポケモンを確定捕獲'}
 };
 const GACHA_BALLS={
- N:{name:'ノーマル召喚ボール',className:'rank-n'},
- U:{name:'エメラルド召喚ボール',className:'rank-u'},
- R:{name:'サファイア召喚ボール',className:'rank-r'},
- SR:{name:'オーロラ召喚ボール',className:'rank-sr'},
- LG:{name:'レジェンド召喚ボール',className:'rank-lg'}
+ N:{name:'ノーマル召喚ボール',className:'rank-n',styleKey:'gacha-n'},
+ U:{name:'エメラルド召喚ボール',className:'rank-u',styleKey:'gacha-u'},
+ R:{name:'サファイア召喚ボール',className:'rank-r',styleKey:'gacha-r'},
+ SR:{name:'オーロラ召喚ボール',className:'rank-sr',styleKey:'gacha-sr'},
+ LG:{name:'レジェンド召喚ボール',className:'rank-lg',styleKey:'gacha-lg'}
 };
 let gachaAnimating=false,gachaAnimationTimer=0;
 function captureStock(){return state.balls||(state.balls={poke:5,great:0,ultra:0,master:0});}
 function addSource(id,kind){state.sources??={gacha:{},wild:{}};const group=state.sources[kind]||(state.sources[kind]={});group[id]=(group[id]||0)+1;}
-function findWildTarget(g=game){
- if(!g)return null;const inRange=e=>!e.dead&&!e.boss&&e.hp>0&&Math.hypot(e.x-g.position.x,e.y-g.position.y)<=275;
- const locked=g.enemies.find(e=>e.uid===g.captureTargetUid);
- if(locked&&inRange(locked))return locked;
- return g.enemies.filter(inRange).sort((a,b)=>Math.hypot(a.x-g.position.x,a.y-g.position.y)-Math.hypot(b.x-g.position.x,b.y-g.position.y))[0]||null;
-}
-function captureChance(ballKey,enemy){
+// Capture takes place only in the post-battle reward modal. No aiming controls in combat.
+function captureChance(ballKey,mon,g=game){
  if(ballKey==='master')return 1;
- const spec=byId[enemy.id],life=Math.max(0,Math.min(1,enemy.hp/Math.max(1,enemy.maxHp)));
- const rankFactor={N:1,U:.85,R:.64,SR:.4,LG:.2}[spec?.rarity]??1;
- return Math.max(.025,Math.min(.90,CAPTURE_BALLS[ballKey].rate*(.65+(1-life)*1.8)*rankFactor));
+ const rank={N:1,U:.85,R:.64,SR:.42,LG:.2}[mon.rarity]||1;
+ const battled=g?.outcomeWin?1.1:1;
+ const effort=1+Math.min(100,g?.kills||0)/230;
+ return Math.min(.92,Math.max(.025,CAPTURE_BALLS[ballKey].rate*2.05*rank*battled*effort));
 }
-function throwCaptureBall(type){
- const g=game;if(!g?.running||g.paused||g.choosing||g.captureThrow||page!=='battle')return;
- if(!CAPTURE_BALLS[type]||(captureStock()[type]||0)<1)return notify('ボールを持っていません');
- const target=findWildTarget(g);if(!target)return notify('近くに捕獲できる野生ポケモンがいません（ボスは対象外）');
- captureStock()[type]--;save();g.captureTargetUid=target.uid;
- g.captureThrow={type,targetUid:target.uid,x:target.x,y:target.y,fromX:g.position.x,fromY:g.position.y,elapsed:0,duration:.72};
- g.joy.active=false;
- notify(CAPTURE_BALLS[type].name+'を投げた！');updateHUD();
+function chooseCaptureCandidates(g,win){
+ const found=Object.entries(g.defeatedSpecies||{}).filter(([id,n])=>n>0&&byId[id]).map(([id])=>byId[id]);
+ const shuffled=[...found].sort(()=>Math.random()-.5);
+ // Distinct candidates only from monsters actually defeated this round; bosses excluded.
+ return shuffled.slice(0,win?3:2).map(s=>s.id);
 }
-function resolveCapture(g){
- const shot=g.captureThrow;if(!shot)return;g.captureThrow=null;
- const target=g.enemies.find(e=>e.uid===shot.targetUid);
- if(!target||target.dead||target.hp<=0||target.boss){notify('捕獲に失敗…');return;}
- const success=Math.random()<captureChance(shot.type,target);
- if(success){
-   target.dead=true;target.hp=0;g.enemies=g.enemies.filter(x=>x!==target);
-   g.captures=(g.captures||0)+1;g.capturedNames??=[];g.capturedNames.push(byId[target.id].name);
-   state.owned[target.id]=(state.owned[target.id]||0)+1;addSource(target.id,'wild');save();
-   floatText(target.x,target.y-20,'GET!', '#ffea97');notify('捕獲成功！ '+byId[target.id].name+' が仲間に！');
- }else{floatText(target.x,target.y-20,'MISS','#f9c2ae');notify('捕獲失敗！ '+byId[target.id].name+' は逃げなかった');}
- g.captureTargetUid=null;updateHUD();
+function capturePanelHTML(g){
+ const c=g.captureChance;
+ if(!c||!c.options.length)return '<p class="capture-quiet">今回は捕獲できる野生ポケモンがいませんでした。</p>';
+ const selected=byId[c.selected]||byId[c.options[0]];
+ const result=c.result;
+ const animation=c.animating;
+ return `<section class="post-capture-zone" aria-label="クリア後の捕獲チャンス">
+  <div class="post-capture-title"><span>✦ BONUS ENCOUNTER</span><h3>捕獲チャンス！</h3><p>今回倒した野生ポケモンから1匹を選ぼう。ボールは1回につき1個消費します。</p></div>
+  ${!c.attempted?`<div class="post-capture-choices">${c.options.map(id=>{const mon=byId[id];return `<button class="post-capture-mon ${id===c.selected?'chosen':''}" data-act="capturePick:${id}">${spriteTag(id,'post-capture-sprite')}<strong>${escapeHTML(mon.name)}</strong><small>${typeOf(mon)[0]} / ${rankName(mon.rarity)}</small></button>`}).join('')}</div>
+   <div class="post-capture-ball-list">${Object.entries(CAPTURE_BALLS).map(([key,ball])=>`<button class="post-ball-choice" data-act="captureAfter:${key}" ${(captureStock()[key]||0)<1?'disabled':''}>${pixelBallHTML(ball.styleKey,ball.name,'post-capture-pixelball')}<b>${ball.name}</b><small>×${captureStock()[key]||0}</small><span class="capture-odds">${Math.round(captureChance(key,selected,g)*100)}%</span></button>`).join('')}</div>
+   <small class="capture-hint">確率はボール性能・ポケモンの希少度・戦闘実績によって決まります。マスターボールは100%。</small>`:
+   `<div class="post-capture-anim ${animation?'is-shaking':result?.success?'is-caught':'is-escaped'}">
+      <div class="post-mon-anim">${spriteTag(selected.id,'post-capture-sprite')}</div>
+      ${pixelBallHTML(CAPTURE_BALLS[c.ball].styleKey,CAPTURE_BALLS[c.ball].name,'post-battle-ball')}
+      <strong>${animation?'つかまえる…':result?.success?selected.name+' をゲット！':selected.name+' は逃げてしまった…'}</strong>
+      ${animation?`${button('演出をスキップ','captureSkip','btn secondary tiny')}`:`<small>${result?.success?'図鑑と所持一覧に追加しました。':'ボールを1個消費しました。次のバトルに挑もう。'}</small>`}
+    </div>`}
+ </section>`;
 }
+function rewardModalHTML(g){
+ const win=g.outcomeWin,abandon=g.outcomeAbandon;
+ const ballRewards=g.ballRewards||{},tmReward=g.tmReward;
+ return `<div class="result-layout"><div class="result-stars">${win?'✦ ✦ ✦':abandon?'◇':'✧'}</div><div class="eyebrow">${win?'STAGE CLEAR':abandon?'RETREAT':'GAME OVER'}</div>
+  <h2>${win?'ボス撃破！':abandon?'探索を終了':'冒険はここまで'}</h2>
+  <div class="stats"><div class="stat"><small>撃破数</small><b>${g.kills}</b></div><div class="stat"><small>ランク</small><b>${g.level}</b></div><div class="stat"><small>素材</small><b>+${g.rewardDust||0}</b></div></div>
+  <p class="sub">${win?'✦ ガチャ券 +1 / 次のステージを開放！':'チームを育成して、また挑戦しよう。'}</p>
+  ${!abandon?`<div class="ball-reward">ボール報酬：${Object.entries(ballRewards).filter(([k,v])=>v>0).map(([k,v])=>`<span class="ball-reward-item">${pixelBallHTML(CAPTURE_BALLS[k].styleKey,CAPTURE_BALLS[k].name,'reward-ball')}<b>${CAPTURE_BALLS[k].name}</b> ×${v}</span>`).join('')||'なし'}</div>`:''}
+  ${tmReward?`<div class="tm-win">⚙ わざマシン獲得！ <b>${escapeHTML(tmReward.name)}</b>（${tmReward.rarity}）</div>`:''}
+  ${!abandon?capturePanelHTML(g):''}
+  ${button('冒険メニューへ','endResult','btn gold wide',g.captureChance?.animating?'disabled':'')}
+ </div>`;
+}
+function refreshRewardModal(g=game){if(!g||g.running)return;modal(rewardModalHTML(g));hydrateSprites();}
+function chooseCaptureTarget(id){const c=game?.captureChance;if(!c||c.attempted||!c.options.includes(id))return;c.selected=id;refreshRewardModal();}
+function postBattleCapture(ballKey){
+ const g=game,c=g?.captureChance;if(!g||g.running||!c||c.attempted||!c.options.length)return;
+ if(!CAPTURE_BALLS[ballKey]||(captureStock()[ballKey]||0)<1){notify('ボールがありません');return;}
+ const target=byId[c.selected];if(!target)return;
+ captureStock()[ballKey]--;c.ball=ballKey;c.attempted=true;c.animating=true;
+ const success=Math.random()<captureChance(ballKey,target,g);c.result={success,id:target.id};
+ if(success){state.owned[target.id]=(state.owned[target.id]||0)+1;addSource(target.id,'wild');g.captures=(g.captures||0)+1;}
+ save();refreshRewardModal();
+ c.animationTimer=setTimeout(()=>finishCaptureAnimation(g),2400);
+}
+function finishCaptureAnimation(g=game){if(!g?.captureChance?.animating)return;const c=g.captureChance;c.animating=false;clearTimeout(c.animationTimer);if(game===g)refreshRewardModal();}
 function rewardCaptureBalls(g,win,abandon){
  const rewards={poke:0,great:0,ultra:0,master:0};if(abandon)return rewards;
  if(win){rewards.poke=2+g.stage;rewards.great=g.stage>=1?1:0;
@@ -62,8 +87,50 @@ function rewardCaptureBalls(g,win,abandon){
  const stock=captureStock();for(const [key,value] of Object.entries(rewards))stock[key]=(stock[key]||0)+value;
  return rewards;
 }
+function pixelBallSVG(kind='poke'){
+ const palettes={
+  poke:{top:'#e23b3b',topShade:'#b62626',bottom:'#f7f7f2',bottomShade:'#cfd6d8',line:'#202a33',button:'#f5f3ef',buttonShade:'#aeb7bc',accent:'#ffffff'},
+  great:{top:'#2a60d8',topShade:'#173a8d',bottom:'#f6f5ef',bottomShade:'#cad5db',line:'#1c2730',button:'#f5f3ef',buttonShade:'#adb7bd',accent:'#d95353'},
+  ultra:{top:'#20242d',topShade:'#090d13',bottom:'#f2f2e9',bottomShade:'#c8d0d5',line:'#171f26',button:'#f7f2c5',buttonShade:'#9da8b2',accent:'#f2cf43'},
+  master:{top:'#8f52d7',topShade:'#6031a3',bottom:'#f6f6f0',bottomShade:'#cad0d5',line:'#221a2b',button:'#f7f4ee',buttonShade:'#afb6c0',accent:'#ec8ddb'},
+  'gacha-n':{top:'#f26f59',topShade:'#be3e2d',bottom:'#fff6e0',bottomShade:'#d9cfb4',line:'#31243b',button:'#fff8f1',buttonShade:'#bfc4cb',accent:'#ffe277'},
+  'gacha-u':{top:'#34a77d',topShade:'#20664d',bottom:'#ecfff1',bottomShade:'#c0d8c7',line:'#17332a',button:'#fffdfa',buttonShade:'#b5c8be',accent:'#aaf7d2'},
+  'gacha-r':{top:'#3e77f0',topShade:'#2546ad',bottom:'#effaff',bottomShade:'#bfd0df',line:'#1a2840',button:'#fffdf9',buttonShade:'#b9c3cf',accent:'#8fdfff'},
+  'gacha-sr':{top:'#af63f0',topShade:'#6c35a6',bottom:'#fff0ff',bottomShade:'#dcc6e8',line:'#321d42',button:'#fffaf8',buttonShade:'#c6bed2',accent:'#ffb8ff'},
+  'gacha-lg':{top:'#f4c84e',topShade:'#ad7d18',bottom:'#fdeeff',bottomShade:'#d9bfd8',line:'#3f2633',button:'#fffdf6',buttonShade:'#cfc8bb',accent:'#fff2a1'}
+ };
+ const p=palettes[kind]||palettes.poke;
+ const rows=[[7,10],[5,12],[4,13],[3,14],[2,15],[2,15],[1,16],[1,16],[1,16],[1,16],[2,15],[2,15],[3,14],[4,13],[5,12],[7,10]];
+ const rect=(x,y,w,h,fill)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
+ const topRows=new Set([1,2,3,4,5,6,7]);
+ let out='';
+ rows.forEach(([a,b],i)=>{const y=i+1; out+=rect(a,y,b-a+1,1,p.line); if(b-a>1){
+   let fill= topRows.has(y)?p.top:(y>=10?p.bottom:p.line); 
+   if(y===8||y===9) fill=p.line;
+   out+=rect(a+1,y,Math.max(0,b-a-1),1,fill);
+ }});
+ // simple shading
+ [[3,4],[4,4],[5,5],[6,5],[4,5],[5,6]].forEach(([x,y])=> out+=rect(x,y,1,1,p.accent));
+ [[10,12],[11,12],[12,11],[12,12],[11,13]].forEach(([x,y])=> out+=rect(x,y,1,1,topRows.has(y)?p.topShade:p.bottomShade));
+ // belt highlight
+ out+=rect(2,8,5,1,'#485561'); out+=rect(11,8,5,1,'#485561');
+ // center button
+ out+=rect(6,7,6,4,p.line); out+=rect(7,8,4,2,p.button); out+=rect(8,8,2,1,'#ffffff'); out+=rect(10,9,1,1,p.buttonShade);
+ // species markers
+ if(kind==='great') {out+=rect(4,3,2,2,p.accent); out+=rect(12,3,2,2,p.accent);}
+ if(kind==='ultra') {out+=rect(3,2,3,1,p.accent); out+=rect(12,2,3,1,p.accent); out+=rect(5,3,2,1,p.accent); out+=rect(11,3,2,1,p.accent); out+=rect(7,4,4,2,p.accent);} 
+ if(kind==='master') {out+=rect(4,3,2,2,p.accent); out+=rect(12,3,2,2,p.accent); out+=rect(6,2,6,1,p.accent); out+=rect(7,3,1,2,'#ffffff'); out+=rect(10,3,1,2,'#ffffff'); out+=rect(8,4,2,1,'#ffffff');}
+ if(kind==='gacha-u') {out+=rect(5,3,2,1,p.accent); out+=rect(10,3,2,1,p.accent); out+=rect(7,4,4,1,p.accent);} 
+ if(kind==='gacha-r') {out+=rect(4,3,2,2,p.accent); out+=rect(12,3,2,2,p.accent);}
+ if(kind==='gacha-sr') {out+=rect(5,2,1,1,p.accent); out+=rect(10,2,1,1,p.accent); out+=rect(6,3,4,1,p.accent);} 
+ if(kind==='gacha-lg') {out+=rect(4,2,10,1,p.accent); out+=rect(5,3,8,1,p.accent);}
+ return `<svg viewBox="0 0 18 18" class="pixel-ball-svg" aria-hidden="true" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">${out}</svg>`;
+}
+function pixelBallHTML(kind,label,classes=''){
+ return `<span class="pixel-ball ${classes}" role="img" aria-label="${escapeHTML(label)}">${pixelBallSVG(kind)}</span>`;
+}
 function summonBallHTML(rarity,animated=false){const spec=GACHA_BALLS[rarity]||GACHA_BALLS.N;
- return `<div class="summon-ball ${spec.className} ${animated?'summon-ball-active':''}" role="img" aria-label="${spec.name}"><span class="ball-upper"></span><span class="ball-center"></span><span class="ball-lower"></span><span class="ball-shine"></span></div>`;
+ return pixelBallHTML(spec.styleKey,spec.name,`summon-ball ${spec.className} ${animated?'summon-ball-active':''}`);
 }
 const MOVES={grass:'はっぱカッター',fire:'ひのこ',water:'みずでっぽう',lightning:'でんきショック',psychic:'ねんりき',fighting:'いわくだき',dark:'どくばり',dragon:'りゅうのいぶき',normal:'スピードスター'};
 // Battle is a streamlined single-type ruleset. Kanto's original dual typings are mapped
@@ -254,14 +321,14 @@ function team(){if(!state.starter)return home();let owned=species.filter(s=>stat
 function monCard(s,ownedOnly=false){let has=state.owned[s.id]||0,sel=state.team.includes(s.id);return `<button class="mon-card ${has?'':'missing'} ${sel?'selected':''}" data-act="mon:${s.id}" ${!has?'disabled':''}><span class="rank" style="border-color:${rankColor(s.rarity)};color:${rankColor(s.rarity)}">${s.rarity}</span>${spriteTag(s.id)}<strong>${has?escapeHTML(s.name):'???'}</strong><small>#${String(s.dex).padStart(3,'0')} ${has?`×${has} / Lv${state.training[s.id]||1}`:'未発見'}</small></button>`}
 function monDetail(id){let s=byId[id];if(!s||!state.owned[id])return;let lv=state.training[id]||1,cost=lv*18,orig=species.find(t=>t.from===id);modal(`<div class="row" style="gap:18px">${spriteTag(id)}<div><div class="eyebrow">DEX #${String(s.dex).padStart(3,'0')} / ${rankName(s.rarity)}</div><h2>${escapeHTML(s.name)}</h2><p class="sub">${typeOf(s)[0]}タイプ / 育成Lv${lv} / 所持${state.owned[id]}匹</p><p class="sub">入手元：✦ガチャ ${state.sources?.gacha?.[id]||0}匹 / ●野生捕獲 ${state.sources?.wild?.[id]||0}匹${state.owned[id]>(state.sources?.gacha?.[id]||0)+(state.sources?.wild?.[id]||0)?' / 以前の所持・進化':''}</p></div></div><div class="panel"><div class="row spread"><b>基礎HP ${s.hp}</b><b>攻撃 ${s.attack}</b></div><p class="sub">現在の技：${escapeHTML(moveFor(id).name)}。わざマシンで攻撃範囲・属性・連射速度を変更できます。</p>${orig?`<p class="sub">進化先：${orig.name}（戦闘中にレベルアップして進化）</p>`:''}</div><div class="row section">${button(`✧ ${cost} で育成Lv+1`,'train:'+id,'btn gold',state.dust<cost?'disabled':'')}${button(state.team.includes(id)?'編成中':'チームに入れる','addTeam:'+id,'btn secondary')}</div>${button('わざマシン','tmGo:'+id,'btn secondary')}${button('閉じる','closeModal','btn secondary wide')}`)}
 function dex(){const filtered=species.filter(s=>dexFilter==='all'||dexFilter==='owned'&&state.owned[s.id]||s.type===dexFilter),count=Math.ceil(filtered.length/36);dexPage=clamp(dexPage,0,Math.max(0,count-1));const list=filtered.slice(dexPage*36,dexPage*36+36);let have=species.filter(s=>state.owned[s.id]).length;return `${heading('KANTO POKEDEX','初代151匹図鑑','未発見はシルエット表示。集めた仲間で自分だけのチームを作ろう。')}<div class="panel"><div class="row spread"><div><div class="eyebrow">DISCOVERED</div><h2 style="font-size:31px;margin:3px 0">${have} <small style="color:var(--muted)">/ 151</small></h2></div><div class="pill">${Math.round(have/151*100)}% COMPLETE</div></div><div class="bar"><span style="width:${have/151*100}%"></span></div><div class="controls">${[['all','すべて'],['owned','所持'],...Object.entries(TYPES).map(([k,v])=>[k,v[0]])].map(([k,v])=>`<button class="control ${dexFilter===k?'active':''}" data-act="dexFilter:${k}">${v}</button>`).join('')}</div><div class="pokemon-grid">${list.map(s=>monCard(s)).join('')}</div><div class="row spread section">${button('← 前へ','dexPrev','btn secondary tiny',dexPage===0?'disabled':'')}<span class="sub">${dexPage+1} / ${Math.max(count,1)}ページ</span>${button('次へ →','dexNext','btn secondary tiny',dexPage>=count-1?'disabled':'')}</div></div><p class="data-note section">非公式・非商用の学習用ファンプロトタイプです。ポケモンの名称は各権利者の商標です。懐かしいポケモンのゲームスプライトを外部参照し、接続できない場合は独自の仮描画に切り替わります。</p>`}
-function battle(){if(game){return `<div class="game-shell"><div class="game-hud"><div><div class="eyebrow">KANTO · ${escapeHTML(STAGES[game.stage].tag)}</div><strong>ポケモン サバイバル</strong> <small>移動：WASD / 方向キー / タッチスライド</small></div>${button(game.paused?'▶ 再開':'Ⅱ 一時停止','pause','btn secondary tiny')}</div><div class="game-canvas-wrap" id="canvasWrap"><canvas id="battleCanvas" class="game-canvas" width="960" height="600" aria-label="サバイバル対戦フィールド"></canvas><div class="game-top"><div><div class="healthline"><span><span id="activeName">ポケモン</span> ♥ <span id="hpText"></span></span><span id="runLevel"></span></div><div class="bar"><span id="hpFill"></span></div><div style="height:6px;background:#345163;margin-top:5px;border-radius:4px;overflow:hidden"><span id="xpFill" style="display:block;width:0;height:100%;background:#e6c77a"></span></div></div><div><span id="runTimer">00:00</span><div style="font-size:10px;color:#a3d0b4">撃破 <span id="runKills">0</span> / WAVE <span id="runWave">1</span></div></div></div><div id="pauseOverlay" class="game-paused" hidden><div class="panel"><h2>PAUSED</h2>${button('▶ 冒険を再開','pause','btn wide')}${button('冒険を終了','leaveRun','btn danger wide','style="margin-top:10px"')}</div></div></div><div class="switch-panel"><div class="switch-heading"><span>手持ちポケモン / 1匹ずつ召喚</span><small id="switchTimer">交代可能</small></div><div class="switch-slots">${game.team.map((a,i)=>`<button class="switch-mon ${i===game.activeIndex?'selected':''}" data-act="swap:${i}" data-switch="${i}" aria-label="${escapeHTML(byId[a.id].name)}に交代"><span class="switch-img">${spriteTag(a.id)}</span><span class="switch-meta"><b>${escapeHTML(byId[a.id].name)}</b><small>${typeOf(byId[a.id])[0]} / ${moveFor(a.id).name}</small><span class="switch-hp-bg"><span class="switch-hp-fill" style="width:${Math.max(0,100*a.hp/a.maxHp)}%"></span></span><small class="switch-hp-text">${hpLabel(a.hp)} / ${a.maxHp}</small></span></button>`).join('')}</div></div><section class="capture-panel"><div class="capture-heading"><strong>● 野生ポケモン捕獲</strong><small id="captureTarget">近くの野生ポケモンをタップして狙おう</small></div><div class="capture-buttons">${Object.entries(CAPTURE_BALLS).map(([key,ball])=>`<button class="capture-button capture-${key}" data-act="capture:${key}" data-ball="${key}" aria-label="${ball.name}を投げる"><span class="capture-ball-icon">${ball.mark}</span><span class="capture-ball-info"><b>${ball.name}</b><small>×<span data-ball-count="${key}">${captureStock()[key]||0}</span></small></span></button>`).join('')}</div><p class="capture-note">マップ上の野生ポケモンをタップしてターゲット指定。近くの敵にはそのまま投げられます。HPを減らすと捕獲しやすくなります。ボスは対象外。</p></section><div class="game-bottom"><span id="activeMove">⚔ ${escapeHTML(moveFor(activePokemon(game).id).name)}</span><span id="targetTypeHint">敵のタイプを見て交代！</span></div><p class="game-help">4種類の捕獲ボールはバトル報酬で獲得。ガチャ券は別です。手持ちをタップして交代（PCは1〜3キー）。相性が有利な技は1.6倍、不利な技は0.65倍。控えのHPは温存されます。</p></div>`}
+function battle(){if(game){return `<div class="game-shell"><div class="game-hud"><div><div class="eyebrow">KANTO · ${escapeHTML(STAGES[game.stage].tag)}</div><strong>ポケモン サバイバル</strong> <small>移動：WASD / 方向キー / タッチスライド</small></div>${button(game.paused?'▶ 再開':'Ⅱ 一時停止','pause','btn secondary tiny')}</div><div class="game-canvas-wrap" id="canvasWrap"><canvas id="battleCanvas" class="game-canvas" width="960" height="600" aria-label="サバイバル対戦フィールド"></canvas><div class="game-top"><div><div class="healthline"><span><span id="activeName">ポケモン</span> ♥ <span id="hpText"></span></span><span id="runLevel"></span></div><div class="bar"><span id="hpFill"></span></div><div style="height:6px;background:#345163;margin-top:5px;border-radius:4px;overflow:hidden"><span id="xpFill" style="display:block;width:0;height:100%;background:#e6c77a"></span></div></div><div><span id="runTimer">00:00</span><div style="font-size:10px;color:#a3d0b4">撃破 <span id="runKills">0</span> / WAVE <span id="runWave">1</span></div></div></div><div id="pauseOverlay" class="game-paused" hidden><div class="panel"><h2>PAUSED</h2>${button('▶ 冒険を再開','pause','btn wide')}${button('冒険を終了','leaveRun','btn danger wide','style="margin-top:10px"')}</div></div></div><div class="switch-panel"><div class="switch-heading"><span>手持ちポケモン / 1匹ずつ召喚</span><small id="switchTimer">交代可能</small></div><div class="switch-slots">${game.team.map((a,i)=>`<button class="switch-mon ${i===game.activeIndex?'selected':''}" data-act="swap:${i}" data-switch="${i}" aria-label="${escapeHTML(byId[a.id].name)}に交代"><span class="switch-img">${spriteTag(a.id)}</span><span class="switch-meta"><b>${escapeHTML(byId[a.id].name)}</b><small>${typeOf(byId[a.id])[0]} / ${moveFor(a.id).name}</small><span class="switch-hp-bg"><span class="switch-hp-fill" style="width:${Math.max(0,100*a.hp/a.maxHp)}%"></span></span><small class="switch-hp-text">${hpLabel(a.hp)} / ${a.maxHp}</small></span></button>`).join('')}</div></div><div class="game-bottom"><span id="activeMove">⚔ ${escapeHTML(moveFor(activePokemon(game).id).name)}</span><span id="targetTypeHint">敵のタイプを見て交代！</span></div><p class="game-help">ボールはバトル報酬で獲得。捕獲はバトル終了後に挑戦できます。手持ちをタップして交代（PCは1〜3キー）。相性が有利な技は1.6倍、不利な技は0.65倍。控えのHPは温存されます。</p></div>`}
 return `${heading('SELECT STAGE','サバイバルに出撃','フィールドを自由に移動し、群れを倒してレベルアップ。ボス討伐で次のステージが開放されます。')}<div class="stage-grid">${STAGES.map((st,i)=>`<button class="stage ${i<state.stages?'active':'locked'}" data-act="stage:${i}" ${i>=state.stages?'disabled':''}><span class="eyebrow">STAGE 0${i+1} / ${escapeHTML(st.tag)}</span><b>${i>=state.stages?'🔒 ':''}${escapeHTML(st.name)}</b><small>${escapeHTML(st.desc)}</small></button>`).join('')}</div><div class="panel section"><h2>出撃パーティ</h2><div class="team-slots">${state.team.map(id=>`<div class="slot">${spriteTag(id)}<strong>${byId[id].name}</strong><small>育成 Lv ${state.training[id]||1}</small></div>`).join('')}</div><div class="row section">${button('⚔ 出撃する','beginRun:'+selectedStage,'btn gold')}${button('チーム変更','go:team','btn secondary')}<span class="pill">${STAGES[selectedStage]?.name}</span></div></div>`}
 const POKEMON_ASSETS=new Map();
 function hydrateSprites(){document.querySelectorAll('img[data-pokemon]').forEach(el=>{let n=Number(el.dataset.pokemon),rec=POKEMON_ASSETS.get(n);if(rec?.ok){el.src=rec.src;return;}if(rec)return;const id='p'+String(n).padStart(3,'0'),src=pokemonSpriteURL(id);if(!src)return;rec={ok:false,src};POKEMON_ASSETS.set(n,rec);const img=new Image();img.onload=()=>{rec.ok=true;document.querySelectorAll('img[data-pokemon="'+n+'"]').forEach(el=>{if(el.isConnected)el.src=src})};img.onerror=()=>{rec.failed=true};img.src=src;})}
 function render(){resources();$('main').innerHTML=({home,study,pack,team,battle,dex,tm:machine}[page]||home)();hydrateSprites();if(page==='battle'&&game){attachCanvas();updateHUD();const overlay=$('pauseOverlay');if(overlay)overlay.hidden=!game.paused;}if(page==='study'){let inp=$('questionFile');inp?.addEventListener('change',e=>questionImport(e.target.files[0]),{once:true});}}
 // ----- Real-time survivor battle -----
-function startRun(stage){if(!state.team.length)return notify('編成から仲間を選択してください');selectedStage=stage;const mobile=matchMedia('(max-width:540px)').matches;game={running:true,paused:false,choosing:false,stage,seconds:0,level:1,xp:0,xpNeed:6,activeIndex:0,switchCooldown:0,lastTypeHint:0,invuln:0,position:{x:0,y:0},vx:0,vy:0,kills:0,spawn:0,boss:false,bossDead:false,boost:{power:1,rate:1,multi:0,speed:1,magnet:1,orbit:0,defense:1},team:state.team.map((id,i)=>({id,x:0,y:0,cd:0.2,idx:i,maxHp:pokemonMaxHP(byId[id],id),hp:pokemonMaxHP(byId[id],id)})),enemies:[],shots:[],drops:[],particles:[],floats:[],bossShots:[],camera:{x:0,y:0},lastFrame:0,autoPaused:false,terrainCache:null,joy:{active:false,id:null,bx:0,by:0,dx:0,dy:0},mobile,w:mobile?720:960,h:mobile?960:600,evolutionMilestones:new Set(),enemyUid:0,captureTargetUid:null,captureThrow:null,captures:0,capturedNames:[]};page='battle';render();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)}
-function attachCanvas(){const canvas=$('battleCanvas');if(!canvas||!game)return;canvas.width=game.w;canvas.height=game.h;const point=(evt)=>{let b=canvas.getBoundingClientRect();return {x:(evt.clientX-b.left)*canvas.width/b.width,y:(evt.clientY-b.top)*canvas.height/b.height}};canvas.onpointerdown=e=>{if(game.paused||game.captureThrow)return;let p=point(e);game.joy={active:true,id:e.pointerId,bx:p.x,by:p.y,dx:0,dy:0,t0:performance.now()};try{canvas.setPointerCapture(e.pointerId)}catch(_){/* Some synthetic and legacy touch events lack capture */}};canvas.onpointermove=e=>{if(!game.joy.active||game.joy.id!==e.pointerId)return;let p=point(e),j=game.joy,dx=p.x-j.bx,dy=p.y-j.by,l=Math.hypot(dx,dy),s=Math.min(1,l/74);j.dx=l?dx/l*s:0;j.dy=l?dy/l*s:0};canvas.onpointerup=canvas.onpointercancel=e=>{if(game.joy.id!==e.pointerId)return;const j=game.joy,p=point(e);if(Math.hypot(p.x-j.bx,p.y-j.by)<15&&performance.now()-j.t0<360){const wx=p.x-game.w/2+game.camera.x,wy=p.y-game.h/2+game.camera.y;const hit=game.enemies.filter(v=>!v.boss&&!v.dead&&Math.hypot(wx-v.x,wy-v.y)<v.size*.64+20&&Math.hypot(game.position.x-v.x,game.position.y-v.y)<275).sort((a,b)=>Math.hypot(wx-a.x,wy-a.y)-Math.hypot(wx-b.x,wy-b.y))[0];if(hit){game.captureTargetUid=hit.uid;notify(byId[hit.id].name+' を捕獲ターゲットに選択！');}}game.joy.active=false;};}
+function startRun(stage){if(!state.team.length)return notify('編成から仲間を選択してください');selectedStage=stage;const mobile=matchMedia('(max-width:540px)').matches;game={running:true,paused:false,choosing:false,stage,seconds:0,level:1,xp:0,xpNeed:6,activeIndex:0,switchCooldown:0,lastTypeHint:0,invuln:0,position:{x:0,y:0},vx:0,vy:0,kills:0,spawn:0,boss:false,bossDead:false,boost:{power:1,rate:1,multi:0,speed:1,magnet:1,orbit:0,defense:1},team:state.team.map((id,i)=>({id,x:0,y:0,cd:0.2,idx:i,maxHp:pokemonMaxHP(byId[id],id),hp:pokemonMaxHP(byId[id],id)})),enemies:[],shots:[],drops:[],particles:[],floats:[],bossShots:[],camera:{x:0,y:0},lastFrame:0,autoPaused:false,terrainCache:null,joy:{active:false,id:null,bx:0,by:0,dx:0,dy:0},mobile,w:mobile?720:960,h:mobile?960:600,evolutionMilestones:new Set(),enemyUid:0,encountered:{},defeatedSpecies:{},captureChance:null,captures:0,capturedNames:[]};page='battle';render();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)}
+function attachCanvas(){const canvas=$('battleCanvas');if(!canvas||!game)return;canvas.width=game.w;canvas.height=game.h;const point=(evt)=>{let b=canvas.getBoundingClientRect();return {x:(evt.clientX-b.left)*canvas.width/b.width,y:(evt.clientY-b.top)*canvas.height/b.height}};canvas.onpointerdown=e=>{if(game.paused)return;let p=point(e);game.joy={active:true,id:e.pointerId,bx:p.x,by:p.y,dx:0,dy:0,t0:performance.now()};try{canvas.setPointerCapture(e.pointerId)}catch(_){/* Some synthetic and legacy touch events lack capture */}};canvas.onpointermove=e=>{if(!game.joy.active||game.joy.id!==e.pointerId)return;let p=point(e),j=game.joy,dx=p.x-j.bx,dy=p.y-j.by,l=Math.hypot(dx,dy),s=Math.min(1,l/74);j.dx=l?dx/l*s:0;j.dy=l?dy/l*s:0};canvas.onpointerup=canvas.onpointercancel=e=>{if(game.joy.id===e.pointerId)game.joy.active=false;};}
 function frame(t){
  if(!game?.running)return;
  raf=requestAnimationFrame(frame);
@@ -270,7 +337,7 @@ function frame(t){
  const dt=g.lastFrame?Math.min(.05,(t-g.lastFrame)/1000):.033;
  g.lastFrame=t;
  try{
-  if(!g.paused&&!g.choosing&&!g.captureThrow)update(dt);if(g.captureThrow){g.captureThrow.elapsed+=dt;if(g.captureThrow.elapsed>=g.captureThrow.duration)resolveCapture(g);}
+  if(!g.paused&&!g.choosing)update(dt);
   if(game!==g||!g.running)return;
   draw();updateHUD();
  }catch(err){
@@ -306,9 +373,9 @@ g.shots=g.shots.filter(x=>x.ttl>0).slice(-220);g.enemies=g.enemies.filter(e=>e.h
 for(let p of g.drops){let dx=g.position.x-p.x,dy=g.position.y-p.y,d=Math.hypot(dx,dy)||1;if(d<85*g.boost.magnet){p.x+=dx/d*Math.min(d,220*dt);p.y+=dy/d*Math.min(d,220*dt)}if(d<26){g.xp+=p.value;p.dead=true}}g.drops=g.drops.filter(x=>!x.dead).slice(-120);if(g.xp>=g.xpNeed&&!g.choosing){g.xp-=g.xpNeed;g.level++;g.xpNeed=6+g.level*4;levelUp();}
 if(g.boost.orbit>0){for(let e of g.enemies){let ang=Math.atan2(e.y-g.position.y,e.x-g.position.x);for(let j=0;j<g.boost.orbit;j++){let theta=g.seconds*(1.9)+j*Math.PI*2/g.boost.orbit,orbX=g.position.x+Math.cos(theta)*78,orbY=g.position.y+Math.sin(theta)*78;if(Math.hypot(e.x-orbX,e.y-orbY)<e.size*.5+12&&Math.random()<dt*6){e.hp-=20*g.boost.power*effectiveness(byId[activePokemon(g).id].type,byId[e.id].type);if(e.hp<=0)killEnemy(e)}}}}
 for(let a of g.particles){a.x+=a.vx*dt;a.y+=a.vy*dt;a.ttl-=dt}g.particles=g.particles.filter(x=>x.ttl>0).slice(-110);for(let x of g.floats){x.y-=25*dt;x.ttl-=dt}g.floats=g.floats.filter(x=>x.ttl>0).slice(-70);if(g.bossDead){finishRun(true)}}
-function spawnEnemy(){let g=game,angle=rnd(0,Math.PI*2),range=rnd(220,315),pool=g.stage===0?[10,13,16,19,21,29,41,43,46,48]:g.stage===1?[4,5,37,58,66,74,77,95,109]:[63,92,93,94,96,100,123,124,125,142],id='p'+String(pick(pool)).padStart(3,'0'),s=byId[id],size=57+(s.stage||0)*9;g.enemies.push({uid:++g.enemyUid,id,x:g.position.x+Math.cos(angle)*range,y:g.position.y+Math.sin(angle)*range,hp:Math.round((78+g.seconds*.55+g.stage*22)*(s.rarity==='R'?1.4:1)),maxHp:Math.round((78+g.seconds*.55+g.stage*22)*(s.rarity==='R'?1.4:1)),size,boss:false,anim:rnd(0,10)})}
+function spawnEnemy(){let g=game,angle=rnd(0,Math.PI*2),range=rnd(220,315),pool=g.stage===0?[10,13,16,19,21,29,41,43,46,48]:g.stage===1?[4,5,37,58,66,74,77,95,109]:[63,92,93,94,96,100,123,124,125,142],id='p'+String(pick(pool)).padStart(3,'0'),s=byId[id],size=57+(s.stage||0)*9;g.encountered[id]=(g.encountered[id]||0)+1;g.enemies.push({uid:++g.enemyUid,id,x:g.position.x+Math.cos(angle)*range,y:g.position.y+Math.sin(angle)*range,hp:Math.round((78+g.seconds*.55+g.stage*22)*(s.rarity==='R'?1.4:1)),maxHp:Math.round((78+g.seconds*.55+g.stage*22)*(s.rarity==='R'?1.4:1)),size,boss:false,anim:rnd(0,10)})}
 function spawnBoss(){let g=game,id=['p003','p006','p150'][g.stage],hp=1100+g.stage*690;g.enemies.push({uid:++g.enemyUid,id,x:g.position.x+350,y:g.position.y-150,hp,maxHp:hp,size:148,boss:true,anim:0,skill:2})}
-function killEnemy(e){if(e.dead)return;e.dead=true;e.hp=0;game.kills++;if(e.boss)game.bossDead=true;game.drops.push({x:e.x,y:e.y,value:e.boss?18:1+(e.size>50?1:0)});for(let i=0;i<4;i++)game.particles.push({x:e.x,y:e.y,vx:rnd(-90,90),vy:rnd(-90,90),ttl:rnd(.3,.7),color:typeOf(byId[e.id])[1]});}
+function killEnemy(e){if(e.dead)return;e.dead=true;e.hp=0;game.kills++;if(!e.boss)game.defeatedSpecies[e.id]=(game.defeatedSpecies[e.id]||0)+1;if(e.boss)game.bossDead=true;game.drops.push({x:e.x,y:e.y,value:e.boss?18:1+(e.size>50?1:0)});for(let i=0;i<4;i++)game.particles.push({x:e.x,y:e.y,vx:rnd(-90,90),vy:rnd(-90,90),ttl:rnd(.3,.7),color:typeOf(byId[e.id])[1]});}
 function floatText(x,y,t,color){game.floats.push({x,y,txt:String(t),ttl:.55,color})}
 function levelUp(){let g=game;g.choosing=true;g.paused=true;let available=[...UPGRADES].sort(()=>Math.random()-.5).slice(0,3);modal(`<div class="eyebrow">LEVEL UP / ${g.level}</div><h2>新しい力を選択</h2><p class="sub">知識と経験を力に変えて、残りの群れを突破しよう。</p><div class="reward-options">${available.map(x=>`<button class="reward" data-act="upgrade:${x.id}"><span>${x.icon}</span><b>${x.name}</b><small>${x.desc}</small></button>`).join('')}</div><p class="data-note">1つ選ぶとすぐに戦闘を再開します。</p>`)}
 function evolveInRun(){let g=game;if(!g||!g.running)return;
@@ -321,13 +388,27 @@ function evolveInRun(){let g=game;if(!g||!g.running)return;
  }}
 function chooseUpgrade(id){if(!game?.choosing)return;let g=game;switch(id){case 'power':g.boost.power*=1.25;break;case 'rate':g.boost.rate*=.83;break;case 'multi':g.boost.multi=Math.min(4,g.boost.multi+1);break;case 'speed':g.boost.speed*=1.14;break;case 'hp':g.boost.hpBonus=(g.boost.hpBonus||0)+35;for(const p of g.team){p.maxHp+=35;if(p.hp>0)p.hp+=35;}break;case 'magnet':g.boost.magnet*=1.48;break;case 'orbit':g.boost.orbit=Math.min(5,g.boost.orbit+1);break;case 'defense':g.boost.defense*=.87;break;case 'heal':{const p=activePokemon(g);if(p)p.hp=Math.min(p.maxHp,p.hp+70);break;}}g.choosing=false;g.paused=false;$('modal').hidden=true;evolveInRun();updateHUD()}
 function gamePause(){if(!game)return; if(game.choosing)return;game.paused=!game.paused;game.autoPaused=false;game.lastFrame=0;let pause=$('pauseOverlay');if(pause)pause.hidden=!game.paused;let b=document.querySelector('[data-act="pause"]');if(b)b.textContent=game.paused?'▶ 再開':'Ⅱ 一時停止'}
-function finishRun(win,abandon=false){if(!game)return;let g=game;if(!g.running)return;g.running=false;g.paused=true;cancelAnimationFrame(raf);keys.clear();let gain=abandon?0:Math.floor(g.kills/7)+(win?80:12),ticket=win?1:0;let tmReward=null,ballRewards=rewardCaptureBalls(g,win,abandon);if(!abandon){state.dust+=gain;state.tickets+=ticket;if((win&&Math.random()<.65)||(!win&&g.kills>=30&&Math.random()<.12))tmReward=grantTM('battle',g.stage);if(win){state.clears++;state.stages=Math.max(state.stages,Math.min(3,g.stage+2));}save()}modal(`<div style="text-align:center"><div class="result-stars">${win?'✦ ✦ ✦':abandon?'◇':'✧'}</div><div class="eyebrow">${win?'STAGE CLEAR':abandon?'RETREAT':'GAME OVER'}</div><h2>${win?'ボス撃破！':abandon?'探索を終了':'冒険はここまで'}</h2><div class="stats"><div class="stat"><small>捕獲</small><b>${g.captures||0}</b></div><div class="stat"><small>撃破数</small><b>${g.kills}</b></div><div class="stat"><small>ランク</small><b>${g.level}</b></div><div class="stat"><small>素材</small><b>+${gain}</b></div></div><p class="sub">${win?'✦ ガチャ券 +1 / 次のステージを開放！':'チームを育成して、また挑戦しよう。'}</p>${!abandon?`<div class="ball-reward">捕獲ボール報酬：${Object.entries(ballRewards).filter(([k,v])=>v>0).map(([k,v])=>CAPTURE_BALLS[k].name+' ×'+v).join('、')||'なし'}</div>`:''}${g.captures?`<p class="sub">捕獲：${g.capturedNames.slice(-6).map(escapeHTML).join('、')}</p>`:''}${tmReward?`<div class="tm-win">⚙ わざマシン獲得！<b>${escapeHTML(tmReward.name)}</b>（${tmReward.rarity}）</div>`:''}${button('冒険メニューへ','endResult','btn gold wide')}</div>`)}
+function finishRun(win,abandon=false){
+ if(!game)return;const g=game;if(!g.running)return;
+ g.running=false;g.paused=true;cancelAnimationFrame(raf);keys.clear();
+ const gain=abandon?0:Math.floor(g.kills/7)+(win?80:12),ticket=win?1:0;
+ g.rewardDust=gain;g.outcomeWin=win;g.outcomeAbandon=abandon;
+ g.ballRewards=rewardCaptureBalls(g,win,abandon);g.tmReward=null;
+ if(!abandon){state.dust+=gain;state.tickets+=ticket;
+  if((win&&Math.random()<.65)||(!win&&g.kills>=30&&Math.random()<.12))g.tmReward=grantTM('battle',g.stage);
+  if(win){state.clears++;state.stages=Math.max(state.stages,Math.min(3,g.stage+2));}
+  const choices=chooseCaptureCandidates(g,win);
+  g.captureChance={options:choices,selected:choices[0]||null,attempted:false,animating:false,result:null,ball:null};
+  save();
+ }
+ refreshRewardModal(g);
+}
 function draw(){let g=game,canvas=$('battleCanvas');if(!canvas)return;let c=canvas.getContext('2d',{alpha:false});c.imageSmoothingEnabled=false;let w=g.w,h=g.h,ox=w/2-g.camera.x,oy=h/2-g.camera.y;drawCachedTerrain(c,g,ox,oy);function screen(x,y){return {x:x+ox,y:y+oy}}
 // XP crystals, then enemies, allies, abilities on top
 for(let gem of g.drops){let p=screen(gem.x,gem.y);c.fillStyle='#36c0ff';c.beginPath();c.moveTo(p.x,p.y-7);c.lineTo(p.x+5,p.y);c.lineTo(p.x,p.y+7);c.lineTo(p.x-5,p.y);c.fill();c.fillStyle='#d4f8ff';c.fillRect(p.x-1,p.y-4,2,4)}
 for(let e of g.enemies){let p=screen(e.x,e.y);if(p.x<-140||p.x>w+140||p.y<-140||p.y>h+140)continue;let sz=e.size,cx=p.x-sz/2,cy=p.y-sz/2+Math.sin(e.anim*4)*2;c.fillStyle='#09261988';c.beginPath();c.ellipse(p.x,p.y+sz*.35,sz*.4,sz*.11,0,0,Math.PI*2);c.fill();{let img=getSprite(e.id);if(img.complete&&img.naturalWidth)c.drawImage(img,cx,cy,sz,sz);}if(!e.boss&&e.uid===g.captureTargetUid){c.strokeStyle='#ffe3a0';c.lineWidth=4;c.beginPath();c.arc(p.x,p.y,sz*.62,0,Math.PI*2);c.stroke();c.fillStyle='#102a33df';c.fillRect(p.x-31,p.y-sz*.58-11,62,7);c.fillStyle='#6ef5af';c.fillRect(p.x-30,p.y-sz*.58-10,60*Math.max(0,e.hp/e.maxHp),5);}if(e.boss){c.fillStyle='#080f15bb';c.fillRect(p.x-64,p.y-77,128,11);c.fillStyle='#ff6583';c.fillRect(p.x-62,p.y-75,124*Math.max(0,e.hp/e.maxHp),7);c.fillStyle='#ffdfa4';c.font='bold 13px system-ui';c.textAlign='center';c.fillText('BOSS',p.x,p.y-83)}}
 for(let shot of g.shots){let p=screen(shot.x,shot.y);drawTechnique(c,p.x,p.y,shot)}
-for(let shot of g.bossShots){let p=screen(shot.x,shot.y);drawTechnique(c,p.x,p.y,{type:'psychic',rad:11,vx:shot.vx,vy:shot.vy})}if(g.captureThrow){const th=g.captureThrow,t=Math.min(1,th.elapsed/th.duration),x=th.fromX+(th.x-th.fromX)*t,y=th.fromY+(th.y-th.fromY)*t-80*Math.sin(Math.PI*t),p=screen(x,y);c.save();c.fillStyle=th.type==='master'?'#a776ed':th.type==='ultra'?'#f0cf62':th.type==='great'?'#569af3':'#f05d58';c.strokeStyle='#26313d';c.lineWidth=4;c.beginPath();c.arc(p.x,p.y,13,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#ffffff';c.beginPath();c.arc(p.x,p.y,5,0,7);c.fill();c.restore();}
+for(let shot of g.bossShots){let p=screen(shot.x,shot.y);drawTechnique(c,p.x,p.y,{type:'psychic',rad:11,vx:shot.vx,vy:shot.vy})}
 {const a=activePokemon(g),p=screen(g.position.x,g.position.y),sz=99;
  c.fillStyle='#061b18aa';c.beginPath();c.ellipse(p.x,p.y+sz*.3,sz*.32,sz*.11,0,0,7);c.fill();
  c.strokeStyle=typeOf(byId[a.id])[1];c.lineWidth=3;c.beginPath();c.arc(p.x,p.y+12,46,0,7);c.stroke();
@@ -386,7 +467,7 @@ function updateHUD(){if(!game)return;const g=game,a=activePokemon(g);if(!a)retur
  el('runKills',g.kills);el('runWave',Math.min(4,1+Math.floor(g.seconds/22)));
  const hp=$('hpFill'),xp=$('xpFill');if(hp)hp.style.width=Math.max(0,a.hp/a.maxHp*100)+'%';if(xp)xp.style.width=Math.min(100,g.xp/g.xpNeed*100)+'%';
  el('switchTimer',g.switchCooldown>.05?'交代まで '+g.switchCooldown.toFixed(1)+'秒':'交代可能');
- el('activeMove','⚔ '+moveFor(a.id).name);const captureTarget=findWildTarget(g);el('captureTarget',g.captureThrow?'ボールを投げています…':captureTarget?byId[captureTarget.id].name+'（HP '+Math.round(captureTarget.hp/captureTarget.maxHp*100)+'%）を狙える！':'近くに捕獲できる野生ポケモンはいません');for(const [key,ball] of Object.entries(CAPTURE_BALLS)){const count=document.querySelector('[data-ball-count="'+key+'"]');if(count)count.textContent=captureStock()[key]||0;const btn=document.querySelector('[data-ball="'+key+'"]');if(btn)btn.disabled=!g.running||g.paused||g.choosing||!!g.captureThrow||!captureTarget||!(captureStock()[key]>0);}
+ el('activeMove','⚔ '+moveFor(a.id).name);
  const nearest=g.enemies.reduce((best,e)=>{const d=(e.x-g.position.x)**2+(e.y-g.position.y)**2;return d<best.d?{d,e}:best},{d:Infinity,e:null}).e;
  if(nearest){const target=byId[nearest.id],multi=effectiveness(moveFor(a.id).type,target.type);
  el('targetTypeHint',typeOf(target)[0]+'タイプの敵　'+(multi>1?'◎ ばつぐん':multi<1?'△ いまひとつ':'○ ふつう'));}
@@ -401,8 +482,8 @@ function updateHUD(){if(!game)return;const g=game,a=activePokemon(g);if(!a)retur
  });
 }
 function selectTeam(id,slot){if(!state.owned[id])return;let old=state.team.indexOf(id);if(old>=0){if(slot===undefined){notify('すでに編成しています');return;}state.team.splice(old,1)}let i=slot===undefined?state.team.length:Math.min(slot,state.team.length);if(i>=3)return notify('チームは3匹までです。入れ替える枠をタップしてください');if(slot!==undefined&&state.team[i])state.team.splice(i,1,id);else state.team.splice(i,0,id);state.team=state.team.slice(0,3);save();render();notify('パーティを更新しました')}
-function onAction(act){let [cmd,...args]=act.split(':'),param=args.join(':');if(cmd==='go'){setPage(param);return}if(cmd==='tmSelect'){tmSelectedPokemon=param;render();return}if(cmd==='tmGo'){tmSelectedPokemon=param;$('modal').hidden=true;setPage('tm');return}if(cmd==='tmLearn'){const [poke,tm]=args;learnTM(poke,tm);return}if(cmd==='tmEquip'){const [poke,tm]=args;equipTM(poke,tm);return}if(cmd==='starter')return beginStarter(param);if(cmd==='answer')return answer(+param);if(cmd==='nextQuestion'){nextQuestion();render();return}if(cmd==='studyAll'||cmd==='studyReview'){studyFilter=cmd==='studyAll'?'all':'review';nextQuestion();render();return}if(cmd==='pullGacha')return pullGacha();if(cmd==='skipReveal'){gachaAnimating=false;clearTimeout(gachaAnimationTimer);render();return;}if(cmd==='capture')return throwCaptureBall(param);if(cmd==='stage'){selectedStage=+param;render();return}if(cmd==='beginRun')return startRun(+param);if(cmd==='pickSlot'){teamPick=+param;modal(`<h2>枠 ${teamPick+1} の仲間を選択</h2><div class="pokemon-grid">${species.filter(s=>state.owned[s.id]).map(s=>`<button class="mon-card" data-act="assign:${s.id}">${spriteTag(s.id)}<strong>${s.name}</strong></button>`).join('')}</div>${button('閉じる','closeModal','btn secondary wide')}`);return}if(cmd==='assign'){selectTeam(param,teamPick);$('modal').hidden=true;return}if(cmd==='mon'){monDetail(param);return}if(cmd==='addTeam'){selectTeam(param,undefined);$('modal').hidden=true;return}if(cmd==='train'){let n=state.training[param]||1,cost=n*18;if(state.dust<cost)return;state.dust-=cost;state.training[param]=n+1;save();monDetail(param);render();return}if(cmd==='dexFilter'){dexFilter=param;dexPage=0;render();return}if(cmd==='dexPrev'){dexPage--;render();return}if(cmd==='dexNext'){dexPage++;render();return}if(cmd==='swap'){switchPokemon(Number(param));return}if(cmd==='pause'){gamePause();return}if(cmd==='upgrade'){chooseUpgrade(param);return}if(cmd==='leaveRun'){finishRun(false,true);return}if(cmd==='endResult'){$('modal').hidden=true;game=null;setPage('battle');return}if(cmd==='closeModal'){$('modal').hidden=true;return}}
+function onAction(act){let [cmd,...args]=act.split(':'),param=args.join(':');if(cmd==='go'){setPage(param);return}if(cmd==='tmSelect'){tmSelectedPokemon=param;render();return}if(cmd==='tmGo'){tmSelectedPokemon=param;$('modal').hidden=true;setPage('tm');return}if(cmd==='tmLearn'){const [poke,tm]=args;learnTM(poke,tm);return}if(cmd==='tmEquip'){const [poke,tm]=args;equipTM(poke,tm);return}if(cmd==='starter')return beginStarter(param);if(cmd==='answer')return answer(+param);if(cmd==='nextQuestion'){nextQuestion();render();return}if(cmd==='studyAll'||cmd==='studyReview'){studyFilter=cmd==='studyAll'?'all':'review';nextQuestion();render();return}if(cmd==='pullGacha')return pullGacha();if(cmd==='skipReveal'){gachaAnimating=false;clearTimeout(gachaAnimationTimer);render();return;}if(cmd==='capturePick')return chooseCaptureTarget(param);if(cmd==='captureAfter')return postBattleCapture(param);if(cmd==='captureSkip')return finishCaptureAnimation();if(cmd==='stage'){selectedStage=+param;render();return}if(cmd==='beginRun')return startRun(+param);if(cmd==='pickSlot'){teamPick=+param;modal(`<h2>枠 ${teamPick+1} の仲間を選択</h2><div class="pokemon-grid">${species.filter(s=>state.owned[s.id]).map(s=>`<button class="mon-card" data-act="assign:${s.id}">${spriteTag(s.id)}<strong>${s.name}</strong></button>`).join('')}</div>${button('閉じる','closeModal','btn secondary wide')}`);return}if(cmd==='assign'){selectTeam(param,teamPick);$('modal').hidden=true;return}if(cmd==='mon'){monDetail(param);return}if(cmd==='addTeam'){selectTeam(param,undefined);$('modal').hidden=true;return}if(cmd==='train'){let n=state.training[param]||1,cost=n*18;if(state.dust<cost)return;state.dust-=cost;state.training[param]=n+1;save();monDetail(param);render();return}if(cmd==='dexFilter'){dexFilter=param;dexPage=0;render();return}if(cmd==='dexPrev'){dexPage--;render();return}if(cmd==='dexNext'){dexPage++;render();return}if(cmd==='swap'){switchPokemon(Number(param));return}if(cmd==='pause'){gamePause();return}if(cmd==='upgrade'){chooseUpgrade(param);return}if(cmd==='leaveRun'){finishRun(false,true);return}if(cmd==='endResult'){$('modal').hidden=true;game=null;setPage('battle');return}if(cmd==='closeModal'){$('modal').hidden=true;return}}
 function setupEvents(){document.addEventListener('error',e=>{if(e.target instanceof HTMLImageElement&&e.target.hasAttribute('data-pokemon')&&!e.target.dataset.fallback){e.target.dataset.fallback='1';e.target.src=spriteURI('p'+String(e.target.dataset.pokemon).padStart(3,'0'));}},true);document.addEventListener('click',e=>{let el=e.target.closest('[data-act]');if(el&&!el.disabled){onAction(el.dataset.act);return}let nav=e.target.closest('[data-page]');if(nav){if(game?.running&&!game.paused&&page==='battle'){game.paused=true}setPage(nav.dataset.page)}if(e.target.matches('[data-close]'))closeModal()});$('logoHome').onclick=()=>setPage('home');window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys.add(e.key.length===1?e.key.toLowerCase():e.key);if(page==='battle'&&game?.running&&!game.choosing&&['1','2','3'].includes(e.key)){switchPokemon(Number(e.key)-1);return}if(e.key==='Escape'&&game?.running&&!game.choosing)gamePause()});window.addEventListener('keyup',e=>keys.delete(e.key.length===1?e.key.toLowerCase():e.key));window.addEventListener('blur',()=>{keys.clear()});document.addEventListener('visibilitychange',()=>{if(!game?.running)return;if(document.hidden){if(!game.paused&&!game.choosing){game.paused=true;game.autoPaused=true;}keys.clear();}else if(game.autoPaused&&page==='battle'&&!game.choosing){game.autoPaused=false;game.paused=false;game.lastFrame=0;}const o=$('pauseOverlay');if(o)o.hidden=!game.paused;})}
-async function init(){state=load();try{const [a,b]=await Promise.all([fetch('./data/kanto.json').then(r=>r.ok?r.json():Promise.reject('dex')),fetch('./data/questions.json').then(r=>r.ok?r.json():Promise.reject('questions'))]);species=a.filter(x=>x.id&&x.dex<=151);questions=b.map(normalQ).filter(Boolean);if(!questions.length)questions=FALLBACK_QUESTIONS.slice()}catch(e){console.warn('Local data unavailable, trying defaults',e);species=window.KANTO_FALLBACK||[];}if(!species.length){$('main').innerHTML='<div class="panel"><h2>ゲームデータを読み込めませんでした</h2><p>GitHub PagesまたはローカルHTTPサーバーで開いてください。</p></div>';return}byId=Object.fromEntries(species.map(x=>[x.id,x]));if(!state.tmWelcomeGiven){state.tms.tm01=(state.tms.tm01||0)+1;state.tmWelcomeGiven=true;save();}let sids=new Set(questions.map(q=>q.id));for(const q of state.questionAdditions){if(!sids.has(q.id)){questions.push(q);sids.add(q.id)}}setupEvents();nextQuestion();render();if(location.search.includes('debug=1'))window.SURVIVOR_DEBUG={get game(){return game},get state(){return state},get question(){return currentQ},startRun,finishRun,drawGacha,evolveInRun,chooseUpgrade,update,answer,setPage,species,switchPokemon,takePlayerDamage,effectiveness,TM_LIST,moveFor,tmCanLearn,learnTM,equipTM,grantTM,machine,captureStock,captureChance,throwCaptureBall,resolveCapture,findWildTarget,rewardCaptureBalls,showRun:()=>game};}
+async function init(){state=load();try{const [a,b]=await Promise.all([fetch('./data/kanto.json').then(r=>r.ok?r.json():Promise.reject('dex')),fetch('./data/questions.json').then(r=>r.ok?r.json():Promise.reject('questions'))]);species=a.filter(x=>x.id&&x.dex<=151);questions=b.map(normalQ).filter(Boolean);if(!questions.length)questions=FALLBACK_QUESTIONS.slice()}catch(e){console.warn('Local data unavailable, trying defaults',e);species=window.KANTO_FALLBACK||[];}if(!species.length){$('main').innerHTML='<div class="panel"><h2>ゲームデータを読み込めませんでした</h2><p>GitHub PagesまたはローカルHTTPサーバーで開いてください。</p></div>';return}byId=Object.fromEntries(species.map(x=>[x.id,x]));if(!state.tmWelcomeGiven){state.tms.tm01=(state.tms.tm01||0)+1;state.tmWelcomeGiven=true;save();}let sids=new Set(questions.map(q=>q.id));for(const q of state.questionAdditions){if(!sids.has(q.id)){questions.push(q);sids.add(q.id)}}setupEvents();nextQuestion();render();if(location.search.includes('debug=1'))window.SURVIVOR_DEBUG={get game(){return game},get state(){return state},get question(){return currentQ},startRun,finishRun,drawGacha,evolveInRun,chooseUpgrade,update,answer,setPage,species,switchPokemon,takePlayerDamage,effectiveness,TM_LIST,moveFor,tmCanLearn,learnTM,equipTM,grantTM,machine,captureStock,captureChance,postBattleCapture,chooseCaptureTarget,finishCaptureAnimation,chooseCaptureCandidates,rewardCaptureBalls,showRun:()=>game};}
 init().catch(e=>{console.error(e);$('main').textContent='起動エラー：再読み込みしてください。'});
 })();
