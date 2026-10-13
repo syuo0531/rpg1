@@ -1,29 +1,9 @@
-# STUDY SURVIVOR — RPG1 v5 (Technical Machines)
+# STUDY SURVIVOR — v6 / Capture and Summon Balls
 
-このバージョンは v4 にわざマシン（TM）システムを追加しています。既存のバトル、151匹図鑑、勉強、1匹ガチャ、個別HP、手動交代、相性、進化と既存セーブキー `studySurvivor.v1` を維持します。
-
-## 新機能
-
-- 全18種類のわざマシン（ノーマル・草・炎・水・電気・エスパー・格闘・毒・ドラゴンの9簡易タイプ）。
-- ガチャ1回でポケモン1匹は従来どおり確定。さらに20%の確率でわざマシン1個が追加ボーナス。
-- ステージクリア時65%の確率でわざマシン1個。敗北時は30体以上撃破で12%の確率。
-- 旧ユーザーを含め、新機能を初めて利用するアカウントへ初回プレゼント「でんこうせっか」TMを1個付与。
-- わざマシン所持は `state.tms`、習得済みは `state.learnedMoves`、装備中は `state.equippedMoves` に保存。
-- 技の習得時にTMを1個消費。習得済み技と基本技は、わざメニューから無制限に付け替え可能。ポケモンごとの互換性制限あり。
-- 進化時には覚えた適合技を引き継ぎ、装備も引き継ぐ。
-- 攻撃技タイプが相性判定に使用される。同タイプ技には1.13倍の補正。
-- 技の違い：連射、複数弾、弾速、射程、貫通、範囲攻撃、鈍足。
-
-## 操作
-
-ホーム → 「わざ」タブ → 教えるポケモンを選ぶ → バッグでTMを「覚える」 → 装備。バトル中は装備中の技が自動発動します。
-
-## バランス
-
-TMの排出は「N 59%、U 27%、R 11.5%、SR 2.5%」（TM排出が成立した時の内訳）。ステージ1のバトル報酬はSRを除外。ポケモンガチャは全TMランク抽選可能。抽選は乱数で、入手確約ではありません。
-
-## 技データとリリース
-
-`script.js` の `TM_LIST`・`TM_COMPAT` で技データと習得可能タイプを管理。外部ライブラリ不使用。GitHub Pagesで `index.html` を公開可能です。
-
-> 非公式ファン制作の学習用プロトタイプです。タイプ相性は従来の9タイプ簡易ルールを採用しており、公式ゲームの技・18タイプの完全再現ではありません。
+- Existing localStorage game state `studySurvivor.v1` remains valid and unchanged; migrated bag and provenance counters added.
+- Gacha: one Pokémon per ticket, rarity N/U/R/SR/LG selects a **summon ball** skin. Owned immediately and safely, animation 1.75s can be skipped by navigating away. Gacha is not affected by capture ball inventory.
+- Battle: catch wild Pokémon via monster/great/ultra/master capture balls. Choose wild target by tapping the enemy or throw at nearest enemy within 275 game units. Bosses cannot be caught. Capture odds increase for low HP; master succeeds on wild targets. Capturing gives the Pokémon but not kill XP.
+- Battle rewards: clearing stages earns normal balls, harder stages grant higher tier balls with low master chance; losing after 12+ kills grants one ball. Player starts with 5 normal balls.
+- Capture and gacha origins stored in separate `sources.gacha` and `sources.wild` counters, old ownership preserved.
+- All existing study, TM, type, battle and team mechanics retained.
+- `?debug=1` exposes `SURVIVOR_DEBUG` for tests.
