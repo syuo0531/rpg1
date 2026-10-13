@@ -87,3 +87,34 @@ body:before{content:"";position:fixed;inset:0 0 auto;height:335px;pointer-events
 .tm-win,.gacha-tm-bonus{padding:13px;border-radius:9px;border:2px solid #f3d27c;background:#f3d27c1c;color:#ffdda2;font-weight:850;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .tm-win b{font-size:18px;color:#fff6cd}
 @media(max-width:480px){.tm-row{padding:8px 5px;gap:7px}.tm-icon{width:31px;flex-basis:31px;font-size:19px}.tm-row b{font-size:12px}.tm-row small{font-size:10px}.tm-row .btn{padding:8px 6px;font-size:10px}.nav button{font-size:9px}.nav button span{font-size:18px}}
+
+/* v6: distinct gacha summoning balls and wild-capture bag */
+.summon-ball{--top:#e96d70;--bottom:#e6f4ee;--rim:#183448;display:block;position:relative;isolation:isolate;width:112px;height:112px;border:6px solid var(--rim);border-radius:50%;box-shadow:inset -8px -9px 0 #10212e44,0 12px 0 #00182138,0 0 24px #d8ffee4d;overflow:hidden;flex:none}
+.summon-ball .ball-upper{position:absolute;inset:0 0 49% 0;background:linear-gradient(135deg,#ffffff77,transparent 45%),var(--top)}
+.summon-ball .ball-lower{position:absolute;inset:52% 0 0;background:linear-gradient(160deg,#ffffffad,transparent 60%),var(--bottom)}
+.summon-ball .ball-center{position:absolute;z-index:3;top:45%;left:0;right:0;height:13px;background:var(--rim);box-shadow:0 1px 0 #fff9}
+.summon-ball .ball-center::after{content:'';display:block;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:31px;height:31px;background:#fffceb;border:8px solid var(--rim);border-radius:50%;box-shadow:inset 0 0 0 3px #bbcdd4}
+.summon-ball .ball-shine{position:absolute;z-index:4;inset:10%;border-radius:50%;border-top:7px solid #fff8;transform:rotate(-30deg);pointer-events:none}
+.summon-ball.rank-u{--top:#379d83;--bottom:#d9fff0}.summon-ball.rank-r{--top:#3d72d7;--bottom:#c5faff}.summon-ball.rank-sr{--top:#a35ee2;--bottom:#f3d7ff}.summon-ball.rank-lg{--top:#fbd468;--bottom:#e7a9f5;box-shadow:0 0 22px #ffe07d,0 0 52px #dcbaff88}
+.gacha-machine .summon-ball{width:105px;height:105px;animation:ballIdle 2.5s ease-in-out infinite}
+@keyframes ballIdle{50%{transform:translateY(-7px) rotate(7deg)}}
+.gacha-ball-open{width:140px;display:flex;justify-content:center;align-items:center;flex:none;min-height:145px}
+.gacha-ball-open .summon-ball{width:120px;height:120px}
+.summon-reveal:not(.reveal-pending) .gacha-ball-open{display:none}
+.summon-reveal.reveal-pending .summon-sprite,.summon-reveal.reveal-pending .summon-description{opacity:0;pointer-events:none}
+.summon-reveal.reveal-pending .summon-ball-active{animation:ballSummon 1.6s ease-in-out both}
+.summon-reveal.reveal-pending .reveal-halo{animation:haloPulse 1.6s ease-out both}
+@keyframes ballSummon{0%{transform:translateY(-60px) rotate(-55deg) scale(.75);filter:brightness(.9)}30%{transform:translateY(25px) rotate(26deg) scale(1.05)}55%{transform:translateY(0) rotate(-14deg)}70%{transform:translateY(12px) scale(.9)}83%{filter:brightness(2);transform:scale(1.15)}100%{transform:scale(.1);opacity:0;filter:brightness(3)}}
+@keyframes haloPulse{30%{opacity:.3;transform:scale(.7)}87%{opacity:1;transform:scale(1.45)}100%{opacity:0}}
+.source-tag{font-size:12px;color:#f9d99a;font-weight:800}
+.capture-panel{margin:12px 0 5px;padding:12px;background:#102c36;border:3px solid #5d8c8a;border-radius:12px;box-shadow:0 5px 0 #041820}
+.capture-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#e6f7ef;font-size:13px}.capture-heading small{font-size:11px;color:#abcec7}
+.capture-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:9px}
+.capture-button{display:flex;align-items:center;gap:7px;justify-content:center;min-width:0;min-height:53px;border-radius:9px;border:2px solid #badbd3;background:#1d4455;color:#f9fffb;font:800 12px system-ui;cursor:pointer;padding:5px}
+.capture-button:disabled{opacity:.36;filter:grayscale(.75);cursor:not-allowed}.capture-button:not(:disabled):active{transform:translateY(2px)}
+.capture-ball-icon{display:grid;place-items:center;flex:none;width:33px;height:33px;border-radius:50%;border:3px solid #163c48;background:linear-gradient(#eb6460 49%,#213443 49% 57%,#f3f9ef 57%);font-size:18px;text-shadow:0 1px 2px #0009}
+.capture-great .capture-ball-icon{background:linear-gradient(#4388f4 49%,#263a4b 49% 57%,#f3f9ef 57%)}.capture-ultra .capture-ball-icon{background:linear-gradient(#f3c947 49%,#263a4b 49% 57%,#f3f9ef 57%)}.capture-master .capture-ball-icon{background:linear-gradient(#a15fe0 49%,#263a4b 49% 57%,#f3f9ef 57%)}
+.capture-ball-info{min-width:0;display:flex;flex-direction:column;gap:2px}.capture-ball-info b{font-size:11px;white-space:nowrap}.capture-ball-info small{font-size:11px;color:#c5e7db}
+.capture-note{font-size:11px;color:#b2d6ce;margin:8px 0 0;line-height:1.5}.ball-reward{border:2px solid #a4d4ba;border-radius:8px;padding:10px;color:#e9f9d7;background:#31594b;margin:12px 0}
+@media(max-width:540px){.capture-panel{padding:8px;margin-top:10px}.capture-heading{display:block}.capture-heading small{display:block;margin-top:3px}.capture-buttons{gap:4px}.capture-button{display:flex;flex-direction:column;min-height:66px;gap:2px;padding:3px}.capture-ball-icon{width:27px;height:27px;font-size:13px;border-width:2px}.capture-ball-info b{font-size:9px}.capture-ball-info small{font-size:10px}.capture-note{font-size:10px}.gacha-ball-open{width:90px;min-height:110px}.gacha-ball-open .summon-ball{width:83px;height:83px}.gacha-ball-open .ball-center::after{width:22px;height:22px;border-width:5px}}
+@media(prefers-reduced-motion:reduce){.gacha-machine .summon-ball,.summon-ball-active,.summon-reveal .reveal-halo{animation:none!important}}
