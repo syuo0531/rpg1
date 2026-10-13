@@ -59,7 +59,7 @@ let gachaAnimating=false,gachaAnimationTimer=0;let gachaShiny=false;
 const SHINY_GACHA_RATE=1/512,SHINY_CAPTURE_RATE=1/256;
 function gymEffectiveness(attackerType,defender,g){
  const regular=effectiveness(attackerType,byId[defender.id].type);
- if(g?.mode!=='gym')return regular;
+ if(g?.mode!=='gym'&&g?.mode!=='rematch')return regular;
  const good=[['grass','water'],['grass','lightning'],['fighting'],['fire'],['psychic'],['dark'],['water'],['grass','water']][g.gymIndex]||[];
  if(good.includes(attackerType))return 1.6;
  return regular;
@@ -507,7 +507,7 @@ function finishRun(win,abandon=false){
   }else if(win&&g.mode==='league'){
    g.tmReward=addTMByTier(g.challengeIndex===4?'SR':Math.random()<.16?'SR':'R');
    state.leagueWins=Math.max(state.leagueWins||0,g.challengeIndex+1);
-   if(g.challengeIndex===4){state.hallOfFame=(state.hallOfFame||0)+1;state.balls.master=(state.balls.master||0)+1;}
+   if(g.challengeIndex===4){const firstHall=(state.hallOfFame||0)===0;state.hallOfFame=(state.hallOfFame||0)+1;if(firstHall)state.balls.master=(state.balls.master||0)+1;else state.balls.ultra=(state.balls.ultra||0)+2;}
    else state.balls.ultra=(state.balls.ultra||0)+2;
   }else if(win&&g.mode==='legend'){
    state.legendClears[g.legendIndex]=(state.legendClears[g.legendIndex]||0)+1;
