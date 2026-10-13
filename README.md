@@ -1,9 +1,16 @@
-# STUDY SURVIVOR — v6 / Capture and Summon Balls
+# STUDY SURVIVOR — v7 Post-Battle Capture (2026-10-13)
 
-- Existing localStorage game state `studySurvivor.v1` remains valid and unchanged; migrated bag and provenance counters added.
-- Gacha: one Pokémon per ticket, rarity N/U/R/SR/LG selects a **summon ball** skin. Owned immediately and safely, animation 1.75s can be skipped by navigating away. Gacha is not affected by capture ball inventory.
-- Battle: catch wild Pokémon via monster/great/ultra/master capture balls. Choose wild target by tapping the enemy or throw at nearest enemy within 275 game units. Bosses cannot be caught. Capture odds increase for low HP; master succeeds on wild targets. Capturing gives the Pokémon but not kill XP.
-- Battle rewards: clearing stages earns normal balls, harder stages grant higher tier balls with low master chance; losing after 12+ kills grants one ball. Player starts with 5 normal balls.
-- Capture and gacha origins stored in separate `sources.gacha` and `sources.wild` counters, old ownership preserved.
-- All existing study, TM, type, battle and team mechanics retained.
-- `?debug=1` exposes `SURVIVOR_DEBUG` for tests.
+GitHub Pages ready: open `index.html` through a static HTTP server / GitHub Pages. Local saves use the existing `studySurvivor.v1` localStorage key.
+
+## Changed
+
+- Removed wild Pokémon targeting and capture buttons from the live survivor battlefield. Combat now focuses on movement, type matchups, learned techniques, and switching among 3 party members.
+- After the battle: **Stage Clear** offers 3 distinct capture candidates, **Game Over** offers up to 2 if any wild Pokémon were defeated, and **Retreat** offers none. Candidates are taken only from wild species defeated during that run; bosses never appear.
+- Select **one** wild Pokémon and **one** capture ball to attempt a capture. The chosen ball is consumed on the attempt whether it succeeds or fails. Only one attempt is allowed per battle. Capture percentages vary with ball tier, Pokémon rarity, and performance. Master Ball always succeeds.
+- Capture animations use 18×18 sharp pixel ball icons for ordinary, Great, Ultra, Master, and the five separate summon rarity balls. Post-battle animation flies in, absorbs the selected monster, shakes three times, and reveals success or escape. Skip is available.
+- Capture ball rewards are granted after each battle (based on stage and result) and are separate from the study gacha. Gacha still gives exactly one Pokémon, without guaranteed rarity; optional TM bonus remains.
+- Preserves existing 151-species data, Pokémon ownership sources (gacha vs wild), technical machines, type advantage, party switching, study questions and JSON/CSV import.
+
+## Testing
+
+`python test_v7.py` runs Chromium UI tests on mobile and desktop viewport sizes, covering start/battle, reward options, pixel balls, Master Ball capture, failed ordinary ball capture, one-attempt limit, and ordinary gacha behavior.
