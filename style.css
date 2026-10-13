@@ -158,17 +158,26 @@ body:before{content:"";position:fixed;inset:0 0 auto;height:335px;pointer-events
 @media(max-width:540px){.post-capture-zone{padding:9px 7px 14px}.post-capture-title p{font-size:11px}.post-capture-choices{gap:5px}.post-capture-mon{padding:5px 2px;min-height:105px}.post-capture-sprite{width:60px;height:60px}.post-capture-mon strong{font-size:11px}.post-capture-mon small{font-size:9px}.post-capture-ball-list{gap:4px}.post-ball-choice{padding:5px 1px;min-height:104px}.post-ball-choice b{font-size:9px}.post-capture-pixelball{width:35px;height:35px}.post-capture-anim{min-height:185px}}
 @media(prefers-reduced-motion:reduce){.post-capture-anim.is-shaking .post-battle-ball,.post-capture-anim.is-shaking .post-mon-anim{animation:none!important}}
 
-/* v8: world dungeons, eight sequential gyms and shiny variants */
-.battle-mode-tabs{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 16px}.battle-mode-tabs .btn{min-height:43px;flex:1}
-.gym-progress{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:linear-gradient(110deg,#263a47,#102935);border:2px solid #a8bf8f;border-radius:10px;padding:13px 17px;margin:14px 0;color:#f8e7b9}
-.gym-progress>span{display:flex;align-items:center;gap:6px}.badge-gem{display:grid;place-items:center;width:27px;height:30px;border:1px solid #496472;background:#1c3544;color:#556e7a;border-radius:6px;font-size:17px}.badge-gem.earned{color:#ffe188;background:#735b30;border-color:#fbe3a1;box-shadow:0 0 8px #e4c77160}
-.gym-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
-.gym-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:15px 13px;min-height:169px;text-align:left;color:#f1f6e8;border:2px solid #63828b;border-radius:9px;background:linear-gradient(160deg,#294650,#132c38);box-shadow:0 5px 0 #061923;cursor:pointer}
-.gym-card:active:not(:disabled){transform:translateY(3px)}.gym-card .gym-no{font-size:10px;letter-spacing:1px;color:#a6d4d5;font-weight:900}.gym-card>b{font-size:21px;color:#fff1c4;text-shadow:2px 2px 0 #071922}.gym-card>span:not(.gym-no){font-size:12px;color:#b7e4d3}.gym-card small{font-size:11px;color:#adc6c8;line-height:1.5}
-.gym-card.cleared{border-color:#e0ca7f;background:linear-gradient(150deg,#5e4d2d,#293f41)}.gym-card.locked{opacity:.50;cursor:not-allowed;filter:saturate(.4)}.gym-card.gym-final{border-color:#df9f77;background:linear-gradient(140deg,#613f49,#1d2c40)}.gym-card.gym-final.cleared{border-color:#ffe392}
-.gym-action{border:2px solid #bcad79}.gym-action h2{margin:0 0 6px}.gym-action small{color:#bad0c7}.gym-award{padding:13px;background:#5b4b29;border:2px solid #f7db8e;color:#fff5c6;border-radius:8px;font-size:18px;font-weight:1000;margin:12px 0;animation:badgePop .45s steps(5,end) both}@keyframes badgePop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
-.shiny-sprite{filter:hue-rotate(125deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 5px #ffe76d)}.shiny-announcement,.shiny-summary{color:#fff6ae;background:#564774;border:2px solid #fff6a5;border-radius:8px;padding:8px 10px;font-weight:900;box-shadow:0 0 14px #eedc8b44}.shiny-summary{font-size:11px;display:inline-block;margin-top:7px}.shiny-sprite:not(.summon-sprite){image-rendering:pixelated}
-.summon-result:has(.shiny-sprite){border-color:#f9efa0;box-shadow:0 0 30px #fff4a675}
-@media(max-width:900px){.gym-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:540px){.gym-grid{gap:8px}.gym-card{padding:11px 9px;min-height:145px;gap:5px}.gym-card>b{font-size:18px}.gym-card small{font-size:10px}.gym-progress{padding:10px}.badge-gem{width:24px;height:26px}.gym-action .row{flex-wrap:wrap}.gym-action .btn{width:100%}}
-@media(prefers-reduced-motion:reduce){.gym-award{animation:none}}
+/* v8: shiny and 8 gym challenge */
+.shiny-won,.shiny-detail{padding:10px;color:#68430b;background:#fff0a7;border:3px double #b78529;border-radius:8px;font-weight:900;box-shadow:0 0 22px #ffdd72aa;animation:shinyFlash 1s steps(2,end) infinite}
+.shiny-mark{display:block;color:#fff5ad;background:#754d98;border-radius:5px;padding:2px 4px;font-size:10px;font-weight:900;position:relative;margin:-5px auto 3px;z-index:2}
+.is-shiny{filter:drop-shadow(0 0 7px #fff4a7);image-rendering:pixelated}
+@keyframes shinyFlash{50%{box-shadow:0 0 40px #fff08b}}
+.gym-progress{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;margin:14px 0 18px;background:#182e34;border:3px solid #6b9e86;border-radius:10px}
+.gym-badge-strip{display:flex;gap:7px;flex-wrap:wrap}.gym-medal{color:#5b6c71;background:#243d47;border:2px solid #547074;border-radius:7px;width:30px;height:30px;display:grid;place-items:center;font-size:20px}.gym-medal.won{color:#ffe3a1;border-color:#dfb864;background:#7d5a36;box-shadow:0 0 12px #ffc96955}
+.gym-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:12px 0 28px}
+.gym-card{padding:17px;background:linear-gradient(145deg,#224044,#11262c);border:3px solid #749a7c;border-radius:10px;box-shadow:0 6px 0 #091820;color:#e4f9e8;min-width:0}
+.gym-card.gym-locked{opacity:.6;filter:saturate(.48)}.gym-card.final-gym{border-color:#f0ba78;background:linear-gradient(160deg,#513a45,#191d30)}
+.gym-card.gym-cleared{border-color:#e2c27c}.gym-card-top,.gym-footer{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;color:#f2d899;font-weight:900}.gym-card h3{font-size:22px;margin:10px 0 2px}.gym-leader-name{color:#f5ce83;font-size:16px}.gym-leader-icon{font-size:34px;margin:9px 0}.gym-card p{color:#b6d2cb;font-size:12px;min-height:32px;line-height:1.45}
+.gym-opponent-preview{display:flex;gap:3px;align-items:center;min-height:62px;overflow:hidden}.gym-opponent-preview img{image-rendering:pixelated;width:60px;height:60px;object-fit:contain}
+.gym-footer{border-top:1px solid #6c968b;padding-top:10px}.gym-footer .btn{white-space:nowrap}
+.gym-victory{margin:12px 0;padding:12px;border:3px solid #f0cc77;border-radius:8px;background:#674d2e;color:#fff1ca;font-weight:900;font-size:18px}.gym-victory p{font-weight:400;font-size:12px;color:#fff2d5;margin:6px 0 0}
+.gym-hud-badge{color:#f2db96;font-size:10px;font-weight:800}
+@media(max-width:600px){.gym-grid{grid-template-columns:1fr}.gym-progress{flex-direction:column;align-items:flex-start}.gym-card{padding:12px}.gym-opponent-preview img{width:54px;height:54px}}
+@media(prefers-reduced-motion:reduce){.shiny-won,.shiny-detail{animation:none}}
+
+img[data-shiny="1"][data-fallback="1"]{filter:hue-rotate(110deg) saturate(1.7) drop-shadow(0 0 7px #f1e887)}
+
+img[data-shiny="1"][data-fallback="1"]{filter:hue-rotate(110deg) saturate(1.7) drop-shadow(0 0 7px #f1e887)}
+
+img[data-shiny="1"][data-fallback="1"]{filter:hue-rotate(110deg) saturate(1.7) drop-shadow(0 0 7px #f1e887)}
