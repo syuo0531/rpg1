@@ -49,3 +49,26 @@ body:before{content:"";position:fixed;inset:0 0 auto;height:335px;pointer-events
 @keyframes revealPop{0%{transform:translateY(28px) scale(.72);opacity:.1}100%{transform:translateY(0) scale(1);opacity:1}}
 @media(max-width:540px){.gacha-banner{padding:16px;gap:10px;min-height:178px}.gacha-machine{width:105px;height:105px}.gacha-core{width:65px;height:65px;font-size:39px;border-width:4px;box-shadow:0 0 0 4px #225a70,0 0 25px #d4fff544}.gacha-copy .page-title{font-size:21px}.gacha-copy p{font-size:11px}.summon-reveal{gap:8px;min-height:165px}.summon-sprite{width:44%}.summon-description .btn{font-size:11px}.summon-description h2{font-size:24px}}
 @media(prefers-reduced-motion:reduce){.gacha-orbit,.summon-sprite{animation:none!important}}
+
+/* V4: single-Pokemon tactical switch HUD */
+.switch-panel{margin-top:14px;background:linear-gradient(155deg,#1b323a,#10252b);border:2px solid #5c9b86;border-radius:14px;padding:12px 13px;box-shadow:0 5px 0 #071b23,0 18px 35px #0006}
+.switch-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#e3ffef;font-size:12px;font-weight:900;margin-bottom:10px;letter-spacing:.3px}
+.switch-heading small{color:#f2d18a;font-size:11px;white-space:nowrap}
+.switch-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.switch-mon{display:flex;align-items:center;gap:8px;min-width:0;padding:8px 9px;text-align:left;border:2px solid #537c78;border-radius:9px;background:linear-gradient(150deg,#25414a,#172932);color:#e7f6e9;box-shadow:inset 0 1px 0 #a8ead01c;transition:border-color .12s,transform .12s}
+.switch-mon:not(:disabled):active{transform:scale(.98)}
+.switch-mon.selected{border-color:#e8cb77;background:linear-gradient(150deg,#344f50,#273b3b);box-shadow:0 0 0 2px #d8b66844,inset 0 1px 0 #f7e7b744}
+.switch-mon.selected:disabled{opacity:1;cursor:default}
+.switch-mon.fainted{opacity:.45;filter:grayscale(.8)}
+.switch-mon.fainted.selected:disabled{opacity:.45}
+.switch-mon .switch-img{width:56px;height:56px;flex:0 0 56px;border-radius:6px;background:#e6f4db22;display:grid;place-items:center;border:1px solid #bfe5ca33}
+.switch-img img.sprite{width:54px;height:54px;image-rendering:pixelated}
+.switch-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.switch-meta b{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.switch-meta small{font-size:10px;color:#c1d8d0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.switch-hp-bg{display:block;width:100%;height:6px;background:#29414e;border:1px solid #72958c;border-radius:6px;overflow:hidden;margin-top:2px}
+.switch-hp-fill{display:block;height:100%;background:linear-gradient(90deg,#4fce80,#a8f2a0);transition:width .16s}
+.switch-mon.fainted .switch-hp-fill{background:#8d5d63}
+.game-bottom{padding:10px 2px 2px}.game-bottom #activeMove{font-weight:800;color:#c6f9c4}.game-bottom #targetTypeHint{color:#e8ca85;text-align:right}
+@media(max-width:640px){.switch-panel{padding:8px;margin-top:10px}.switch-slots{gap:5px}.switch-mon{flex-direction:column;gap:3px;padding:5px 3px;align-items:center;text-align:center;min-height:112px}.switch-mon .switch-img{width:45px;height:45px;flex-basis:45px}.switch-img img.sprite{width:44px;height:44px}.switch-meta{width:100%;align-items:stretch}.switch-meta b{font-size:11px}.switch-meta small{font-size:9px}.switch-heading{font-size:11px}.switch-heading small{font-size:10px}.game-bottom span{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.switch-mon,.switch-hp-fill{transition:none}}
