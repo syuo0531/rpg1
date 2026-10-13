@@ -181,3 +181,36 @@ img[data-shiny="1"][data-fallback="1"]{filter:hue-rotate(110deg) saturate(1.7) d
 img[data-shiny="1"][data-fallback="1"]{filter:hue-rotate(110deg) saturate(1.7) drop-shadow(0 0 7px #f1e887)}
 
 img[data-shiny="1"][data-fallback="1"]{filter:hue-rotate(110deg) saturate(1.7) drop-shadow(0 0 7px #f1e887)}
+
+/* v9: Pokemon League, legendary trials, and rematch challenge sections */
+.endgame-block{border:3px solid #5a8e83;border-radius:12px;padding:15px;background:linear-gradient(157deg,#16313a,#10242e 58%,#14292d);box-shadow:0 6px 0 #071a20, inset 0 1px #a3eec328;scroll-margin-top:25px}
+.challenge-head{border-left:4px solid #e8cc86;padding:3px 0 13px 13px;margin-bottom:12px}
+.challenge-head h2{font-size:clamp(21px,3vw,29px);margin:5px 0 8px;color:#f7e6b4;letter-spacing:.3px}
+.challenge-head p{font-size:13px;line-height:1.7;color:#c2e1d9;max-width:750px;margin:5px 0 9px}
+.challenge-head strong{font-size:12px;color:#8dedc0}
+.endgame-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.endgame-card{position:relative;overflow:hidden;min-width:0;display:flex;flex-direction:column;gap:9px;background:linear-gradient(150deg,#283f4e,#142d38 72%);padding:13px;border:2px solid #648579;border-radius:9px;box-shadow:0 3px 0 #081b20;isolation:isolate}
+.endgame-card::after{content:'';position:absolute;inset:auto -30px -54px auto;width:140px;height:140px;border:19px solid #e2d7ae0d;transform:rotate(45deg);pointer-events:none;z-index:-1}
+.endgame-card.champion{border-color:#ebca78;background:linear-gradient(160deg,#4b3b39,#2d3445 64%,#202938);box-shadow:0 0 18px #e6bc4f22,0 4px 0 #0d1d28}
+.endgame-card.locked{opacity:.62;filter:saturate(.6)}
+.endgame-card .eyebrow{font-size:10px;color:#e5d094;letter-spacing:1.7px}
+.endgame-card h3{font-size:19px;line-height:1.3;margin:0;color:#f8f7e8}
+.endgame-card p{font-size:12px;line-height:1.6;color:#d0dcd6;flex:1;margin:0}
+.endgame-card .row{align-items:center;gap:9px;margin-top:auto}
+.endgame-card .row small{font-weight:800;color:#dfc789;font-size:10px}
+.endgame-card .btn{min-height:39px;white-space:nowrap}
+.endgame-roster{display:flex;flex-wrap:wrap;gap:3px;min-height:56px;align-items:center;padding:4px;background:#0e212c88;border:1px solid #638b8055;border-radius:5px}
+.endgame-roster .gym-mini{width:48px;height:48px;object-fit:contain;image-rendering:pixelated}
+.legend-card .legend-art{height:90px;display:grid;place-items:center;background:radial-gradient(ellipse at center,#82c7b33b,transparent 62%);border-radius:9px}
+.legend-card .legend-art img{height:92px;width:92px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 5px 0 #0d1c2799)}
+.legend-card.champion .legend-art{background:radial-gradient(ellipse at center,#f0ce874e,transparent 68%)}
+.legend-card strong{font-size:13px;color:#eddeb7}
+.rematch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rematch-item{min-width:0;display:flex;align-items:center;gap:10px;padding:10px;background:#172f37;border:2px solid #577c7a;border-radius:8px}
+.rematch-item .rematch-medal{font-size:21px;color:#f0d188;flex:none}
+.rematch-item>div{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.rematch-item strong{font-size:13px;color:#eef4e6}
+.rematch-item small{font-size:10px;color:#b2d0c6;line-height:1.3}
+.rematch-item .btn{flex:none;min-height:38px;white-space:nowrap}
+@media (max-width:680px){.endgame-block{padding:11px}.endgame-grid,.rematch-grid{grid-template-columns:1fr}.endgame-card{padding:11px}.endgame-card h3{font-size:18px}.endgame-roster .gym-mini{width:43px;height:43px}.challenge-head h2{font-size:21px}}
+@media (max-width:390px){.rematch-item{gap:6px;padding:8px}.rematch-item strong{font-size:12px}.rematch-item .btn{padding:7px;font-size:10px}.endgame-card .btn{padding:7px}}
