@@ -72,3 +72,18 @@ body:before{content:"";position:fixed;inset:0 0 auto;height:335px;pointer-events
 .game-bottom{padding:10px 2px 2px}.game-bottom #activeMove{font-weight:800;color:#c6f9c4}.game-bottom #targetTypeHint{color:#e8ca85;text-align:right}
 @media(max-width:640px){.switch-panel{padding:8px;margin-top:10px}.switch-slots{gap:5px}.switch-mon{flex-direction:column;gap:3px;padding:5px 3px;align-items:center;text-align:center;min-height:112px}.switch-mon .switch-img{width:45px;height:45px;flex-basis:45px}.switch-img img.sprite{width:44px;height:44px}.switch-meta{width:100%;align-items:stretch}.switch-meta b{font-size:11px}.switch-meta small{font-size:9px}.switch-heading{font-size:11px}.switch-heading small{font-size:10px}.game-bottom span{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.switch-mon,.switch-hp-fill{transition:none}}
+
+/* Technical Machine system — comfortably tappable on small phones */
+.tm-pokemon-picker{display:flex;gap:8px;overflow-x:auto;padding:12px 0 6px;scroll-snap-type:x proximity}
+.tm-poke{flex:0 0 94px;border:2px solid #426b67;background:#233a42;border-radius:8px;color:#e1f5eb;padding:7px;display:flex;flex-direction:column;align-items:center;scroll-snap-align:start;min-height:95px}
+.tm-poke.active{border-color:#f0d078;background:#385b4b;box-shadow:0 0 0 2px #f0d07844}
+.tm-poke img{width:55px;height:55px;image-rendering:pixelated}.tm-poke small{font-size:11px;font-weight:800}
+.tm-list{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.tm-row{display:flex;gap:10px;align-items:center;background:linear-gradient(120deg,#253b3e,#1a2930);border:1px solid #42665c;border-radius:9px;padding:10px;min-width:0}
+.tm-row.incompatible{opacity:.55}.tm-row>div{flex:1;display:flex;flex-direction:column;min-width:0;gap:3px}
+.tm-row b{color:#f3f9de;font-size:13px}.tm-row small{font-size:11px;color:#accac5;line-height:1.45}
+.tm-row .btn{font-size:11px;flex:0 0 auto;padding:9px 10px}
+.tm-icon{display:grid;place-items:center;flex:0 0 39px;width:39px;height:42px;background:color-mix(in srgb,var(--tmc) 25%,#16252b);border:2px solid var(--tmc);border-radius:7px;color:var(--tmc);font-size:24px;font-weight:900;box-shadow:inset 0 0 8px #0005}
+.tm-win,.gacha-tm-bonus{padding:13px;border-radius:9px;border:2px solid #f3d27c;background:#f3d27c1c;color:#ffdda2;font-weight:850;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.tm-win b{font-size:18px;color:#fff6cd}
+@media(max-width:480px){.tm-row{padding:8px 5px;gap:7px}.tm-icon{width:31px;flex-basis:31px;font-size:19px}.tm-row b{font-size:12px}.tm-row small{font-size:10px}.tm-row .btn{padding:8px 6px;font-size:10px}.nav button{font-size:9px}.nav button span{font-size:18px}}
