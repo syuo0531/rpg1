@@ -1,16 +1,23 @@
-# STUDY SURVIVOR — v7 Post-Battle Capture (2026-10-13)
+# STUDY SURVIVOR — Shiny / Eight Dungeons / Eight Gyms v8
 
-GitHub Pages ready: open `index.html` through a static HTTP server / GitHub Pages. Local saves use the existing `studySurvivor.v1` localStorage key.
+2026-10-13. GitHub Pages browser game.
 
-## Changed
+## New in v8
 
-- Removed wild Pokémon targeting and capture buttons from the live survivor battlefield. Combat now focuses on movement, type matchups, learned techniques, and switching among 3 party members.
-- After the battle: **Stage Clear** offers 3 distinct capture candidates, **Game Over** offers up to 2 if any wild Pokémon were defeated, and **Retreat** offers none. Candidates are taken only from wild species defeated during that run; bosses never appear.
-- Select **one** wild Pokémon and **one** capture ball to attempt a capture. The chosen ball is consumed on the attempt whether it succeeds or fails. Only one attempt is allowed per battle. Capture percentages vary with ball tier, Pokémon rarity, and performance. Master Ball always succeeds.
-- Capture animations use 18×18 sharp pixel ball icons for ordinary, Great, Ultra, Master, and the five separate summon rarity balls. Post-battle animation flies in, absorbs the selected monster, shakes three times, and reveals success or escape. Skip is available.
-- Capture ball rewards are granted after each battle (based on stage and result) and are separate from the study gacha. Gacha still gives exactly one Pokémon, without guaranteed rarity; optional TM bonus remains.
-- Preserves existing 151-species data, Pokémon ownership sources (gacha vs wild), technical machines, type advantage, party switching, study questions and JSON/CSV import.
+- **Shiny Pokémon**: one shiny roll per acquired Pokémon. Gacha rate **1/256**; successful post-battle wild capture rate **1/384**. A shiny acquisition counts as exactly one Pokémon in `owned`, plus a separate `shinyOwned` count and acquisition source in `shinySources`. The player can select the shiny appearance from the Pokémon detail panel (toggle, saved in `shinyEquipped`). Shiny Pokémon are not more powerful; they are rare collectibles. Current recoloring uses a hue-shift variant, not species-authentic official shiny palettes.
+- **Dungeons**: 5 new areas after the existing 3, for **8 total**. New enemy pools, difficulty scaling and boss per area. Clear each area to unlock the next.
+- **Gym Challenge**: 8 Kanto gyms in order: Pewter/Brock, Cerulean/Misty, Vermilion/Lt. Surge, Celadon/Erika, Fuchsia/Koga, Saffron/Sabrina, Cinnabar/Blaine, Viridian/Giovanni. Japanese leader names appear in the UI. The first gym unlocks after the first dungeon; later gyms unlock through earning the previous badge. Each gym has its own encounter pool, ace, boss timing, rising enemy toughness/speed, and boss bullet pattern. Gym 8 has a major final boss HP increase. Winning awards a permanent badge, materials, gacha tickets, and balls. Trainer-owned gym Pokémon are not captureable.
+- **UI**: mode switch between Dungeon and Gym on Battle screen; badge display, shiny Pokedex filter, shiny inventory counter, shiny sparkle in gacha and capture results.
+- **Data / save**: existing localStorage key `studySurvivor.v1` is unchanged and data is merged with the new fields (`gymBadges`, `shinyOwned`, `shinySources`, `shinyEquipped`). Old gacha, captured Pokémon, study history, technical machines and balls persist.
 
 ## Testing
 
-`python test_v7.py` runs Chromium UI tests on mobile and desktop viewport sizes, covering start/battle, reward options, pixel balls, Master Ball capture, failed ordinary ball capture, one-attempt limit, and ordinary gacha behavior.
+`node --check script.js`
+
+Browser tests in `test_v8.py` / `test_extra.py` verified mobile and desktop startup, 8 dungeons, eight gym screens, locks, gym badge rewards and sequential unlocks, gym 8 boss HP, shiny gacha, wild shiny capture, appearance toggling, old-save migration, and survival battle updates.
+
+## Usage
+
+Host the project root (`index.html`, `script.js`, `style.css`, `data/`) on GitHub Pages. Learning remains 5 correct answers per gacha ticket; gacha gives 1 Pokémon and a chance for a bonus technical machine. Dungeon clear also supplies capture balls, and wild capture remains strictly post-battle.
+
+Fan-created educational prototype; not affiliated with Nintendo, Game Freak or The Pokémon Company. Pokémon sprites are fetched from an external open source collection, with procedural fallback.
