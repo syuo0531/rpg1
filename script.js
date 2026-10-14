@@ -350,7 +350,43 @@ function weakList(){return questions.filter(isWeak);}
 function studyYears(){const ys=[...new Set([...questions.map(q=>normalizeYear(q.year)),...(state.manualWeak||[]).map(m=>normalizeYear(m.year))].filter(Boolean))];return ys.sort((a,b)=>Number(b)-Number(a)||b.localeCompare(a,'ja'));}
 function masteryCheck(q,h,correct){if(!correct)return false;const mastery=h.seen>=3&&h.correct/h.seen>=.8&&h.lastCorrect===true;if(mastery){state.reviews=state.reviews.filter(id=>id!==q.id);state.manualWeak=(state.manualWeak||[]).filter(m=>!matchesManual(q,m));}return mastery;}
 function currentPracticePool(){if(studyFilter==='review')return weakList();return questions;}
-function normalQ(q,i){
+function asAnswerIndices(q,choices){
+ let indices=q.correctAnswers||q.correct_answers||null;
+ if(typeof indices==='string')indices=indices.split(/[,\s|、]+/).filter(Boolean).map(Number);
+ if(!Array.isArray(indices)){const raw=q.correct??q.answer??q.correct_index??0;let value=typeof raw==='string'&&/^\d+$/.test(raw.trim())?Number(raw):typeof raw==='string'?choices.indexOf(raw):raw;indices=[value];}
+ return [...new Set(indices.map(Number))].filter(i=>Number.isInteger(i)&&i>=0&&i<choices.length);
+}
+function parseSportsRows(rows,forcedYear='',forcedPart='基礎'){
+ const groups=new Map();
+ for(const [i,row] of rows.entries()){
+  const raw=String(row.front||'').trim(),br=raw.match(/【\s*問\s*([0-9０-９]+)\s*[：:]\s*([\s\S]*?)】/);
+  const n=normalizeNumber(row.q_num||row.number||br?.[1]||''),stem=br?br[2].trim():raw.split(/\r?\n/)[0].trim();
+  const choiceLabel=String(row.choice||'').trim().toLowerCase(),answerText=(br?raw.slice(raw.indexOf(br[0])+br[0].length):raw).replace(/^\s*[a-eａ-ｅ]\s*[.．、:：]\s*/i,'').trim();
+  if(!n||!stem||!choiceLabel||!answerText)continue;
+  const year=normalizeYear(row.year)||forcedYear,part=normalizePart(row.exam_type||row.examType||row.part||forcedPart);
+  const key=year+'|'+part+'|'+n+'|'+stem;
+  if(!groups.has(key))groups.set(key,[]);
+  groups.get(key).push({label:choiceLabel,body:answerText,back:String(row.back||''),value:String(row.is_correct||'').trim().toLowerCase(),year,part,n,stem,subject:row.subject||'AT試験',difficulty:row.difficulty||1,rowNum:i});
+ }
+ const result=[];
+ for(const group of groups.values()){
+  group.sort((a,b)=>a.label.localeCompare(b.label,'en')||a.rowNum-b.rowNum);
+  const sample=group[0],negative=/誤って|誤り|正しくない|不適切|適切でない|間違って|間違い/.test(sample.stem);
+  const truths=group.map(row=>{
+   if(['1','true','yes','y','○','〇','正しい','正'].includes(row.value))return true;
+   if(['0','false','no','n','×','✗','誤り','誤'].includes(row.value))return false;
+   if(/【\s*正しい\s*】/.test(row.back))return true;
+   if(/【\s*誤り\s*】/.test(row.back))return false;
+   return null;
+  });
+  if(truths.some(v=>v===null))continue;
+  const correctAnswers=truths.map((v,i)=>(negative?!v:v)?i:-1).filter(i=>i>=0);
+  if(!correctAnswers.length)continue;
+  result.push({question:sample.stem,choices:group.map(g=>g.body),correctAnswers,explanation:group.map(g=>g.label+'：'+g.back).join(' / '),subject:sample.subject,year:sample.year,part:sample.part,number:sample.n,difficulty:sample.difficulty});
+ }
+ return result;
+}
+function normalQ(q,i){if(!q||!q.question)return null;let choices=q.choices??q.options??q.selections;if(typeof choices==='string'){try{choices=JSON.parse(choices)}catch{choices=choices.split('|').map(x=>x.trim())}}if(!Array.isArray(choices)||choices.length<2)return null;const correctAnswers=asAnswerIndices(q,choices);if(!correctAnswers.length)return null;const year=normalizeYear(q.year??q.exam_year??q.年度),part=normalizePart(q.part??q.section??q.exam_part??q.exam_type??q.examType??q.区分),number=normalizeNumber(q.number??q.qNum??q.q_num??q.question_number??q.questionNo??q.no??q.問題番号);const id=String(q.id||((year&&number)?'yr-'+year+'-'+part+'-'+number:'import-'+i+'-'+String(q.question).slice(0,18)));return {id,question:String(q.question),choices:choices.map(String),correct:correctAnswers[0],correctAnswers,selectCount:correctAnswers.length,explanation:String(q.explanation||q.commentary||''),subject:String(q.subject||q.科目||'追加問題'),year,part,number,difficulty:q.difficulty||1,image:String(q.image||'').startsWith('data:image/')?String(q.image):''};}
  if(!q||!q.question)return null;
  let choices=q.choices??q.options??q.selections;
  if(typeof choices==='string'){try{choices=JSON.parse(choices);}catch{choices=choices.split('|').map(v=>v.trim());}}
@@ -477,8 +513,8 @@ async function importQuestionFiles(files){
  let added=0,duplicates=0,invalid=0;
  try{
  for(const file of Array.from(files)){
-  const content=await file.text();let raw=file.name.toLowerCase().endsWith('.json')?JSON.parse(content):parseCSV(content);
-  if(!Array.isArray(raw))raw=raw.questions||[];
+  const content=await file.text();let raw=file.name.toLowerCase().endsWith('.json')?JSON.parse(content):parseCSV(content.replace(/^\\uFEFF/,''));
+  if(!Array.isArray(raw))raw=raw.questions||[];if(raw.length&&raw[0].front&&raw[0].choice)raw=parseSportsRows(raw,yr,part);
   if(!Array.isArray(raw))throw Error('問題配列を読み取れません');
   const seen=new Set(questions.map(q=>q.id));
   raw.forEach((entry,i)=>{
