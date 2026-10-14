@@ -9,3 +9,21 @@ GitHub Pages game; keep the `studySurvivor.v1` localStorage save key and existin
 - **Gym leader rematches**: after 8 badges, eight stronger multi-boss challenges, with guaranteed R-or-SR technical machine reward, extra Ultra Balls and a rare Master Ball bonus. First clears/repeats saved independently from original 8 gym badges.
 
 All progress saved in existing localStorage state. Study, quizzes, 151 Pokémon, normal gacha, shines, gacha ball animations, gym progression, dungeon capture, custom learned TMs, switching and icon metadata preserved.
+
+## v10 — RPG14形式の勉強・試験システム（2026-10-14）
+
+「勉強」タブ内に **問題演習／苦手問題／試験モード** を追加。既存の `studySurvivor.v1` セーブデータを引き継ぎます。第2世代ポケモン追加は未実施です。
+
+- **通常演習**: 未回答・苦手問題を優先。正解5問でガチャ券1枚。間違えた問題は復習に登録。問題への画像添付も可能（ブラウザ内に保存）。
+- **苦手指定**: 年度・基礎／応用・問題番号を手動指定。 `1,3,8-12` のように範囲登録可。対応するCSVが未登録でも指定内容を保持し、年度ごとの一覧に表示。履歴が3回以上・正答率80%以上・直近正解で自動解除。任意の習得済み指定／解除も可能。
+- **模試3種類**: ランダム模試（最大110問）、苦手模試（最大110問）、本番モード（年度／区分の全問題を問題番号順で出題）。**110問未満でも登録問題数を分母とする100%採点**。試験中は解答・解説を非表示とし、終了後に点数・正答率・解説を表示。試験の進行状況はlocalStorageに自動保存。
+- **問題CSV／JSONの追加**: 複数ファイルを同時選択可能。年度・基礎／応用区分を取り込み時に指定できます。通常の `question,choices,correct,explanation,subject,year,part,number` 形式と、旧RPG14/Sports形式の `front,back,choice,is_correct,q_num,exam_type,subject,year`（選択肢ごとに1行）を受け付けます。 `2つ選べ` などの複数正解問題にも対応。
+
+## 操作方法
+
+1. 「勉強」タブを開く。
+2. 「問題演習」「苦手問題」「試験モード」を上部で切り替える。
+3. 苦手登録は年度・区分・番号を入力して「指定する」。登録した年度が一覧に残ります。
+4. 試験モードでは形式・年度・区分を選んで受験。最後に採点し、不正解は復習リストへ登録されます。
+
+※問題は端末のlocalStorage内に保存します。容量の大きな画像を大量に添付する場合、ブラウザの保存上限に注意してください。
