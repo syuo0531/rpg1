@@ -409,9 +409,118 @@ function examPanel(){
 function study(){
  return `${heading('STUDY / EXAM ENGINE','勉強・試験・苦手管理','未回答・苦手を優先して学習。試験の採点結果も育成に反映。')}<div class="study-nav">${[['practice','問題演習'],['weak','苦手問題'],['exam','試験モード']].map(([p,label])=>`<button class="${studyView===p?'active':''}" data-act="studyTab:${p}">${label}</button>`).join('')}</div>${studyView==='weak'?weakPanel():studyView==='exam'?examPanel():practicePanel()}`;
 }
-function answer(i){if(answered||!currentQ)return;answered=true;selectedAnswer=i;answerGood=i===currentQ.correct;state.studied++;let h=state.history[currentQ.id]||{seen:0,correct:0};h.seen++;if(answerGood){h.correct++;state.correct++;state.combo++;state.best=Math.max(state.combo,state.best);state.credit++;if(state.reviews.includes(currentQ.id))state.reviews=state.reviews.filter(id=>id!==currentQ.id);if(state.credit>=5){state.credit-=5;state.tickets++;notify('◈ GACHA TICKET +1！')}else notify(`正解！ あと${5-state.credit}問でガチャ`);}else{state.combo=0;if(!state.reviews.includes(currentQ.id))state.reviews.push(currentQ.id);}state.history[currentQ.id]=h;save();render()}
+function addManualWeak(){
+ const year=normalizeYear(manualYear),part=normalizePart(manualPart),raw=manualNumbers.trim();
+ if(!year||!raw)return notify('年度と問題番号を入力してください');
+ const nums=new Set();
+ for(const token of raw.split(/[,\s，、]+/).filter(Boolean)){
+  const m=token.match(/^(\d+)\s*[-〜~]\s*(\d+)$/);
+  if(m){let a=+m[1],b=+m[2];if(b<a||b-a>150)return notify('番号の範囲が大きすぎます');for(let n=a;n<=b;n++)nums.add(String(n));}
+  else{let n=normalizeNumber(token);if(!n)return notify('問題番号を確認してください');nums.add(n);}
+ }
+ if(nums.size>250)return notify('一度に登録できるのは250問までです');
+ let added=0;state.manualWeak??=[];
+ for(const number of nums){let entry={year,part,number};if(!state.manualWeak.some(m=>questionKey(m)===questionKey(entry))){state.manualWeak.push(entry);added++;}}
+ save();render();notify(`${year}年度 ${added}件を苦手リストに追加しました`);
+}
+function weakCurrentToggle(){
+ const q=currentQ;if(!q)return;
+ if(q.year&&q.number){const m={year:q.year,part:q.part,number:q.number};if(isManualWeak(q)){state.manualWeak=state.manualWeak.filter(x=>!matchesManual(q,x));notify('手動苦手指定を解除しました');}
+ else {state.manualWeak.push(m);notify('苦手問題に登録しました');}}
+ else{if(state.reviews.includes(q.id)){state.reviews=state.reviews.filter(id=>id!==q.id);notify('苦手指定を解除しました');}
+ else {state.reviews.push(q.id);notify('苦手問題に登録しました');}}
+ save();render();
+}
+function removeWeakKey(raw){let key='';try{key=decodeURIComponent(raw);}catch{key=raw;}
+ state.manualWeak=(state.manualWeak||[]).filter(m=>questionKey(m)!==key);
+ save();render();notify('苦手指定を解除しました');
+}
+function markWeakMastered(raw){let id='';try{id=decodeURIComponent(raw);}catch{id=raw;}
+ const q=questions.find(q=>q.id===id);
+ if(!q)return;
+ state.manualWeak=(state.manualWeak||[]).filter(m=>!matchesManual(q,m));
+ state.reviews=state.reviews.filter(x=>x!==id);
+ save();render();notify('習得済みとして苦手リストから整理しました');
+}
+function beginExam(){
+ const mode=examSettings.mode;
+ let year=examSettings.year,part=examSettings.part;
+ if(mode==='real'&&year==='all'){year=studyYears()[0]||'';if(!year)return notify('本番モードには年度付き問題が必要です。CSV追加時に年度を指定してください');}
+ let list=questions.filter(q=>(year==='all'||normalizeYear(q.year)===year)&&(part==='all'||normalizePart(q.part)===part));
+ if(mode==='weak')list=list.filter(isWeak);
+ if(!list.length)return notify('条件に一致する問題がありません。年度・区分や苦手リストを確認してください');
+ if(mode==='real')list=list.sort((a,b)=>{const aa=Number(a.number||99999),bb=Number(b.number||99999);return aa-bb||a.id.localeCompare(b.id);});
+ else{list=list.slice();for(let i=list.length-1;i>0;i--){const j=rand(i+1);[list[i],list[j]]=[list[j],list[i]];}list=list.slice(0,110);}
+ state.examDraft={mode,year,part,ids:list.map(q=>q.id),answers:Array(list.length).fill(null),index:0,startedAt:new Date().toISOString()};
+ examResult=null;save();render();notify(`${list.length}問の試験を開始！`);
+}
+function pickExamAnswer(index){const ex=state.examDraft;if(!ex||index<0)return;const q=questions.find(x=>x.id===ex.ids[ex.index]);if(!q||index>=q.choices.length)return;ex.answers[ex.index]=index;save();render();}
+function moveExamQuestion(step){const ex=state.examDraft;if(!ex)return;ex.index=clamp(ex.index+step,0,ex.ids.length-1);save();render();}
+function confirmExamFinish(){const ex=state.examDraft;if(!ex)return;const unanswered=ex.answers.filter(x=>x===null).length;modal(`<h2>試験を終了しますか？</h2><p>回答 ${ex.ids.length-unanswered}/${ex.ids.length}問。未回答${unanswered}問は不正解として採点します。</p>${button('終了して採点','examSubmit','btn gold wide')}${button('試験へ戻る','closeModal','btn secondary wide')}`);}
+function submitExam(){
+ const ex=state.examDraft;if(!ex)return;
+ let correct=0,unanswered=0;
+ const items=ex.ids.map((id,i)=>{const q=questions.find(q=>q.id===id);const a=ex.answers[i];const valid=Number.isInteger(a),good=!!(q&&valid&&a===q.correct);if(!valid)unanswered++;if(good)correct++;
+ if(q){if(valid){state.studied++;let h=state.history[id]||{seen:0,correct:0};h.seen++;if(good){h.correct++;state.correct++;}h.lastCorrect=good;state.history[id]=h;if(good)masteryCheck(q,h,true);}
+ if(!good&&!state.reviews.includes(id))state.reviews.push(id);}
+ return {question:q,answer:a,correct:good};}).filter(x=>x.question);
+ const tickets=Math.floor((state.credit+correct)/5);state.credit=(state.credit+correct)%5;state.tickets+=tickets;
+ const total=ex.ids.length,percent=Math.round(correct/total*100);
+ examResult={mode:ex.mode,year:ex.year,part:ex.part,total,correct,percent,unanswered,tickets,items};
+ state.examHistory??=[];state.examHistory.unshift({date:new Date().toLocaleDateString('ja-JP'),mode:ex.mode,year:ex.year,part:ex.part,total,correct,percent});
+ state.examHistory=state.examHistory.slice(0,30);state.examDraft=null;state.combo=0;
+ save();$('modal').hidden=true;studyView='exam';render();notify(`試験結果 ${correct}/${total}点！`);
+}
+async function importQuestionFiles(files){
+ if(!files?.length)return;
+ const yr=normalizeYear(importYear),part=normalizePart(importPart);
+ let added=0,duplicates=0,invalid=0;
+ try{
+ for(const file of Array.from(files)){
+  const content=await file.text();let raw=file.name.toLowerCase().endsWith('.json')?JSON.parse(content):parseCSV(content);
+  if(!Array.isArray(raw))raw=raw.questions||[];
+  if(!Array.isArray(raw))throw Error('問題配列を読み取れません');
+  const seen=new Set(questions.map(q=>q.id));
+  raw.forEach((entry,i)=>{
+   const src={...entry},rawYear=normalizeYear(src.year??src.exam_year??src.年度);
+   if(!rawYear&&yr)src.year=yr;
+   if(!(src.part||src.section||src.exam_part||src.区分))src.part=part;
+   if(!(src.number||src.question_number||src.questionNo||src.no||src.問題番号)&&src.year)src.number=i+1;
+   const q=normalQ(src,i);
+   if(!q){invalid++;return;}
+   if(seen.has(q.id)){duplicates++;return;}
+   seen.add(q.id);questions.push(q);state.questionAdditions.push(q);added++;
+  });
+ }
+ save();nextQuestion();render();notify(`${added}問を追加（重複${duplicates}問・無効${invalid}問）`);
+ }catch(e){save();nextQuestion();render();notify('CSV/JSONを読み込めません：'+e.message);}
+}
+async function importQuestionImage(file){
+ if(!file||!currentQ)return;
+ if(!file.type.startsWith('image/'))return notify('画像ファイルを選択してください');
+ if(file.size>5*1024*1024)return notify('画像は5MB以下にしてください');
+ try{
+  const url=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});
+  const img=new Image();
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+  const ratio=Math.min(1,800/Math.max(img.naturalWidth,img.naturalHeight)),canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  state.questionImages??={};state.questionImages[currentQ.id]=canvas.toDataURL('image/jpeg',.72);save();render();notify('問題画像を保存しました');
+ }catch(e){notify('画像を登録できません：'+e.message);}
+}
+function answer(i){
+ if(answered||!currentQ)return;answered=true;selectedAnswer=i;answerGood=i===currentQ.correct;
+ state.studied++;let h=state.history[currentQ.id]||{seen:0,correct:0};h.seen++;h.lastCorrect=answerGood;
+ if(answerGood){h.correct++;state.correct++;state.combo++;state.best=Math.max(state.combo,state.best);state.credit++;
+ if(masteryCheck(currentQ,h,true))notify('習得済み！ 苦手リストから解除');
+ if(state.credit>=5){const qty=Math.floor(state.credit/5);state.credit%=5;state.tickets+=qty;notify('◈ GACHA TICKET +'+qty+'！');}
+ else notify(`正解！ あと${5-state.credit}問でガチャ`);}
+ else{state.combo=0;if(!state.reviews.includes(currentQ.id))state.reviews.push(currentQ.id);}
+ state.history[currentQ.id]=h;save();render();
+}
 function parseCSV(s){let rows=[],row=[],cur='',quote=false;for(let i=0;i<s.length;i++){let c=s[i];if(c==='"'){if(quote&&s[i+1]==='"'){cur+='"';i++}else quote=!quote}else if(c===','&&!quote){row.push(cur);cur=''}else if((c==='\n'||c==='\r')&&!quote){if(c==='\r'&&s[i+1]==='\n')i++;row.push(cur);if(row.some(v=>v.trim()))rows.push(row);row=[];cur=''}else cur+=c;}row.push(cur);if(row.some(v=>v.trim()))rows.push(row);let cols=rows.shift()?.map(x=>x.trim().toLowerCase())||[];return rows.map(r=>Object.fromEntries(cols.map((k,i)=>[k,r[i]||''])))}
-async function questionImport(file){try{let s=await file.text(),raw=file.name.toLowerCase().endsWith('.json')?JSON.parse(s):parseCSV(s);if(!Array.isArray(raw))raw=raw.questions||[];let newQ=raw.map(normalQ).filter(Boolean);if(!newQ.length)throw new Error('有効な問題がありません');let seen=new Set(questions.map(q=>q.id));let n=0;for(const q of newQ){if(seen.has(q.id))continue;seen.add(q.id);questions.push(q);state.questionAdditions.push(q);n++}save();notify(`${n}問を追加しました`);nextQuestion();render()}catch(e){notify('問題を読み込めません：'+e.message)}}
+async function questionImport(files){return importQuestionFiles(files);}
 const DROPS=[['N',72],['U',20],['R',6],['SR',1.6],['LG',.4]];
 function roll(){let v=Math.random()*100;for(const [r,p] of DROPS){v-=p;if(v<0)return r;}return 'N';}
 // One ticket = one Pokémon. Pity counters are counted per pull, not per card.
