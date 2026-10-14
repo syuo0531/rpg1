@@ -387,19 +387,7 @@ function parseSportsRows(rows,forcedYear='',forcedPart='基礎'){
  return result;
 }
 function normalQ(q,i){if(!q||!q.question)return null;let choices=q.choices??q.options??q.selections;if(typeof choices==='string'){try{choices=JSON.parse(choices)}catch{choices=choices.split('|').map(x=>x.trim())}}if(!Array.isArray(choices)||choices.length<2)return null;const correctAnswers=asAnswerIndices(q,choices);if(!correctAnswers.length)return null;const year=normalizeYear(q.year??q.exam_year??q.年度),part=normalizePart(q.part??q.section??q.exam_part??q.exam_type??q.examType??q.区分),number=normalizeNumber(q.number??q.qNum??q.q_num??q.question_number??q.questionNo??q.no??q.問題番号);const id=String(q.id||((year&&number)?'yr-'+year+'-'+part+'-'+number:'import-'+i+'-'+String(q.question).slice(0,18)));return {id,question:String(q.question),choices:choices.map(String),correct:correctAnswers[0],correctAnswers,selectCount:correctAnswers.length,explanation:String(q.explanation||q.commentary||''),subject:String(q.subject||q.科目||'追加問題'),year,part,number,difficulty:q.difficulty||1,image:String(q.image||'').startsWith('data:image/')?String(q.image):''};}
- if(!q||!q.question)return null;
- let choices=q.choices??q.options??q.selections;
- if(typeof choices==='string'){try{choices=JSON.parse(choices);}catch{choices=choices.split('|').map(v=>v.trim());}}
- if(!Array.isArray(choices)||choices.length<2)return null;
- let correct=q.correct??q.answer??q.correct_index??0;
- if(typeof correct==='string'&&/^\d+$/.test(correct.trim()))correct=Number(correct);
- else if(typeof correct==='string')correct=choices.indexOf(correct);
- if(!Number.isInteger(correct)||correct<0||correct>=choices.length)return null;
- const year=normalizeYear(q.year??q.exam_year??q.年度),part=normalizePart(q.part??q.section??q.exam_part??q.区分);
- const number=normalizeNumber(q.number??q.question_number??q.questionNo??q.no??q.問題番号);
- const id=String(q.id||((year&&number)?`yr-${year}-${part}-${number}`:`import-${i}-${String(q.question).slice(0,18)}`));
- return {id,question:String(q.question),choices:choices.map(String),correct,explanation:String(q.explanation||q.commentary||''),subject:String(q.subject||q.科目||'追加問題'),year,part,number,difficulty:q.difficulty||1,image:(String(q.image||'').startsWith('data:image/'))?String(q.image):''};
-}
+
 function nextQuestion(){
  const list=currentPracticePool();if(!list.length){currentQ=null;answered=false;return;}
  const weights=list.map(q=>isWeak(q)?8:!state.history[q.id]?7:1);
