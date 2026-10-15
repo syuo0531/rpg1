@@ -422,7 +422,7 @@ function practiceLookupPanel(){
  <p class="sub">年度と問番号を指定して、その問題をすぐに開けます。R3・令和3年・2021は同じ年度です。</p>
  <div class="practice-lookup-fields"><label>年度<input id="practiceLookupYear" type="text" list="practiceLookupYears" inputmode="text" autocomplete="off" placeholder="例：2021 / R3" value="${escapeHTML(practiceLookupYear)}"><datalist id="practiceLookupYears">${options}</datalist></label><label>基礎・応用<select id="practiceLookupPart"><option value="all" ${practiceLookupPart==='all'?'selected':''}>両方から探す</option><option value="基礎" ${practiceLookupPart==='基礎'?'selected':''}>基礎</option><option value="応用" ${practiceLookupPart==='応用'?'selected':''}>応用</option><option value="共通" ${practiceLookupPart==='共通'?'selected':''}>共通</option></select></label><label>問題番号<input id="practiceLookupNumber" type="text" inputmode="numeric" autocomplete="off" placeholder="例：105" value="${escapeHTML(practiceLookupNumber)}"></label>${button('問題を表示 →','practiceLookupGo','btn gold practice-lookup-go')}</div>
  ${practiceLookupNote?`<p class="practice-lookup-note" role="status">${escapeHTML(practiceLookupNote)}</p>`:''}
- ${hits.length>1?`<div class="practice-lookup-results"><p class="sub">同じ年度・番号に${hits.length}問あります。開きたい問題を選んでください。</p>${hits.map(q=>button(studyQuestionLabel(q)+' — '+q.question.slice(0,60),'practiceLookupOpen:'+encodeURIComponent(q.id),'btn secondary practice-lookup-result')).join('')}</div>`:''}
+ ${hits.length>1?`<div class="practice-lookup-results"><p class="sub">同じ年度・番号に${hits.length}問あります。開きたい問題を選んでください。</p>${hits.map(q=>button(studyQuestionLabel(q)+' — '+escapeHTML(q.question.slice(0,60)),'practiceLookupOpen:'+encodeURIComponent(q.id),'btn secondary practice-lookup-result')).join('')}</div>`:''}
  </section>`;
 }
 function openPracticeLookupQuestion(id){
