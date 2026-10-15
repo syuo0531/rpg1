@@ -703,3 +703,46 @@ img[data-shiny="1"][data-fallback="1"]{filter:hue-rotate(110deg) saturate(1.7) d
   .study-screen .qb-row {align-items:stretch;flex-direction:column}
   .study-screen .qb-row .btn {align-self:flex-end}
 }
+
+
+/* v14: Direct question navigation, limited to the study screen. */
+.study-screen .practice-lookup {margin:12px 0 18px;padding:20px}
+.study-screen .practice-lookup h2 {margin:6px 0 4px;font-size:clamp(18px,2vw,22px)}
+.study-screen .practice-lookup .row.spread {align-items:center;gap:10px}
+.study-screen .practice-lookup-fields {
+ display:grid;grid-template-columns:minmax(145px,1fr) minmax(160px,1fr) minmax(95px,.6fr) auto;
+ gap:10px;align-items:end;margin-top:14px;
+}
+.study-screen .practice-lookup-fields label {display:flex;flex-direction:column;gap:6px;min-width:0;font-weight:850;font-size:12px;color:#264c59}
+.study-screen .practice-lookup-fields input,.study-screen .practice-lookup-fields select {
+ width:100%;min-width:0;min-height:47px;padding:10px;
+ border:2px solid #90b3a7;border-radius:10px;
+ background:#fffefa;color:#173743;font-size:15px;
+}
+.study-screen .practice-lookup-fields input::placeholder {color:#617c80;opacity:1}
+.study-screen .practice-lookup-go {min-height:47px;white-space:nowrap}
+.study-screen .practice-lookup-note {
+ border-radius:9px;border:1px solid #9abdb0;background:#e1f0e8;
+ padding:10px 12px;color:#204d57;font-weight:750;font-size:13px;line-height:1.6;margin:14px 0 0;
+}
+.study-screen .practice-lookup-results {display:grid;gap:8px;margin:12px 0 2px}
+.study-screen .practice-lookup-results .sub {margin:3px 0}
+.study-screen .btn.practice-lookup-result {
+ height:auto;min-height:48px;white-space:normal;text-align:left;
+ overflow-wrap:anywhere;line-height:1.5;padding:10px 12px;
+}
+#practiceQuestion {scroll-margin-top:18px}
+@media(max-width:780px){
+ .study-screen .practice-lookup-fields {grid-template-columns:repeat(2,minmax(0,1fr))}
+ .study-screen .practice-lookup-fields label:nth-child(3) {grid-column:1 / 2}
+ .study-screen .practice-lookup-go {width:100%}
+}
+@media(max-width:480px){
+ .study-screen .practice-lookup {padding:15px 12px}
+ .study-screen .practice-lookup-fields {gap:9px;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .study-screen .practice-lookup-fields label:nth-child(1) {grid-column:1}
+ .study-screen .practice-lookup-fields label:nth-child(2) {grid-column:2}
+ .study-screen .practice-lookup-fields label:nth-child(3) {grid-column:1/-1}
+ .study-screen .practice-lookup-go {grid-column:1/-1}
+ .study-screen .practice-lookup .pill {font-size:10px}
+}
